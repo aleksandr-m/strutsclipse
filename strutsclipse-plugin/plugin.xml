@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+/*
+ * Copyright 2015 Aleksandr Mashchenko.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+-->
+<?eclipse version="3.4"?>
+<plugin>
+    <extension
+        point="org.eclipse.wst.sse.ui.completionProposal">
+        <proposalCategory
+            id="com.amashchenko.eclipse.strutsclipse.completionProposal"
+            name="Struts XML Proposals">
+        </proposalCategory>
+
+        <proposalComputer
+            activate="true"
+            categoryId="com.amashchenko.eclipse.strutsclipse.completionProposal"
+            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlCompletionProposalComputer"
+            id="com.amashchenko.eclipse.strutsclipse.proposalComputer">
+            <contentType id="org.eclipse.core.runtime.xml"/>
+        </proposalComputer>
+    </extension>
+
+    <extension point="org.eclipse.wst.sse.ui.editorConfiguration">
+        <quickOutlineConfiguration
+            target="org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart"
+            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlQuickOutlineConf">
+        </quickOutlineConfiguration>
+    </extension>
+
+    <extension
+        point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+        <hyperlinkDetector
+            activate="true"
+            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlHyperlinkDetector"
+            id="com.amashchenko.eclipse.strutsclipse.hyperlinkDetector"
+            name="Struts XML"
+            targetId="org.eclipse.core.runtime.xml">
+        </hyperlinkDetector>
+    </extension>
+</plugin>

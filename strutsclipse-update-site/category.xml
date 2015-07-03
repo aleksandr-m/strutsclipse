@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <feature url="features/com.amashchenko.eclipse.strutsclipse.feature_1.0.0.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.feature" version="1.0.0.qualifier">
+      <category name="com.amashchenko.eclipse.strutsclipse"/>
+   </feature>
+   <category-def name="com.amashchenko.eclipse.strutsclipse" label="StrutsClipse">
+      <description>
+         Support for Struts2 (https://struts.apache.org/).
+      </description>
+   </category-def>
+</site>
