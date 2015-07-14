@@ -1,0 +1,57 @@
+body {
+    padding-bottom: 20px;
+    position: relative;
+}
+footer {
+    color: #555;
+}
+.jumbotron {
+    background-color: #477FC1;
+    background-image: -webkit-gradient(linear, left top, right top, from(#a3c8f8), to(#242e2e));
+    background-image: -webkit-linear-gradient(left, #a3c8f8, #242e2e);
+    background-image: -moz-linear-gradient(left, #a3c8f8, #242e2e);
+    background-image: -o-linear-gradient(left, #a3c8f8, #242e2e);
+    background-image: linear-gradient(to right, #a3c8f8, #242e2e);
+
+    color: #000;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+
+.space-top {
+    margin-top: 30px;
+}
+
+.nav-sub {
+    list-style: outside none none;
+    padding-left: 0px;
+}
+.nav-sub > li > a {
+    text-decoration: none;
+    padding-left: 40px;
+    display: block;
+}
+.nav-sub > li > a:hover, .nav-sub > li > a:focus {
+    background-color: #eeeeee;
+}
+.nav > .active > a {
+    padding-left: 13px;
+}
+.nav-sub > .active > a {
+    padding-left: 38px;
+}
+.nav > .active > a, .nav-sub > .active > a {
+    border-left: 2px solid #242e2e;
+}
+
+#scroll-navbar .affix {
+    top: 20px;
+}
+#scroll-navbar-nav {
+    max-width: 210px;
+}
+.back-to-top {
+    display: block;
+    margin-left: 15px;
+    margin-top: 20px;
+}
