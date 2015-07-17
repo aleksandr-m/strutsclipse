@@ -5,7 +5,7 @@
       version="1.0.1.qualifier"
       provider-name="Aleksandr Mashchenko">
 
-   <description>
+   <description url="https://aleksandr-m.github.io/strutsclipse/">
       This feature provides support for Struts2 (https://struts.apache.org/).
    </description>
 
@@ -216,6 +216,10 @@
    See the License for the specific language governing permissions and
    limitations under the License.
    </license>
+
+   <url>
+      <update label="StrutsClipse repository" url="https://github.com/aleksandr-m/strutsclipse/raw/master/update/"/>
+   </url>
 
    <plugin
          id="com.amashchenko.eclipse.strutsclipse.plugin"
