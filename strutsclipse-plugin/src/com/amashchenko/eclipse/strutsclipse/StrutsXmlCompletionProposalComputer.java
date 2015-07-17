@@ -121,8 +121,8 @@ public class StrutsXmlCompletionProposalComputer implements
 					IType itype = javaProject.findType(fullClassName);
 
 					if (itype != null) {
-						// FIXME older eclipses don't have jls8
-						ASTParser parser = ASTParser.newParser(AST.JLS8);
+						// support older eclipses
+						ASTParser parser = ASTParser.newParser(AST.JLS3);
 						parser.setSource(itype.getCompilationUnit());
 						parser.setKind(ASTParser.K_COMPILATION_UNIT);
 
