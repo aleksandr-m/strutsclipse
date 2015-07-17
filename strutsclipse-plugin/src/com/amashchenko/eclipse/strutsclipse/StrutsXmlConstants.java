@@ -31,6 +31,14 @@ public class StrutsXmlConstants {
 	public static final String EXTENDS_ATTR = "extends";
 	public static final String NAMESPACE_ATTR = "namespace";
 
+	public static final String[][] DEFAULT_PACKAGE_NAMES = {
+			{ "struts-default", null }, { "json-default", null },
+			{ "tiles-default", null }, { "rest-default", null },
+			{ "convention-default", null }, { "jasperreports-default", null },
+			{ "struts-portlet-default", null },
+			{ "struts-portlet-tiles-default", null }, { "osgi-default", null },
+			{ "oval-default", null } };
+
 	public static final String[][] DEFAULT_METHODS = { { "execute", null },
 			{ "input", null } };
 	public static final String[][] DEFAULT_RESULT_NAMES = {

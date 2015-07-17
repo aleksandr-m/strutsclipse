@@ -59,7 +59,12 @@ public class StrutsXmlCompletionProposalComputer implements
 			proposalRegion = tagRegion.getCurrentAttr().getValueRegion();
 			valuePrefix = tagRegion.getCurrentAttrValuePrefix();
 
-			if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
+			if (StrutsXmlConstants.PACKAGE_TAG.equalsIgnoreCase(tagRegion
+					.getName())) {
+				if (StrutsXmlConstants.EXTENDS_ATTR.equalsIgnoreCase(attrName)) {
+					proposals = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES;
+				}
+			} else if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
 				if (StrutsXmlConstants.NAME_ATTR.equalsIgnoreCase(attrName)
 						|| StrutsXmlConstants.METHOD_ATTR

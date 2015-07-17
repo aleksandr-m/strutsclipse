@@ -15,9 +15,7 @@
  */
 package com.amashchenko.eclipse.strutsclipse;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -32,56 +30,43 @@ import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.Token;
 
 public class StrutsXmlParser {
+	private static final String[] TAGS = { StrutsXmlConstants.PACKAGE_TAG,
+			StrutsXmlConstants.ACTION_TAG, StrutsXmlConstants.RESULT_TAG };
+
+	private static final String[] ATTRS = { StrutsXmlConstants.EXTENDS_ATTR,
+			StrutsXmlConstants.NAME_ATTR, StrutsXmlConstants.TYPE_ATTR,
+			StrutsXmlConstants.METHOD_ATTR, StrutsXmlConstants.CLASS_ATTR };
+
 	public static TagRegion getTagRegion(final IDocument document,
 			final int offset) {
 		IDocumentPartitioner partitioner = null;
 		TagRegion result = null;
 		try {
-			Token actionToken = new Token(StrutsXmlConstants.ACTION_TAG);
-			Token resultToken = new Token(StrutsXmlConstants.RESULT_TAG);
-			IPredicateRule actionRule = new MultiLineRule("<"
-					+ StrutsXmlConstants.ACTION_TAG, ">", actionToken);
-			IPredicateRule resultRule = new MultiLineRule("<"
-					+ StrutsXmlConstants.RESULT_TAG, ">", resultToken);
+			IPredicateRule[] tagRules = new IPredicateRule[TAGS.length];
+			for (int i = 0; i < TAGS.length; i++) {
+				tagRules[i] = new MultiLineRule("<" + TAGS[i], ">", new Token(
+						TAGS[i]));
+			}
 
 			RuleBasedPartitionScanner scanner = new RuleBasedPartitionScanner();
-			scanner.setPredicateRules(new IPredicateRule[] { actionRule,
-					resultRule });
+			scanner.setPredicateRules(tagRules);
 
-			partitioner = new FastPartitioner(scanner, new String[] {
-					StrutsXmlConstants.ACTION_TAG,
-					StrutsXmlConstants.RESULT_TAG });
+			partitioner = new FastPartitioner(scanner, TAGS);
 
 			partitioner.connect(document);
 
 			ITypedRegion tagRegion = partitioner.getPartition(offset);
 
-			if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
-					.getType())
-					|| StrutsXmlConstants.RESULT_TAG.equalsIgnoreCase(tagRegion
-							.getType())) {
-				List<String> legalContentTypes = new ArrayList<String>();
-				legalContentTypes.add(StrutsXmlConstants.NAME_ATTR);
-				legalContentTypes.add(StrutsXmlConstants.TYPE_ATTR);
-				legalContentTypes.add(StrutsXmlConstants.METHOD_ATTR);
-				legalContentTypes.add(StrutsXmlConstants.CLASS_ATTR);
-
-				IPredicateRule[] rules = new IPredicateRule[legalContentTypes
-						.size()];
-
-				for (int i = 0; i < legalContentTypes.size(); i++) {
-					Token token = new Token(legalContentTypes.get(i));
-					IPredicateRule rule = new PatternRule(
-							legalContentTypes.get(i) + "=\"", "\"", token, ' ',
-							true);
-					rules[i] = rule;
+			if (arrayContains(TAGS, tagRegion.getType())) {
+				IPredicateRule[] attrRules = new IPredicateRule[ATTRS.length];
+				for (int i = 0; i < ATTRS.length; i++) {
+					attrRules[i] = new PatternRule(ATTRS[i] + "=\"", "\"",
+							new Token(ATTRS[i]), ' ', true);
 				}
 
-				scanner.setPredicateRules(rules);
+				scanner.setPredicateRules(attrRules);
 
-				partitioner = new FastPartitioner(scanner,
-						legalContentTypes.toArray(new String[legalContentTypes
-								.size()]));
+				partitioner = new FastPartitioner(scanner, ATTRS);
 
 				partitioner.connect(document);
 
@@ -95,7 +80,7 @@ public class StrutsXmlParser {
 				if (regions != null) {
 					for (ITypedRegion r : regions) {
 						// only legal types
-						if (legalContentTypes.contains(r.getType())) {
+						if (arrayContains(ATTRS, r.getType())) {
 							try {
 								String val = document.get(r.getOffset(),
 										r.getLength());
@@ -137,5 +122,14 @@ public class StrutsXmlParser {
 				partitioner.disconnect();
 			}
 		}
+	}
+
+	private static boolean arrayContains(String[] arr, String val) {
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i].equalsIgnoreCase(val)) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
