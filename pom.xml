@@ -21,7 +21,7 @@
     <artifactId>com.amashchenko.eclipse.strutsclipse.parent</artifactId>
     <packaging>pom</packaging>
     <name>strutsclipse-parent</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <description>Parent POM for strutsclipse.</description>
  
