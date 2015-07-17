@@ -61,7 +61,9 @@ public class StrutsXmlCompletionProposalComputer implements
 
 			if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
-				if (StrutsXmlConstants.METHOD_ATTR.equalsIgnoreCase(attrName)) {
+				if (StrutsXmlConstants.NAME_ATTR.equalsIgnoreCase(attrName)
+						|| StrutsXmlConstants.METHOD_ATTR
+								.equalsIgnoreCase(attrName)) {
 					final AttrRegion classAttr = tagRegion.getAttrs().get(
 							StrutsXmlConstants.CLASS_ATTR);
 
