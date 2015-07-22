@@ -51,6 +51,7 @@
         <module>strutsclipse-plugin</module>
         <module>strutsclipse-feature</module>
         <module>strutsclipse-update-site</module>
+        <module>strutsclipse-test</module>
     </modules>
 
     <repositories>
