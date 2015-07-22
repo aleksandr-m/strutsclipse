@@ -52,17 +52,22 @@ public class StrutsXmlCompletionProposalComputer implements
 
 		String[][] proposals = null;
 		IRegion proposalRegion = null;
-		String valuePrefix = null;
+		String attrValuePrefix = null;
+		String attrValue = null;
+		String multiValueSeparator = null;
 
 		if (tagRegion != null && tagRegion.getCurrentAttr() != null) {
 			final String attrName = tagRegion.getCurrentAttr().getName();
 			proposalRegion = tagRegion.getCurrentAttr().getValueRegion();
-			valuePrefix = tagRegion.getCurrentAttrValuePrefix();
+			attrValuePrefix = tagRegion.getCurrentAttrValuePrefix();
+			attrValue = tagRegion.getCurrentAttr().getValue();
 
 			if (StrutsXmlConstants.PACKAGE_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
 				if (StrutsXmlConstants.EXTENDS_ATTR.equalsIgnoreCase(attrName)) {
 					proposals = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES;
+					// extends attribute can have multiple values separated by ,
+					multiValueSeparator = ",";
 				}
 			} else if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
@@ -94,19 +99,68 @@ public class StrutsXmlCompletionProposalComputer implements
 				}
 			}
 		}
-		return createAttrCompletionProposals(proposals, valuePrefix,
-				proposalRegion);
+
+		return createAttrCompletionProposals(proposals, attrValuePrefix,
+				proposalRegion, multiValueSeparator, attrValue);
 	}
 
 	private List<ICompletionProposal> createAttrCompletionProposals(
-			String[][] proposalsData, String prefix, IRegion region) {
+			String[][] proposalsData, String prefix, IRegion region,
+			String valueSeparator, String attrvalue) {
 		List<ICompletionProposal> list = new ArrayList<ICompletionProposal>();
 		if (proposalsData != null && region != null) {
+			int replacementOffset = region.getOffset();
+			int replacementLength = region.getLength();
+
+			boolean multivalue = valueSeparator != null
+					&& attrvalue.contains(valueSeparator);
+
+			List<String> excludes = new ArrayList<String>();
+
+			if (multivalue) {
+				int startSeprIndx = prefix.lastIndexOf(valueSeparator) + 1;
+
+				String currentValue = "";
+
+				// first value in attrvalue
+				if (startSeprIndx <= 0) {
+					currentValue = attrvalue.substring(0,
+							attrvalue.indexOf(valueSeparator));
+				} else {
+					prefix = prefix.substring(startSeprIndx).trim();
+
+					int endSeprIndx = attrvalue.indexOf(valueSeparator,
+							startSeprIndx);
+					if (endSeprIndx <= 0) {
+						// last value in attrvalue
+						currentValue = attrvalue.substring(startSeprIndx);
+					} else {
+						// somewhere in the middle of attrvalue
+						currentValue = attrvalue.substring(startSeprIndx,
+								endSeprIndx);
+					}
+				}
+
+				replacementOffset = replacementOffset + startSeprIndx;
+				replacementLength = currentValue.length();
+
+				currentValue = currentValue.trim();
+
+				// exclude already defined values except current value
+				String[] valArr = attrvalue.split(valueSeparator);
+				for (String val : valArr) {
+					if (!currentValue.equalsIgnoreCase(val.trim())) {
+						excludes.add(val.trim());
+					}
+				}
+			}
+
 			for (String[] proposal : proposalsData) {
-				if (proposal[0].startsWith(prefix)) {
-					list.add(new CompletionProposal(proposal[0], region
-							.getOffset(), region.getLength(), proposal[0]
-							.length(), null, null, null, proposal[1]));
+				if (proposal[0].startsWith(prefix)
+						&& !excludes.contains(proposal[0])) {
+					list.add(new CompletionProposal(proposal[0],
+							replacementOffset, replacementLength, proposal[0]
+									.length(), null, null, null, proposal[1]));
 				}
 			}
 		}
