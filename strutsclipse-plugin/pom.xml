@@ -26,7 +26,7 @@
     <packaging>eclipse-plugin</packaging>
     <name>strutsclipse-plugin</name>
 
-    <description>StrutsClipse plugin.</description>
+    <description>StrutsClipse plugin provides Eclipse IDE integration for developing Apache Struts2 based applications.</description>
 
     <inceptionYear>2015</inceptionYear>
 
