@@ -165,7 +165,7 @@ public class StrutsXmlCompletionProposalComputer implements
 			}
 
 			for (String[] proposal : proposalsData) {
-				if (proposal[0].startsWith(prefix)
+				if (proposal[0].toLowerCase().startsWith(prefix.toLowerCase())
 						&& !excludes.contains(proposal[0])) {
 					list.add(new CompletionProposal(proposal[0],
 							replacementOffset, replacementLength, proposal[0]

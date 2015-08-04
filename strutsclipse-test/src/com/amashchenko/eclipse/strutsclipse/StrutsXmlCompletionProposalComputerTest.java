@@ -95,6 +95,27 @@ public class StrutsXmlCompletionProposalComputerTest {
 	}
 
 	@Test
+	public void testResultTagTypeUpperCase() throws Exception {
+		final String content = "<result type=\"REDIRECTA\"></result>";
+		IDocument document = new Document(content);
+
+		final int invocationOffset = content.lastIndexOf("\"");
+
+		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
+				new MockTextViewer(document), invocationOffset);
+
+		List<ICompletionProposal> proposals = computer
+				.computeCompletionProposals(context, null);
+
+		Assert.assertNotNull(proposals);
+		Assert.assertFalse(proposals.isEmpty());
+
+		Assert.assertEquals(1, proposals.size());
+		Assert.assertEquals("redirectAction", proposals.get(0)
+				.getDisplayString());
+	}
+
+	@Test
 	public void testPackageTag() throws Exception {
 		final String attrValue = "tiles-d";
 		final String content = "<package extends=\"" + attrValue
