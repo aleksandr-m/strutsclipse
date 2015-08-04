@@ -15,17 +15,10 @@
  */
 package com.amashchenko.eclipse.strutsclipse;
 
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.IDocument;
@@ -34,6 +27,8 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.PartInitException;
+
+import com.amashchenko.eclipse.strutsclipse.java.JavaProjectUtil;
 
 public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 	@Override
@@ -52,46 +47,24 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 				if (StrutsXmlConstants.METHOD_ATTR.equalsIgnoreCase(tagRegion
 						.getCurrentAttr().getName())) {
 					try {
-						// try file buffers
-						ITextFileBuffer textFileBuffer = FileBuffers
-								.getTextFileBufferManager().getTextFileBuffer(
-										document);
-						if (textFileBuffer != null) {
-							IPath basePath = textFileBuffer.getLocation();
-							if (basePath != null && !basePath.isEmpty()) {
-								IProject project = ResourcesPlugin
-										.getWorkspace().getRoot()
-										.getProject(basePath.segment(0));
-								if (basePath.segmentCount() > 1
-										&& project.isAccessible()
-										&& project
-												.hasNature(JavaCore.NATURE_ID)) {
-									IJavaProject javaProject = JavaCore
-											.create(project);
-									if (javaProject != null
-											&& javaProject.exists()) {
-										IType element = javaProject
-												.findType(tagRegion
-														.getAttrs()
-														.get(StrutsXmlConstants.CLASS_ATTR)
-														.getValue());
-										if (element != null && element.exists()) {
-											IMethod m = element.getMethod(
-													tagRegion.getCurrentAttr()
-															.getValue(), null);
-											if (m != null && m.exists()) {
-												link = new JavaElementHyperlink(
-														tagRegion
-																.getCurrentAttr()
-																.getValueRegion(),
-														m);
-											}
-										}
-									}
+						IJavaProject javaProject = JavaProjectUtil
+								.getCurrentJavaProject(document);
+						if (javaProject != null && javaProject.exists()) {
+							IType element = javaProject.findType(tagRegion
+									.getAttrs()
+									.get(StrutsXmlConstants.CLASS_ATTR)
+									.getValue());
+							if (element != null && element.exists()) {
+								IMethod m = element.getMethod(tagRegion
+										.getCurrentAttr().getValue(), null);
+								if (m != null && m.exists()) {
+									link = new JavaElementHyperlink(tagRegion
+											.getCurrentAttr().getValueRegion(),
+											m);
 								}
 							}
 						}
-					} catch (CoreException e) {
+					} catch (JavaModelException e) {
 						e.printStackTrace();
 					}
 				}
