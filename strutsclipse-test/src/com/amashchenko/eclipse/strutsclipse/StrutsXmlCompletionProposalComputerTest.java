@@ -14,7 +14,6 @@ import com.amashchenko.eclipse.strutsclipse.mock.MockTextViewer;
 public class StrutsXmlCompletionProposalComputerTest {
 	private StrutsXmlCompletionProposalComputer computer = new StrutsXmlCompletionProposalComputer();
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testActionTagName() throws Exception {
 		final String content = "<action name=\"\"></action>";
@@ -35,7 +34,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 				proposals.size());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testActionTagMethod() throws Exception {
 		final String content = "<action method=\"\"></action>";
@@ -56,7 +54,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 				proposals.size());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testResultTagName() throws Exception {
 		final String content = "<result name=\"\"></result>";
@@ -77,7 +74,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 				proposals.size());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testResultTagType() throws Exception {
 		final String content = "<result type=\"\"></result>";
@@ -98,7 +94,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 				proposals.size());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testPackageTag() throws Exception {
 		final String attrValue = "tiles-d";
@@ -124,7 +119,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testPackageTag2() throws Exception {
 		final String attrValue = "tiles-default, struts-default, json-default";
@@ -151,7 +145,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testPackageTag3() throws Exception {
 		final String attrValue = "tiles-default, struts-default, json-default";
@@ -178,7 +171,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testPackageTag4() throws Exception {
 		final String attrValue = "tiles-default, struts-default, json-default";

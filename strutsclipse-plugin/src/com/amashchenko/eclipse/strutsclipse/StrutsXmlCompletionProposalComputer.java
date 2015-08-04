@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
@@ -46,7 +47,7 @@ public class StrutsXmlCompletionProposalComputer implements
 		ICompletionProposalComputer {
 
 	@Override
-	public List computeCompletionProposals(
+	public List<ICompletionProposal> computeCompletionProposals(
 			CompletionProposalInvocationContext context,
 			IProgressMonitor monitor) {
 		final TagRegion tagRegion = StrutsXmlParser.getTagRegion(
@@ -226,7 +227,7 @@ public class StrutsXmlCompletionProposalComputer implements
 	}
 
 	@Override
-	public List computeContextInformation(
+	public List<IContextInformation> computeContextInformation(
 			CompletionProposalInvocationContext context,
 			IProgressMonitor monitor) {
 		return null;

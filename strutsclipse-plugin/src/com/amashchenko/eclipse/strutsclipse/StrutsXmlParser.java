@@ -37,6 +37,9 @@ public class StrutsXmlParser {
 			StrutsXmlConstants.NAME_ATTR, StrutsXmlConstants.TYPE_ATTR,
 			StrutsXmlConstants.METHOD_ATTR, StrutsXmlConstants.CLASS_ATTR };
 
+	private StrutsXmlParser() {
+	}
+
 	public static TagRegion getTagRegion(final IDocument document,
 			final int offset) {
 		IDocumentPartitioner partitioner = null;
