@@ -129,6 +129,10 @@ public class StrutsXmlCompletionProposalComputer implements
 			if (multivalue) {
 				int startSeprIndx = prefix.lastIndexOf(valueSeparator) + 1;
 
+				// spaces between valueSeparator and current value prefix
+				// (one,_t|wo -> 1; one,_|two -> 1; one,__t|wo -> 2)
+				int spacesCount = 0;
+
 				String currentValue = "";
 
 				// first value in attrvalue
@@ -136,7 +140,10 @@ public class StrutsXmlCompletionProposalComputer implements
 					currentValue = attrvalue.substring(0,
 							attrvalue.indexOf(valueSeparator));
 				} else {
-					prefix = prefix.substring(startSeprIndx).trim();
+					prefix = prefix.substring(startSeprIndx);
+					spacesCount = prefix.length();
+					prefix = prefix.trim();
+					spacesCount = spacesCount - prefix.length();
 
 					int endSeprIndx = attrvalue.indexOf(valueSeparator,
 							startSeprIndx);
@@ -150,10 +157,15 @@ public class StrutsXmlCompletionProposalComputer implements
 					}
 				}
 
-				replacementOffset = replacementOffset + startSeprIndx;
-				replacementLength = currentValue.length();
-
 				currentValue = currentValue.trim();
+
+				if (spacesCount < 0) {
+					spacesCount = 0;
+				}
+
+				replacementOffset = replacementOffset + startSeprIndx
+						+ spacesCount;
+				replacementLength = currentValue.length();
 
 				// exclude already defined values except current value
 				String[] valArr = attrvalue.split(valueSeparator);
