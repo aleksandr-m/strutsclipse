@@ -40,6 +40,8 @@ import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
+import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
+
 public class StrutsXmlCompletionProposalComputer implements
 		ICompletionProposalComputer {
 
@@ -88,6 +90,12 @@ public class StrutsXmlCompletionProposalComputer implements
 							proposals[i][1] = null;
 						}
 					}
+				} else if (StrutsXmlConstants.CLASS_ATTR
+						.equalsIgnoreCase(attrName)) {
+					// return proposals
+					return JavaClassCompletion.getSimpleJavaProposals(
+							attrValuePrefix, context.getDocument(),
+							proposalRegion);
 				}
 			} else if (StrutsXmlConstants.RESULT_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
