@@ -52,8 +52,7 @@ public class JavaClassCompletion {
 			}
 			String source = sourceStart + CLASS_SOURCE_END;
 
-			ICompilationUnit unit = createSourceCompilationUnit(prefix,
-					document);
+			ICompilationUnit unit = createSourceCompilationUnit(document);
 			if (unit != null) {
 				setCompilationUnitContents(unit, source);
 
@@ -91,7 +90,7 @@ public class JavaClassCompletion {
 		return proposals;
 	}
 
-	private static ICompilationUnit createSourceCompilationUnit(String prefix,
+	private static ICompilationUnit createSourceCompilationUnit(
 			IDocument document) throws JavaModelException {
 		ICompilationUnit unit = null;
 
