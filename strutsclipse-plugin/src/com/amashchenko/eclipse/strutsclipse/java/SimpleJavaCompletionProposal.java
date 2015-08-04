@@ -30,7 +30,7 @@ public class SimpleJavaCompletionProposal implements IJavaCompletionProposal {
 	private final int relevance;
 
 	public SimpleJavaCompletionProposal(CompletionProposal proposal,
-			JavaContentAssistInvocationContext context) {
+			JavaContentAssistInvocationContext context, Image img) {
 		String declSignature = String.valueOf(proposal
 				.getDeclarationSignature());
 		String completion = String.valueOf(proposal.getCompletion());
@@ -39,11 +39,10 @@ public class SimpleJavaCompletionProposal implements IJavaCompletionProposal {
 			completion = declSignature + "." + completion;
 		}
 
-		replacementString = completion;
-		displayString = context.getLabelProvider().createLabel(proposal);
-		relevance = proposal.getRelevance();
-		image = context.getLabelProvider().createImageDescriptor(proposal)
-				.createImage();
+		this.replacementString = completion;
+		this.displayString = context.getLabelProvider().createLabel(proposal);
+		this.relevance = proposal.getRelevance();
+		this.image = img;
 	}
 
 	public String getReplacementString() {

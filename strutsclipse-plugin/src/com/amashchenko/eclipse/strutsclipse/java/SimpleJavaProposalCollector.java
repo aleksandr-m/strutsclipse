@@ -37,7 +37,8 @@ public class SimpleJavaProposalCollector extends CompletionProposalCollector {
 				&& !Flags.isInterface(proposal.getFlags())
 				&& !Flags.isEnum(proposal.getFlags())) {
 			return new SimpleJavaCompletionProposal(proposal,
-					getInvocationContext());
+					getInvocationContext(), getImage(getLabelProvider()
+							.createImageDescriptor(proposal)));
 		}
 		return null;
 	}
