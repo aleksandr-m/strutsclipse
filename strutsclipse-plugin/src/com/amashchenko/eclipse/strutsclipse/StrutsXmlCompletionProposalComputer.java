@@ -18,22 +18,7 @@ package com.amashchenko.eclipse.strutsclipse;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.ASTVisitor;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.Modifier;
-import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -83,13 +68,10 @@ public class StrutsXmlCompletionProposalComputer implements
 					if (classAttr == null) {
 						proposals = StrutsXmlConstants.DEFAULT_METHODS;
 					} else {
-						List<String> actionMethods = findClassActionMethods(classAttr
-								.getValue());
-						proposals = new String[actionMethods.size()][2];
-						for (int i = 0; i < actionMethods.size(); i++) {
-							proposals[i][0] = actionMethods.get(i);
-							proposals[i][1] = null;
-						}
+						// return proposals
+						return JavaClassCompletion.getActionMethodProposals(
+								attrValuePrefix, classAttr.getValue(),
+								context.getDocument(), proposalRegion);
 					}
 				} else if (StrutsXmlConstants.CLASS_ATTR
 						.equalsIgnoreCase(attrName)) {
@@ -186,56 +168,6 @@ public class StrutsXmlCompletionProposalComputer implements
 			}
 		}
 		return list;
-	}
-
-	private List<String> findClassActionMethods(final String fullClassName) {
-		final List<String> methods = new ArrayList<String>();
-
-		IWorkspace workspace = ResourcesPlugin.getWorkspace();
-		IWorkspaceRoot root = workspace.getRoot();
-		IProject[] projects = root.getProjects();
-		for (IProject project : projects) {
-			try {
-				if (project.isAccessible()
-						&& project.isNatureEnabled(JavaCore.NATURE_ID)) {
-					IJavaProject javaProject = JavaCore.create(project);
-
-					IType itype = javaProject.findType(fullClassName);
-
-					if (itype != null) {
-						// support older eclipses
-						ASTParser parser = ASTParser.newParser(AST.JLS3);
-						parser.setSource(itype.getCompilationUnit());
-						parser.setKind(ASTParser.K_COMPILATION_UNIT);
-
-						final CompilationUnit cu = (CompilationUnit) parser
-								.createAST(null);
-
-						cu.accept(new ASTVisitor() {
-							public boolean visit(MethodDeclaration md) {
-								if (Modifier.isPublic(md.getModifiers())
-										&& md.parameters().isEmpty()) {
-									Type returnType = md.getReturnType2();
-									if (returnType != null
-											&& returnType.isSimpleType()
-											&& "string"
-													.equalsIgnoreCase(returnType
-															.toString())) {
-										methods.add(md.getName()
-												.getFullyQualifiedName());
-									}
-								}
-
-								return false;
-							}
-						});
-					}
-				}
-			} catch (CoreException e) {
-				e.printStackTrace();
-			}
-		}
-		return methods;
 	}
 
 	@Override

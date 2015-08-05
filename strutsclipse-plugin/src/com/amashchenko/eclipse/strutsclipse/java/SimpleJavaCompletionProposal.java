@@ -31,15 +31,11 @@ public class SimpleJavaCompletionProposal implements IJavaCompletionProposal {
 
 	public SimpleJavaCompletionProposal(CompletionProposal proposal,
 			JavaContentAssistInvocationContext context, Image img) {
-		String declSignature = String.valueOf(proposal
-				.getDeclarationSignature());
-		String completion = String.valueOf(proposal.getCompletion());
-		// add package name
-		if (declSignature != null && !completion.startsWith(declSignature)) {
-			completion = declSignature + "." + completion;
+		if (CompletionProposal.METHOD_REF == proposal.getKind()) {
+			this.replacementString = String.valueOf(proposal.getName());
+		} else {
+			this.replacementString = String.valueOf(proposal.getCompletion());
 		}
-
-		this.replacementString = completion;
 		this.displayString = context.getLabelProvider().createLabel(proposal);
 		this.relevance = proposal.getRelevance();
 		this.image = img;

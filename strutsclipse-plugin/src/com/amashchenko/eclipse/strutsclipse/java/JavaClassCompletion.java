@@ -41,24 +41,35 @@ public class JavaClassCompletion {
 
 	public static List<ICompletionProposal> getSimpleJavaProposals(
 			String prefix, IDocument document, IRegion region) {
+		final String sourceStart = CLASS_SOURCE_START + prefix;
+		final String source = sourceStart + CLASS_SOURCE_END;
+
+		return createProposals(source, sourceStart.length(), document, region,
+				false);
+	}
+
+	public static List<ICompletionProposal> getActionMethodProposals(
+			String prefix, String className, IDocument document, IRegion region) {
+		final String sourceStart = CLASS_SOURCE_START + className + " a;a."
+				+ prefix;
+		final String source = sourceStart + CLASS_SOURCE_END;
+
+		return createProposals(source, sourceStart.length(), document, region,
+				true);
+	}
+
+	private static List<ICompletionProposal> createProposals(String source,
+			int completionOffset, IDocument document, IRegion region,
+			boolean collectMethods) {
 		List<ICompletionProposal> proposals = new ArrayList<ICompletionProposal>();
 		try {
-			String sourceStart = CLASS_SOURCE_START + prefix;
-			String packageName = null;
-			int dot = prefix.lastIndexOf('.');
-			if (dot > -1) {
-				packageName = prefix.substring(0, dot);
-				sourceStart = "package " + packageName + ";\n" + sourceStart;
-			}
-			String source = sourceStart + CLASS_SOURCE_END;
-
 			ICompilationUnit unit = createSourceCompilationUnit(document);
 			if (unit != null) {
 				setCompilationUnitContents(unit, source);
 
 				SimpleJavaProposalCollector collector = new SimpleJavaProposalCollector(
-						unit);
-				unit.codeComplete(sourceStart.length(), collector);
+						unit, collectMethods);
+				unit.codeComplete(completionOffset, collector);
 
 				IJavaCompletionProposal[] props = collector
 						.getJavaCompletionProposals();

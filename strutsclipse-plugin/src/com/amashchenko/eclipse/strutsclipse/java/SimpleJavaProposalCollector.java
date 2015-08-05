@@ -23,22 +23,45 @@ import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
 
 public class SimpleJavaProposalCollector extends CompletionProposalCollector {
 
+	private static final String ACTION_METHOD_SIGNATURE = "()Ljava.lang.String;";
+
+	private final boolean collectMethods;
+
 	public SimpleJavaProposalCollector(ICompilationUnit cu) {
+		this(cu, false);
+	}
+
+	public SimpleJavaProposalCollector(ICompilationUnit cu,
+			boolean collectMethods) {
 		super(cu);
+		this.collectMethods = collectMethods;
 	}
 
 	@Override
 	protected IJavaCompletionProposal createJavaCompletionProposal(
 			CompletionProposal proposal) {
-		// collect packages and classes suitable for actions
-		if ((CompletionProposal.PACKAGE_REF == proposal.getKind() || CompletionProposal.TYPE_REF == proposal
-				.getKind())
-				&& !Flags.isAbstract(proposal.getFlags())
-				&& !Flags.isInterface(proposal.getFlags())
-				&& !Flags.isEnum(proposal.getFlags())) {
-			return new SimpleJavaCompletionProposal(proposal,
-					getInvocationContext(), getImage(getLabelProvider()
-							.createImageDescriptor(proposal)));
+		if (collectMethods) {
+			if (CompletionProposal.METHOD_REF == proposal.getKind()
+					&& Flags.isPublic(proposal.getFlags())) {
+				char[] sig = proposal.getSignature();
+				if (sig != null
+						&& ACTION_METHOD_SIGNATURE.equals(String.valueOf(sig))) {
+					return new SimpleJavaCompletionProposal(proposal,
+							getInvocationContext(), getImage(getLabelProvider()
+									.createImageDescriptor(proposal)));
+				}
+			}
+		} else {
+			// collect packages and classes suitable for actions
+			if ((CompletionProposal.PACKAGE_REF == proposal.getKind() || CompletionProposal.TYPE_REF == proposal
+					.getKind())
+					&& !Flags.isAbstract(proposal.getFlags())
+					&& !Flags.isInterface(proposal.getFlags())
+					&& !Flags.isEnum(proposal.getFlags())) {
+				return new SimpleJavaCompletionProposal(proposal,
+						getInvocationContext(), getImage(getLabelProvider()
+								.createImageDescriptor(proposal)));
+			}
 		}
 		return null;
 	}
