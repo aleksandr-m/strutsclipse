@@ -49,8 +49,8 @@
                     <h4 id="manual-installation">Manual Installation</h4>
                         <p>
                             Download 
-                            <a href="https://github.com/aleksandr-m/strutsclipse/raw/master/update/1.0.1/features/com.amashchenko.eclipse.strutsclipse.feature_1.0.1.201507172220.jar">feature</a>
-                            and <a href="https://github.com/aleksandr-m/strutsclipse/raw/master/update/1.0.1/plugins/com.amashchenko.eclipse.strutsclipse.plugin_1.0.1.201507172220.jar">plugin</a>
+                            <a href="https://github.com/aleksandr-m/strutsclipse/raw/master/update/1.0.3/features/com.amashchenko.eclipse.strutsclipse.feature_1.0.3.201508171752.jar">feature</a>
+                            and <a href="https://github.com/aleksandr-m/strutsclipse/raw/master/update/1.0.3/plugins/com.amashchenko.eclipse.strutsclipse.plugin_1.0.3.201508171752.jar">plugin</a>
                             jars and put them in Eclipse <code>features</code> and <code>plugins</code> folders respectively.
                         </p>
 
@@ -59,30 +59,40 @@
                     <p>StrutsClipse provides Eclipse IDE integration for developing <a href="http://struts.apache.org/" target="_blank">Apache Struts2</a> based applications.</p>
                     
                     <ul>
+                        <li><a href="#package-extends">Package extends content assist</a></li>
                         <li><a href="#action-name-method">Action name and method content assist</a></li>
+                        <li><a href="#action-class">Action class content assist</a></li>
                         <li><a href="#result-type">Result type content assist</a></li>
                         <li><a href="#result-name">Result name content assist</a></li>
                         <li><a href="#action-method-hyperlink">Action method hyperlink</a></li>
                         <li><a href="#quick-outline">Quick Outline</a></li>
                     </ul>
 
-                    <h4 id="action-name-method">Action tag name and method attributes content assist</h4>
+                    <h4 id="package-extends" class="pad-top">Package tag extends attribute content assist</h4>
+                    <p>The list of proposals will show Struts2 standard packages names.</p>
+                    <img src="img/extendsassist.png" class="img-responsive" alt="Package extends content assist" />
+
+                    <h4 id="action-name-method" class="pad-top">Action tag name and method attributes content assist</h4>
                     <p>The list of proposals will show class methods suitable for action name/method.</p>
                     <img src="img/methodassist.png" class="img-responsive" alt="Action method content assist" />
 
-                    <h4 id="result-type" class="space-top">Result tag type attribute content assist</h4>
+                    <h4 id="action-class" class="pad-top">Action tag class attribute content assist</h4>
+                    <p>The list of proposals will show java classes.</p>
+                    <img src="img/classassist.png" class="img-responsive" alt="Action class content assist" />
+
+                    <h4 id="result-type" class="pad-top">Result tag type attribute content assist</h4>
                     <p>The list of proposals will show Struts2 result types.</p>
                     <img src="img/resulttypeassist.png" class="img-responsive" alt="Result type content assist" />
 
-                    <h4 id="result-name" class="space-top">Result tag name attribute content assist</h4>
+                    <h4 id="result-name" class="pad-top">Result tag name attribute content assist</h4>
                     <p>The list of proposals will show Struts2 standard results names.</p>
                     <img src="img/resultnameassist.png" class="img-responsive" alt="Result name content assist" />
 
-                    <h4 id="action-method-hyperlink" class="space-top">Action tag method attribute hyperlink</h4>
+                    <h4 id="action-method-hyperlink" class="pad-top">Action tag method attribute hyperlink</h4>
                     <p>Hyperlink to the action class method declaration.</p>
                     <img src="img/methodhyperlink.png" class="img-responsive" alt="Action method hyperlink" />
 
-                    <h4 id="quick-outline" class="space-top">Quick Outline</h4>
+                    <h4 id="quick-outline" class="pad-top">Quick Outline</h4>
                     <p>Improved Quick Outline with search by the package/action tag name.</p>
                     <img src="img/quickoutline.png" class="img-responsive" alt="Improved Quick Outline" />
                 </div>
@@ -100,7 +110,9 @@
                             </li>
                             <li><a href="#overview">Overview</a>
                                 <ul class="nav-sub nav-stacked">
+                                    <li><a href="#package-extends">Package extends content assist</a></li>
                                     <li><a href="#action-name-method">Action name and method content assist</a></li>
+                                    <li><a href="#action-class">Action class content assist</a></li>
                                     <li><a href="#result-type">Result type content assist</a></li>
                                     <li><a href="#result-name">Result name content assist</a></li>
                                     <li><a href="#action-method-hyperlink">Action method hyperlink</a></li>
