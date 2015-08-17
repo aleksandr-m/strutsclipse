@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: StrutsClipse Test
 Bundle-SymbolicName: com.amashchenko.eclipse.strutsclipse.test
-Bundle-Version: 1.0.3.qualifier
+Bundle-Version: 1.0.4.qualifier
 Fragment-Host: com.amashchenko.eclipse.strutsclipse.plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Require-Bundle: org.junit

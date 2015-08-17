@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.amashchenko.eclipse.strutsclipse.feature_1.0.3.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.feature" version="1.0.3.qualifier">
+   <feature url="features/com.amashchenko.eclipse.strutsclipse.feature_1.0.4.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.feature" version="1.0.4.qualifier">
       <category name="com.amashchenko.eclipse.strutsclipse"/>
    </feature>
    <category-def name="com.amashchenko.eclipse.strutsclipse" label="StrutsClipse">
