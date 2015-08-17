@@ -24,6 +24,7 @@ import org.eclipse.jdt.ui.text.java.IJavaCompletionProposal;
 public class SimpleJavaProposalCollector extends CompletionProposalCollector {
 
 	private static final String ACTION_METHOD_SIGNATURE = "()Ljava.lang.String;";
+	private static final String OBJECT_SIGNATURE = "Ljava.lang.Object;";
 
 	private final boolean collectMethods;
 
@@ -44,8 +45,12 @@ public class SimpleJavaProposalCollector extends CompletionProposalCollector {
 			if (CompletionProposal.METHOD_REF == proposal.getKind()
 					&& Flags.isPublic(proposal.getFlags())) {
 				char[] sig = proposal.getSignature();
-				if (sig != null
-						&& ACTION_METHOD_SIGNATURE.equals(String.valueOf(sig))) {
+				char[] declSig = proposal.getDeclarationSignature();
+				// collect methods suitable for action methods ignoring Object
+				// methods
+				if (sig != null && declSig != null
+						&& ACTION_METHOD_SIGNATURE.equals(String.valueOf(sig))
+						&& !OBJECT_SIGNATURE.equals(String.valueOf(declSig))) {
 					return new SimpleJavaCompletionProposal(proposal,
 							getInvocationContext(), getImage(getLabelProvider()
 									.createImageDescriptor(proposal)));
