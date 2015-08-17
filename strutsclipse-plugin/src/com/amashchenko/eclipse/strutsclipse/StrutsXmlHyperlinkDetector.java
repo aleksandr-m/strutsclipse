@@ -44,23 +44,40 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 		if (tagRegion != null && tagRegion.getCurrentAttr() != null) {
 			if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
+				final AttrRegion classAttr = tagRegion.getAttrs().get(
+						StrutsXmlConstants.CLASS_ATTR);
 				if (StrutsXmlConstants.METHOD_ATTR.equalsIgnoreCase(tagRegion
-						.getCurrentAttr().getName())) {
+						.getCurrentAttr().getName()) && classAttr != null) {
 					try {
 						IJavaProject javaProject = JavaProjectUtil
 								.getCurrentJavaProject(document);
 						if (javaProject != null && javaProject.exists()) {
-							IType element = javaProject.findType(tagRegion
-									.getAttrs()
-									.get(StrutsXmlConstants.CLASS_ATTR)
+							IType type = javaProject.findType(classAttr
 									.getValue());
-							if (element != null && element.exists()) {
-								IMethod m = element.getMethod(tagRegion
+							if (type != null && type.exists()) {
+								IMethod method = type.getMethod(tagRegion
 										.getCurrentAttr().getValue(), null);
-								if (m != null && m.exists()) {
+								if (method != null && method.exists()) {
 									link = new JavaElementHyperlink(tagRegion
 											.getCurrentAttr().getValueRegion(),
-											m);
+											method);
+								} else {
+									// try super classes
+									IType[] superClasses = type
+											.newSupertypeHierarchy(null)
+											.getAllSuperclasses(type);
+									for (IType superType : superClasses) {
+										method = superType.getMethod(tagRegion
+												.getCurrentAttr().getValue(),
+												null);
+										if (method != null && method.exists()) {
+											link = new JavaElementHyperlink(
+													tagRegion.getCurrentAttr()
+															.getValueRegion(),
+													method);
+											break;
+										}
+									}
 								}
 							}
 						}
