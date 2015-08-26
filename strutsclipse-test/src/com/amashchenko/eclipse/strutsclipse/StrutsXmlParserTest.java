@@ -140,6 +140,22 @@ public class StrutsXmlParserTest {
 	}
 
 	@Test
+	public void testGetTagRegionUnknowAttributes() throws Exception {
+		final String content = "<action unknown=\"someaction\" unknown=\"somemethod\" class=\"someclass\"></action>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertNotNull(tagRegion.getAttrs());
+		Assert.assertEquals(1, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.CLASS_ATTR));
+	}
+
+	@Test
 	public void testGetTagRegionResultTag() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"></result>";
 		IDocument document = new Document(content);
@@ -155,6 +171,118 @@ public class StrutsXmlParserTest {
 				StrutsXmlConstants.NAME_ATTR));
 		Assert.assertTrue(tagRegion.getAttrs().containsKey(
 				StrutsXmlConstants.TYPE_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionResultTagBody() throws Exception {
+		final String value = "somevalue";
+		final String content = "<result name=\"somename\" type=\"sometype\">"
+				+ value + "</result>";
+
+		final int valueOffset = content.indexOf(value);
+
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+				valueOffset);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNotNull(tagRegion.getCurrentElement());
+		Assert.assertNotNull(tagRegion.getCurrentElementValuePrefix());
+		Assert.assertNotNull(tagRegion.getAttrs());
+
+		Assert.assertEquals(StrutsXmlConstants.RESULT_TAG, tagRegion.getName());
+		Assert.assertEquals("", tagRegion.getCurrentElementValuePrefix());
+
+		// current element
+		Assert.assertNull(tagRegion.getCurrentElement().getName());
+		Assert.assertEquals(value, tagRegion.getCurrentElement().getValue());
+		Assert.assertEquals(valueOffset, tagRegion.getCurrentElement()
+				.getValueRegion().getOffset());
+		Assert.assertEquals(value.length(), tagRegion.getCurrentElement()
+				.getValueRegion().getLength());
+
+		// attributes
+		Assert.assertEquals(2, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.TYPE_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionResultTagBody2() throws Exception {
+		final String value = "somevalue";
+		final String content = "<result name=\"somename\" type=\"sometype\">"
+				+ value + "</result>";
+
+		final int valueOffset = content.indexOf(value);
+		final int cursorOffset = content.indexOf(value) + value.length();
+
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+				cursorOffset);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNotNull(tagRegion.getCurrentElement());
+		Assert.assertNotNull(tagRegion.getCurrentElementValuePrefix());
+		Assert.assertNotNull(tagRegion.getAttrs());
+
+		Assert.assertEquals(StrutsXmlConstants.RESULT_TAG, tagRegion.getName());
+		Assert.assertEquals(value, tagRegion.getCurrentElementValuePrefix());
+
+		// current element
+		Assert.assertNull(tagRegion.getCurrentElement().getName());
+		Assert.assertEquals(value, tagRegion.getCurrentElement().getValue());
+		Assert.assertEquals(valueOffset, tagRegion.getCurrentElement()
+				.getValueRegion().getOffset());
+		Assert.assertEquals(value.length(), tagRegion.getCurrentElement()
+				.getValueRegion().getLength());
+
+		// attributes
+		Assert.assertEquals(2, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.TYPE_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionResultTagBodyNoValue() throws Exception {
+		final String content = "<result name=\"somename\" type=\"sometype\"></result>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+				content.indexOf("</"));
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNotNull(tagRegion.getCurrentElement());
+		Assert.assertNotNull(tagRegion.getCurrentElementValuePrefix());
+		Assert.assertNotNull(tagRegion.getAttrs());
+
+		Assert.assertEquals(StrutsXmlConstants.RESULT_TAG, tagRegion.getName());
+		Assert.assertEquals("", tagRegion.getCurrentElementValuePrefix());
+
+		// current element
+		Assert.assertNull(tagRegion.getCurrentElement().getName());
+		Assert.assertEquals("", tagRegion.getCurrentElement().getValue());
+		Assert.assertEquals(0, tagRegion.getCurrentElement().getValueRegion()
+				.getLength());
+
+		// attributes
+		Assert.assertEquals(2, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.TYPE_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionResultTagCloseTag() throws Exception {
+		final String content = "<result name=\"somename\" type=\"sometype\"></result>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+				content.indexOf("</") + 4);
+
+		Assert.assertNull(tagRegion);
 	}
 
 	@Test

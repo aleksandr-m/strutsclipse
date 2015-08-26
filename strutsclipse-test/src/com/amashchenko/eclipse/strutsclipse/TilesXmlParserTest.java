@@ -125,6 +125,22 @@ public class TilesXmlParserTest {
 	}
 
 	@Test
+	public void testGetDefinitionNamesUnknownAttributes() throws Exception {
+		final String name = "somename";
+		final String content = "<definition unknown=\"some\" unknown=\"some\" name=\""
+				+ name
+				+ "\" extends=\"some\"><put-attribute name=\"title\" value=\"someval\"/></definition>";
+		IDocument document = new Document(content);
+		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+
+		Assert.assertNotNull(names);
+		Assert.assertFalse(names.isEmpty());
+
+		Assert.assertEquals(1, names.size());
+		Assert.assertTrue(names.contains(name));
+	}
+
+	@Test
 	public void testGetDefinitionNamesUnknownTag() throws Exception {
 		final String content = "<unknown></unknown>";
 		IDocument document = new Document(content);

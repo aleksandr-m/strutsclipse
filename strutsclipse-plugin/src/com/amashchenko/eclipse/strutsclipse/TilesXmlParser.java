@@ -90,10 +90,12 @@ public class TilesXmlParser {
 							// only legal types
 							if (!IDocument.DEFAULT_CONTENT_TYPE.equals(r
 									.getType())) {
-								if (attrKey != null
-										&& (DOUBLE_QUOTES_TOKEN.equals(r
-												.getType()) || SINGLE_QUOTES_TOKEN
-												.equals(r.getType()))) {
+								boolean quotesToken = DOUBLE_QUOTES_TOKEN
+										.equals(r.getType())
+										|| SINGLE_QUOTES_TOKEN.equals(r
+												.getType());
+
+								if (attrKey != null && quotesToken) {
 									try {
 										// get value w/o quotes
 										String val = document.get(
@@ -106,7 +108,7 @@ public class TilesXmlParser {
 									}
 									// set key to null
 									attrKey = null;
-								} else {
+								} else if (!quotesToken) {
 									attrKey = r.getType();
 								}
 							}

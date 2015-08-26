@@ -75,29 +75,49 @@ public class StrutsXmlParser {
 			ElementRegion currentElement = null;
 			String elementValuePrefix = null;
 
+			// check if offset is between start and end tags
+			int bodyOffset = -1;
+			int bodyLength = -1;
 			if (IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())) {
-				ITypedRegion nextTagRegion = partitioner.getPartition(tagRegion
+				ITypedRegion nextRegion = partitioner.getPartition(tagRegion
 						.getOffset() + tagRegion.getLength());
-				if (CLOSE_TAG_TOKEN.equals(nextTagRegion.getType())) {
+				if (CLOSE_TAG_TOKEN.equals(nextRegion.getType())) {
+					bodyOffset = tagRegion.getOffset();
+					bodyLength = tagRegion.getLength();
+				}
+			} else if (CLOSE_TAG_TOKEN.equals(tagRegion.getType())
+					&& tagRegion.getOffset() == offset) {
+				ITypedRegion prevRegion = partitioner.getPartition(tagRegion
+						.getOffset() - 1);
+				if (IDocument.DEFAULT_CONTENT_TYPE.equals(prevRegion.getType())) {
+					bodyOffset = prevRegion.getOffset();
+					bodyLength = prevRegion.getLength();
+				} else {
+					bodyOffset = tagRegion.getOffset();
+				}
+			}
+			if (bodyOffset != -1) {
+				if (bodyLength == -1) {
+					currentElement = new ElementRegion(null, "",
+							tagRegion.getOffset());
+					elementValuePrefix = "";
+				} else {
 					try {
 						currentElement = new ElementRegion(null, document.get(
-								tagRegion.getOffset(), tagRegion.getLength()),
-								tagRegion.getOffset());
-
-						elementValuePrefix = document.get(
-								tagRegion.getOffset(),
-								offset - tagRegion.getOffset());
-
-						// get start tag of current tag body
-						tagRegion = partitioner.getPartition(tagRegion
-								.getOffset() - 1);
+								bodyOffset, bodyLength), bodyOffset);
+						elementValuePrefix = document.get(bodyOffset, offset
+								- bodyOffset);
 					} catch (BadLocationException e) {
 						e.printStackTrace();
 					}
 				}
+
+				// get start tag of current tag body
+				tagRegion = partitioner.getPartition(bodyOffset - 1);
 			}
 
-			if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())) {
+			if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
+					&& !CLOSE_TAG_TOKEN.equals(tagRegion.getType())) {
 				IPredicateRule[] attrRules = new IPredicateRule[ATTRS.length];
 				for (int i = 0; i < ATTRS.length; i++) {
 					if (DOUBLE_QUOTES_TOKEN.equals(ATTRS[i])) {
@@ -127,9 +147,11 @@ public class StrutsXmlParser {
 					for (ITypedRegion r : regions) {
 						// only legal types
 						if (!IDocument.DEFAULT_CONTENT_TYPE.equals(r.getType())) {
-							if (attrKey != null
-									&& (DOUBLE_QUOTES_TOKEN.equals(r.getType()) || SINGLE_QUOTES_TOKEN
-											.equals(r.getType()))) {
+							boolean quotesToken = DOUBLE_QUOTES_TOKEN.equals(r
+									.getType())
+									|| SINGLE_QUOTES_TOKEN.equals(r.getType());
+
+							if (attrKey != null && quotesToken) {
 								try {
 									final int valDocOffset = r.getOffset() + 1;
 									// get value w/o quotes
@@ -156,7 +178,7 @@ public class StrutsXmlParser {
 								}
 								// set key to null
 								attrKey = null;
-							} else {
+							} else if (!quotesToken) {
 								attrKey = r.getType();
 							}
 						}
