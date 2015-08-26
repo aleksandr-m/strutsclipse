@@ -41,13 +41,13 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 		final TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
 				region.getOffset());
 
-		if (tagRegion != null && tagRegion.getCurrentAttr() != null) {
+		if (tagRegion != null && tagRegion.getCurrentElement() != null) {
 			if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
-				final AttrRegion classAttr = tagRegion.getAttrs().get(
+				final ElementRegion classAttr = tagRegion.getAttrs().get(
 						StrutsXmlConstants.CLASS_ATTR);
 				if (StrutsXmlConstants.METHOD_ATTR.equalsIgnoreCase(tagRegion
-						.getCurrentAttr().getName()) && classAttr != null) {
+						.getCurrentElement().getName()) && classAttr != null) {
 					try {
 						IJavaProject javaProject = JavaProjectUtil
 								.getCurrentJavaProject(document);
@@ -56,23 +56,24 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 									.getValue());
 							if (type != null && type.exists()) {
 								IMethod method = type.getMethod(tagRegion
-										.getCurrentAttr().getValue(), null);
+										.getCurrentElement().getValue(), null);
 								if (method != null && method.exists()) {
 									link = new JavaElementHyperlink(tagRegion
-											.getCurrentAttr().getValueRegion(),
-											method);
+											.getCurrentElement()
+											.getValueRegion(), method);
 								} else {
 									// try super classes
 									IType[] superClasses = type
 											.newSupertypeHierarchy(null)
 											.getAllSuperclasses(type);
 									for (IType superType : superClasses) {
-										method = superType.getMethod(tagRegion
-												.getCurrentAttr().getValue(),
-												null);
+										method = superType.getMethod(
+												tagRegion.getCurrentElement()
+														.getValue(), null);
 										if (method != null && method.exists()) {
 											link = new JavaElementHyperlink(
-													tagRegion.getCurrentAttr()
+													tagRegion
+															.getCurrentElement()
 															.getValueRegion(),
 													method);
 											break;

@@ -18,16 +18,16 @@ package com.amashchenko.eclipse.strutsclipse;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 
-public class AttrRegion {
+public class ElementRegion {
 	private final String name;
 	private final String value;
 	private final IRegion valueRegion;
 
-	public AttrRegion(String attrName, String attrValue, int valOffset) {
-		this.name = attrName;
-		this.value = attrValue;
-		this.valueRegion = new Region(valOffset, attrValue == null ? 0
-				: attrValue.length());
+	public ElementRegion(String elementName, String elementValue, int valOffset) {
+		this.name = elementName;
+		this.value = elementValue;
+		this.valueRegion = new Region(valOffset, elementValue == null ? 0
+				: elementValue.length());
 	}
 
 	public String getName() {

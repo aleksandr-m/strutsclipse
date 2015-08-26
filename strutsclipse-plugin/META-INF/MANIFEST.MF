@@ -12,6 +12,7 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.wst.xml.ui,
  org.eclipse.jface.text,
  org.eclipse.jdt.core,
- org.eclipse.jdt.ui
+ org.eclipse.jdt.ui,
+ org.eclipse.wst.common.modulecore
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

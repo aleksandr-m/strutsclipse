@@ -19,15 +19,15 @@ import java.util.Map;
 
 public class TagRegion {
 	private final String name;
-	private final AttrRegion currentAttr;
-	private final String currentAttrValuePrefix;
-	private final Map<String, AttrRegion> attrs;
+	private final ElementRegion currentElement;
+	private final String currentElementValuePrefix;
+	private final Map<String, ElementRegion> attrs;
 
-	public TagRegion(String tagName, AttrRegion currattr,
-			String currattrvalprefix, Map<String, AttrRegion> allattrs) {
+	public TagRegion(String tagName, ElementRegion currelement,
+			String currelementvalprefix, Map<String, ElementRegion> allattrs) {
 		this.name = tagName;
-		this.currentAttr = currattr;
-		this.currentAttrValuePrefix = currattrvalprefix;
+		this.currentElement = currelement;
+		this.currentElementValuePrefix = currelementvalprefix;
 		this.attrs = allattrs;
 	}
 
@@ -35,15 +35,15 @@ public class TagRegion {
 		return name;
 	}
 
-	public AttrRegion getCurrentAttr() {
-		return currentAttr;
+	public ElementRegion getCurrentElement() {
+		return currentElement;
 	}
 
-	public String getCurrentAttrValuePrefix() {
-		return currentAttrValuePrefix;
+	public String getCurrentElementValuePrefix() {
+		return currentElementValuePrefix;
 	}
 
-	public Map<String, AttrRegion> getAttrs() {
+	public Map<String, ElementRegion> getAttrs() {
 		return attrs;
 	}
 }

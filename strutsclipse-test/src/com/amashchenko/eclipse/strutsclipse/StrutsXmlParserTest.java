@@ -1,3 +1,18 @@
+/*
+ * Copyright 2015 Aleksandr Mashchenko.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.amashchenko.eclipse.strutsclipse;
 
 import org.eclipse.jface.text.Document;
@@ -13,8 +28,8 @@ public class StrutsXmlParserTest {
 		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
-		Assert.assertNull(tagRegion.getCurrentAttr());
-		Assert.assertNull(tagRegion.getCurrentAttrValuePrefix());
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
 
 		Assert.assertNotNull(tagRegion.getAttrs());
 		Assert.assertEquals(2, tagRegion.getAttrs().size());
@@ -31,8 +46,88 @@ public class StrutsXmlParserTest {
 		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
-		Assert.assertNull(tagRegion.getCurrentAttr());
-		Assert.assertNull(tagRegion.getCurrentAttrValuePrefix());
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertNotNull(tagRegion.getAttrs());
+		Assert.assertEquals(3, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.METHOD_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.CLASS_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionSingleQuotes() throws Exception {
+		final String content = "<action name='someaction' method='somemethod' class='someclass'></action>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertNotNull(tagRegion.getAttrs());
+		Assert.assertEquals(3, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.METHOD_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.CLASS_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionSingleQuotesInside() throws Exception {
+		final String content = "<action name=\"some'action\" method=\"some''method\" class=\"some'''class\"></action>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertNotNull(tagRegion.getAttrs());
+		Assert.assertEquals(3, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.METHOD_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.CLASS_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionQuotesInside() throws Exception {
+		final String content = "<action name='some\"action' method='some\"\"method' class='some\"\"\"class'></action>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertNotNull(tagRegion.getAttrs());
+		Assert.assertEquals(3, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.METHOD_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.CLASS_ATTR));
+	}
+
+	@Test
+	public void testGetTagRegionLineBrakes() throws Exception {
+		final String content = "<action name\n=\"someaction\" method=\n\"somemethod\" class=\"someclass\"></action>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
 
 		Assert.assertNotNull(tagRegion.getAttrs());
 		Assert.assertEquals(3, tagRegion.getAttrs().size());
@@ -51,8 +146,8 @@ public class StrutsXmlParserTest {
 		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
-		Assert.assertNull(tagRegion.getCurrentAttr());
-		Assert.assertNull(tagRegion.getCurrentAttrValuePrefix());
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
 
 		Assert.assertNotNull(tagRegion.getAttrs());
 		Assert.assertEquals(2, tagRegion.getAttrs().size());
@@ -86,21 +181,21 @@ public class StrutsXmlParserTest {
 				cursorOffset);
 
 		Assert.assertNotNull(tagRegion);
-		Assert.assertNotNull(tagRegion.getCurrentAttr());
-		Assert.assertNotNull(tagRegion.getCurrentAttr().getValueRegion());
+		Assert.assertNotNull(tagRegion.getCurrentElement());
+		Assert.assertNotNull(tagRegion.getCurrentElement().getValueRegion());
 		Assert.assertNotNull(tagRegion.getAttrs());
 
 		Assert.assertEquals(StrutsXmlConstants.PACKAGE_TAG, tagRegion.getName());
 
-		Assert.assertEquals(prefix, tagRegion.getCurrentAttrValuePrefix());
+		Assert.assertEquals(prefix, tagRegion.getCurrentElementValuePrefix());
 
 		// current attribute
 		Assert.assertEquals(StrutsXmlConstants.EXTENDS_ATTR, tagRegion
-				.getCurrentAttr().getName());
-		Assert.assertEquals(attrValue, tagRegion.getCurrentAttr().getValue());
-		Assert.assertEquals(valueOffset, tagRegion.getCurrentAttr()
+				.getCurrentElement().getName());
+		Assert.assertEquals(attrValue, tagRegion.getCurrentElement().getValue());
+		Assert.assertEquals(valueOffset, tagRegion.getCurrentElement()
 				.getValueRegion().getOffset());
-		Assert.assertEquals(attrValue.length(), tagRegion.getCurrentAttr()
+		Assert.assertEquals(attrValue.length(), tagRegion.getCurrentElement()
 				.getValueRegion().getLength());
 
 		// attributes

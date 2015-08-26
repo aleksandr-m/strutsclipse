@@ -31,6 +31,10 @@ public class StrutsXmlConstants {
 	public static final String EXTENDS_ATTR = "extends";
 	public static final String NAMESPACE_ATTR = "namespace";
 
+	public static final String DISPATCHER_RESULT = "dispatcher";
+	public static final String TILES_RESULT = "tiles";
+	public static final String FREEMARKER_RESULT = "freemarker";
+
 	public static final String[][] DEFAULT_PACKAGE_NAMES = {
 			{ "struts-default", null }, { "json-default", null },
 			{ "tiles-default", null }, { "rest-default", null },
@@ -46,13 +50,13 @@ public class StrutsXmlConstants {
 			{ "login", null } };
 	public static final String[][] DEFAULT_RESULT_TYPES = {
 			{
-					"dispatcher",
+					DISPATCHER_RESULT,
 					"Includes or forwards to a view (usually a jsp). Behind the scenes Struts will use a RequestDispatcher, where the target servlet/JSP receives the same request/response objects as the original servlet/JSP." },
 			{
 					"redirectAction",
 					"This result uses the ActionMapper provided by the ActionMapperFactory to redirect the browser to a URL that invokes the specified action and (optional) namespace. This is better than the ServletRedirectResult because it does not require you to encode the URL patterns processed by the ActionMapper in to your struts.xml configuration files. This means you can change your URL patterns at any point and your application will still work. It is strongly recommended that if you are redirecting to another action, you use this result rather than the standard redirect result." },
 			{
-					"tiles",
+					TILES_RESULT,
 					"The tiles result allows actions to return Tiles pages. To use this result type you need to add tiles plugin." },
 			{
 					"stream",
@@ -60,7 +64,7 @@ public class StrutsXmlConstants {
 			{
 					"json",
 					"The JSON plugin provides a 'json' result type that serializes actions into JSON. To use this result type you need to add json plugin." },
-			{ "freemarker",
+			{ FREEMARKER_RESULT,
 					"Renders a view using the Freemarker template engine." },
 			{
 					"httpheader",
