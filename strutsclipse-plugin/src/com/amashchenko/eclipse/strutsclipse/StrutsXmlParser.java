@@ -202,15 +202,19 @@ public class StrutsXmlParser {
 		try {
 			TagRegion result = null;
 
-			IPredicateRule[] tagRules = new IPredicateRule[1];
+			IPredicateRule[] tagRules = new IPredicateRule[2];
 			tagRules[0] = new MultiLineRule("<" + parentTagName, ">",
 					new Token(parentTagName));
+			// close parentTagName tag needed to prevent selecting not a direct
+			// parent tag
+			tagRules[1] = new MultiLineRule("</" + parentTagName, ">",
+					new Token(CLOSE_TAG_TOKEN));
 
 			RuleBasedPartitionScanner scanner = new RuleBasedPartitionScanner();
 			scanner.setPredicateRules(tagRules);
 
-			partitioner = new FastPartitioner(scanner,
-					new String[] { parentTagName });
+			partitioner = new FastPartitioner(scanner, new String[] {
+					parentTagName, CLOSE_TAG_TOKEN });
 
 			partitioner.connect(document);
 

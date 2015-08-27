@@ -355,4 +355,99 @@ public class StrutsXmlParserTest {
 		Assert.assertTrue(tagRegion.getAttrs().containsKey(
 				StrutsXmlConstants.TYPE_ATTR));
 	}
+
+	@Test
+	public void testGetParentTagRegionNoValue() throws Exception {
+		final String content = "<result name=\"somename\" type=\"sometype\"><param name=\"some\"></param></result>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+				content.indexOf("</param"), StrutsXmlConstants.RESULT_TAG);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNotNull(tagRegion.getAttrs());
+
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertEquals(StrutsXmlConstants.RESULT_TAG, tagRegion.getName());
+
+		// attributes
+		Assert.assertEquals(2, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.TYPE_ATTR));
+	}
+
+	@Test
+	public void testGetParentTagRegionUnknown() throws Exception {
+		final String content = "<unknown name=\"somename\" type=\"sometype\"><param name=\"some\">paramvalue</param></unknown>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+				content.indexOf("paramvalue"), StrutsXmlConstants.RESULT_TAG);
+
+		Assert.assertNull(tagRegion);
+	}
+
+	@Test
+	public void testGetParentTagRegionOtherParent() throws Exception {
+		final String content = "<result name=\"somename\" type=\"sometype\"></result><unknown><param name=\"some\">paramvalue</param></unknown>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+				content.indexOf("paramvalue"), StrutsXmlConstants.RESULT_TAG);
+
+		Assert.assertNull(tagRegion);
+	}
+
+	@Test
+	public void testGetParentTagRegionOtherParentNoValue() throws Exception {
+		final String content = "<result name=\"somename\" type=\"sometype\"></result><unknown><param name=\"some\"></param></unknown>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+				content.indexOf("</param"), StrutsXmlConstants.RESULT_TAG);
+
+		Assert.assertNull(tagRegion);
+	}
+
+	@Test
+	public void testGetParentTagRegionDeepNested() throws Exception {
+		final String content = "<package extends=\"some\"><action name=\"somename\"><result><param name=\"some\">paramvalue</param></result></action></package>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+				content.indexOf("paramvalue"), StrutsXmlConstants.PACKAGE_TAG);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNotNull(tagRegion.getAttrs());
+
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertEquals(StrutsXmlConstants.PACKAGE_TAG, tagRegion.getName());
+
+		// attributes
+		Assert.assertEquals(1, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.EXTENDS_ATTR));
+	}
+
+	@Test
+	public void testGetParentTagRegionDeepNestedNoValue() throws Exception {
+		final String content = "<package extends=\"some\"><action name=\"somename\"><result><param name=\"some\"></param></result></action></package>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+				content.indexOf("</param"), StrutsXmlConstants.PACKAGE_TAG);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNotNull(tagRegion.getAttrs());
+
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertEquals(StrutsXmlConstants.PACKAGE_TAG, tagRegion.getName());
+
+		// attributes
+		Assert.assertEquals(1, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.EXTENDS_ATTR));
+	}
 }
