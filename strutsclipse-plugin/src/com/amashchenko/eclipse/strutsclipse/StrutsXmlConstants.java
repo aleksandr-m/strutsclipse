@@ -35,6 +35,8 @@ public class StrutsXmlConstants {
 	public static final String TILES_RESULT = "tiles";
 	public static final String FREEMARKER_RESULT = "freemarker";
 
+	public static final String LOCATION_PARAM = "location";
+
 	public static final String[][] DEFAULT_PACKAGE_NAMES = {
 			{ "struts-default", null }, { "json-default", null },
 			{ "tiles-default", null }, { "rest-default", null },

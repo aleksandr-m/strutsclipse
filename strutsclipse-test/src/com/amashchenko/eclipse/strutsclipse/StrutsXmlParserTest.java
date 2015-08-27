@@ -331,4 +331,28 @@ public class StrutsXmlParserTest {
 		Assert.assertTrue(tagRegion.getAttrs().containsKey(
 				StrutsXmlConstants.EXTENDS_ATTR));
 	}
+
+	// get parent tag region
+	@Test
+	public void testGetParentTagRegion() throws Exception {
+		final String content = "<result name=\"somename\" type=\"sometype\"><param name=\"some\">paramvalue</param></result>";
+		IDocument document = new Document(content);
+		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+				content.indexOf("paramvalue"), StrutsXmlConstants.RESULT_TAG);
+
+		Assert.assertNotNull(tagRegion);
+		Assert.assertNotNull(tagRegion.getAttrs());
+
+		Assert.assertNull(tagRegion.getCurrentElement());
+		Assert.assertNull(tagRegion.getCurrentElementValuePrefix());
+
+		Assert.assertEquals(StrutsXmlConstants.RESULT_TAG, tagRegion.getName());
+
+		// attributes
+		Assert.assertEquals(2, tagRegion.getAttrs().size());
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAME_ATTR));
+		Assert.assertTrue(tagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.TYPE_ATTR));
+	}
 }

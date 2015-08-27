@@ -111,25 +111,32 @@ public class StrutsXmlCompletionProposalComputer implements
 				} else if (elementName == null) { // result tag body
 					final ElementRegion typeAttr = tagRegion.getAttrs().get(
 							StrutsXmlConstants.TYPE_ATTR);
-
-					Set<String> set = null;
-					// assume that default is dispatcher for now, TODO improve
-					// that
-					if (typeAttr == null
-							|| StrutsXmlConstants.DISPATCHER_RESULT
-									.equals(typeAttr.getValue())) {
-						set = findFilesPaths(context.getDocument(),
-								DISPATCHER_EXTENSIONS);
-					} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttr
-							.getValue())) {
-						set = findTilesDefinitionNames(context.getDocument());
-					} else if (StrutsXmlConstants.FREEMARKER_RESULT
-							.equals(typeAttr.getValue())) {
-						set = findFilesPaths(context.getDocument(),
-								FREEMARKER_EXTENSIONS);
+					proposals = computeResultBodyProposals(
+							context.getDocument(), typeAttr == null ? null
+									: typeAttr.getValue());
+				}
+			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
+					.getName())) {
+				if (elementName == null) { // param tag body
+					final ElementRegion nameAttr = tagRegion.getAttrs().get(
+							StrutsXmlConstants.NAME_ATTR);
+					if (nameAttr != null
+							&& StrutsXmlConstants.LOCATION_PARAM
+									.equals(nameAttr.getValue())) {
+						final TagRegion parentResultTagRegion = StrutsXmlParser
+								.getParentTagRegion(context.getDocument(),
+										context.getInvocationOffset(),
+										StrutsXmlConstants.RESULT_TAG);
+						if (parentResultTagRegion != null) {
+							final ElementRegion typeAttr = parentResultTagRegion
+									.getAttrs().get(
+											StrutsXmlConstants.TYPE_ATTR);
+							proposals = computeResultBodyProposals(
+									context.getDocument(),
+									typeAttr == null ? null : typeAttr
+											.getValue());
+						}
 					}
-
-					proposals = createProposals(set);
 				}
 			}
 		}
@@ -138,16 +145,29 @@ public class StrutsXmlCompletionProposalComputer implements
 				proposalRegion, multiValueSeparator, elementValue);
 	}
 
-	private String[][] createProposals(Set<String> proposals) {
-		String[][] arr = null;
-		if (proposals != null && !proposals.isEmpty()) {
-			arr = new String[proposals.size()][2];
+	private String[][] computeResultBodyProposals(final IDocument document,
+			final String typeAttrValue) {
+		Set<String> set = null;
+		// assume that default is dispatcher for now, TODO improve
+		// that
+		if (typeAttrValue == null
+				|| StrutsXmlConstants.DISPATCHER_RESULT.equals(typeAttrValue)) {
+			set = findFilesPaths(document, DISPATCHER_EXTENSIONS);
+		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
+			set = findTilesDefinitionNames(document);
+		} else if (StrutsXmlConstants.FREEMARKER_RESULT.equals(typeAttrValue)) {
+			set = findFilesPaths(document, FREEMARKER_EXTENSIONS);
+		}
+
+		String[][] proposals = null;
+		if (set != null && !set.isEmpty()) {
+			proposals = new String[set.size()][2];
 			int indx = 0;
-			for (String p : proposals) {
-				arr[indx++][0] = p;
+			for (String p : set) {
+				proposals[indx++][0] = p;
 			}
 		}
-		return arr;
+		return proposals;
 	}
 
 	private List<ICompletionProposal> createAttrCompletionProposals(

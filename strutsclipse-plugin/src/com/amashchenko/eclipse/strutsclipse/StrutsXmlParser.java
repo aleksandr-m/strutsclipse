@@ -36,7 +36,7 @@ public class StrutsXmlParser {
 
 	private static final String[] TAGS = { StrutsXmlConstants.PACKAGE_TAG,
 			StrutsXmlConstants.ACTION_TAG, StrutsXmlConstants.RESULT_TAG,
-			CLOSE_TAG_TOKEN };
+			StrutsXmlConstants.PARAM_TAG, CLOSE_TAG_TOKEN };
 
 	private static final String[] ATTRS = { StrutsXmlConstants.EXTENDS_ATTR,
 			StrutsXmlConstants.NAME_ATTR, StrutsXmlConstants.TYPE_ATTR,
@@ -115,6 +115,112 @@ public class StrutsXmlParser {
 				// get start tag of current tag body
 				tagRegion = partitioner.getPartition(bodyOffset - 1);
 			}
+
+			if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
+					&& !CLOSE_TAG_TOKEN.equals(tagRegion.getType())) {
+				IPredicateRule[] attrRules = new IPredicateRule[ATTRS.length];
+				for (int i = 0; i < ATTRS.length; i++) {
+					if (DOUBLE_QUOTES_TOKEN.equals(ATTRS[i])) {
+						attrRules[i] = new SingleLineRule("\"", "\"",
+								new Token(ATTRS[i]));
+					} else if (SINGLE_QUOTES_TOKEN.equals(ATTRS[i])) {
+						attrRules[i] = new SingleLineRule("'", "'", new Token(
+								ATTRS[i]));
+					} else {
+						attrRules[i] = new MultiLineRule(ATTRS[i], "=",
+								new Token(ATTRS[i]));
+					}
+				}
+
+				scanner.setPredicateRules(attrRules);
+
+				partitioner = new FastPartitioner(scanner, ATTRS);
+
+				partitioner.connect(document);
+
+				// all attributes
+				Map<String, ElementRegion> allAttrs = new HashMap<String, ElementRegion>();
+				ITypedRegion[] regions = partitioner.computePartitioning(
+						tagRegion.getOffset(), tagRegion.getLength());
+				if (regions != null) {
+					String attrKey = null;
+					for (ITypedRegion r : regions) {
+						// only legal types
+						if (!IDocument.DEFAULT_CONTENT_TYPE.equals(r.getType())) {
+							boolean quotesToken = DOUBLE_QUOTES_TOKEN.equals(r
+									.getType())
+									|| SINGLE_QUOTES_TOKEN.equals(r.getType());
+
+							if (attrKey != null && quotesToken) {
+								try {
+									final int valDocOffset = r.getOffset() + 1;
+									// get value w/o quotes
+									String val = document.get(valDocOffset,
+											r.getLength() - 2);
+
+									allAttrs.put(attrKey, new ElementRegion(
+											attrKey, val, valDocOffset));
+
+									// if not in tag body and current attribute
+									if (currentElement == null
+											&& valDocOffset <= offset
+											&& r.getOffset() + r.getLength() > offset) {
+										currentElement = new ElementRegion(
+												attrKey, val, valDocOffset);
+
+										// attribute value to invocation offset
+										elementValuePrefix = document.get(
+												valDocOffset, offset
+														- valDocOffset);
+									}
+								} catch (BadLocationException e) {
+									e.printStackTrace();
+								}
+								// set key to null
+								attrKey = null;
+							} else if (!quotesToken) {
+								attrKey = r.getType();
+							}
+						}
+					}
+				}
+				result = new TagRegion(tagRegion.getType(), currentElement,
+						elementValuePrefix, allAttrs);
+			}
+
+			return result;
+		} finally {
+			if (partitioner != null) {
+				partitioner.disconnect();
+			}
+		}
+	}
+
+	public static TagRegion getParentTagRegion(final IDocument document,
+			final int offset, final String parentTagName) {
+		IDocumentPartitioner partitioner = null;
+		try {
+			TagRegion result = null;
+
+			IPredicateRule[] tagRules = new IPredicateRule[1];
+			tagRules[0] = new MultiLineRule("<" + parentTagName, ">",
+					new Token(parentTagName));
+
+			RuleBasedPartitionScanner scanner = new RuleBasedPartitionScanner();
+			scanner.setPredicateRules(tagRules);
+
+			partitioner = new FastPartitioner(scanner,
+					new String[] { parentTagName });
+
+			partitioner.connect(document);
+
+			ITypedRegion tagRegion = partitioner.getPartition(offset);
+
+			// get parent
+			tagRegion = partitioner.getPartition(tagRegion.getOffset() - 1);
+
+			ElementRegion currentElement = null;
+			String elementValuePrefix = null;
 
 			if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
 					&& !CLOSE_TAG_TOKEN.equals(tagRegion.getType())) {
