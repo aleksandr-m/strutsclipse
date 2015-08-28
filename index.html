@@ -35,18 +35,34 @@
             <div class="row">
                 <div role="main" class="col-md-9">
                     <h3 id="installation">Installation</h3>
-                    <h4 id="update-site">Update Site</h4>
+                    <h4 id="eclipse-marketplace">Eclipse Marketplace button (recommended)</h4>
+                    <p>Install StrutsClipse via Eclipse Marketplace button:</p>
+                    <p>
+                        Drag and drop the <a href="http://marketplace.eclipse.org/marketplace-client-intro?mpc_install=2502030" class="drag" title="Drag to your running Eclipse workspace to install StrutsClipse">
+                        <img src="https://marketplace.eclipse.org/sites/all/themes/solstice/_themes/solstice_marketplace/public/images/btn-install.png" alt="Drag to your running Eclipse workspace to install StrutsClipse" /></a>
+                        button into a running Eclipse instance and follow the Eclipse Marketplace Client installation wizard.
+                    </p>
+                    
+                    <h4 id="eclipse-marketplace-client" class="pad-top-sm">Eclipse Marketplace Client</h4>
+                    <p>Install StrutsClipse via Eclipse Marketplace Client:</p>
+                    <ol>
+                        <li>In the Eclipse click <code>Help</code> -> <code>Eclipse Marketplace...</code></li>
+                        <li>Search for <code>StrutsClipse</code>.</li>
+                        <li>Click <i>Install</i> button and follow the installation wizard.</li>
+                    </ol>
+                    
+                    <h4 id="update-site" class="pad-top-sm">Update Site</h4>
                     <p>Install StrutsClipse from the update site:</p>
                     <ol>
                         <li>In the Eclipse click <code>Help</code> -> <code>Install New Software...</code></li>
-                            <li>
-                                <div>In the installation dialog type the following url into <code>Work with</code> field and hit enter.</div>
-                                <div><code>https://github.com/aleksandr-m/strutsclipse/raw/master/update/</code></div>
-                            </li>
+                        <li>
+                            <div>In the installation dialog type the following url into <code>Work with</code> field and hit enter.</div>
+                            <div><code>https://github.com/aleksandr-m/strutsclipse/raw/master/update/</code></div>
+                        </li>
                         <li>Check the latest version of StrutsClipse and follow the installation wizard.</li>
                     </ol>
 
-                    <h4 id="manual-installation">Manual Installation</h4>
+                    <h4 id="manual-installation" class="pad-top-sm">Manual Installation</h4>
                         <p>
                             Download 
                             <a href="https://github.com/aleksandr-m/strutsclipse/raw/master/update/1.0.3/features/com.amashchenko.eclipse.strutsclipse.feature_1.0.3.201508171752.jar">feature</a>
@@ -54,7 +70,7 @@
                             jars and put them in Eclipse <code>features</code> and <code>plugins</code> folders respectively.
                         </p>
 
-                    <h3 id="overview">Overview</h3>
+                    <h3 id="overview" class="pad-top">Overview</h3>
                     
                     <p>StrutsClipse provides Eclipse IDE integration for developing <a href="http://struts.apache.org/" target="_blank">Apache Struts2</a> based applications.</p>
                     
@@ -116,6 +132,8 @@
                             <li>
                                 <a href="#installation">Installation</a>
                                 <ul class="nav-sub nav-stacked">
+                                    <li><a href="#eclipse-marketplace">Eclipse Marketplace button</a></li>
+                                    <li><a href="#eclipse-marketplace-client">Eclipse Marketplace Client</a></li>
                                     <li><a href="#update-site">Update Site</a></li>
                                     <li><a href="#manual-installation">Manual Installation</a></li>
                                 </ul>

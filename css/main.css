@@ -21,6 +21,9 @@ footer {
 .pad-top {
     padding-top: 30px;
 }
+.pad-top-sm {
+    padding-top: 10px;
+}
 
 .nav-sub {
     list-style: outside none none;
