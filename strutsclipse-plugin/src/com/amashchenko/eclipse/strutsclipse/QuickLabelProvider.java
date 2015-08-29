@@ -82,6 +82,7 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 			StringBuilder text = new StringBuilder();
 
 			if (attrs != null) {
+				text.append("<" + node.getNodeName() + " ");
 				// try to append name attribute
 				appendValue(text,
 						attrs.getNamedItem(StrutsXmlConstants.NAME_ATTR));
@@ -100,6 +101,7 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 							attrs.getNamedItem(StrutsXmlConstants.EXTENDS_ATTR));
 					break;
 				case StrutsXmlConstants.ACTION_TAG:
+					text.delete(0, text.indexOf(" ") + 1);
 					appendNameValue(text,
 							attrs.getNamedItem(StrutsXmlConstants.METHOD_ATTR));
 					appendNameValue(text,
@@ -122,6 +124,8 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 
 			if (text.length() == 0) {
 				text.append("<" + node.getNodeName() + ">");
+			} else if (text.charAt(0) == '<') {
+				text.append('>');
 			}
 
 			return text.toString();
