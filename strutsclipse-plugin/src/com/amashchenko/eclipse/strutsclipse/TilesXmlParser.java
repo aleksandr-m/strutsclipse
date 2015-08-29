@@ -21,7 +21,9 @@ import java.util.Set;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.MultiLineRule;
@@ -118,6 +120,96 @@ public class TilesXmlParser {
 			}
 
 			return result;
+		} finally {
+			if (partitioner != null) {
+				partitioner.disconnect();
+			}
+		}
+	}
+
+	public static IRegion getDefinitionRegion(final IDocument document,
+			final String definitionName) {
+		IDocumentPartitioner partitioner = null;
+		try {
+			IPredicateRule[] tagRules = new IPredicateRule[TAGS.length];
+			for (int i = 0; i < TAGS.length; i++) {
+				tagRules[i] = new MultiLineRule("<" + TAGS[i], ">", new Token(
+						TAGS[i]));
+			}
+
+			RuleBasedPartitionScanner scanner = new RuleBasedPartitionScanner();
+			scanner.setPredicateRules(tagRules);
+
+			partitioner = new FastPartitioner(scanner, TAGS);
+
+			partitioner.connect(document);
+
+			// get tags regions
+			ITypedRegion[] tagRegions = partitioner.computePartitioning(0,
+					document.getLength());
+
+			// create attribute partitioner
+			IPredicateRule[] attrRules = new IPredicateRule[ATTRS.length];
+			for (int i = 0; i < ATTRS.length; i++) {
+				if (DOUBLE_QUOTES_TOKEN.equals(ATTRS[i])) {
+					attrRules[i] = new SingleLineRule("\"", "\"", new Token(
+							ATTRS[i]));
+				} else if (SINGLE_QUOTES_TOKEN.equals(ATTRS[i])) {
+					attrRules[i] = new SingleLineRule("'", "'", new Token(
+							ATTRS[i]));
+				} else {
+					attrRules[i] = new MultiLineRule(ATTRS[i], "=", new Token(
+							ATTRS[i]));
+				}
+			}
+
+			scanner.setPredicateRules(attrRules);
+			partitioner = new FastPartitioner(scanner, ATTRS);
+			partitioner.connect(document);
+
+			for (ITypedRegion tagRegion : tagRegions) {
+				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())) {
+					ITypedRegion[] regions = partitioner.computePartitioning(
+							tagRegion.getOffset(), tagRegion.getLength());
+					if (regions != null) {
+						String attrKey = null;
+						for (ITypedRegion r : regions) {
+							// only legal types
+							if (!IDocument.DEFAULT_CONTENT_TYPE.equals(r
+									.getType())) {
+								boolean quotesToken = DOUBLE_QUOTES_TOKEN
+										.equals(r.getType())
+										|| SINGLE_QUOTES_TOKEN.equals(r
+												.getType());
+
+								if (attrKey != null && quotesToken) {
+									try {
+										// get value w/o quotes
+										String val = document.get(
+												r.getOffset() + 1,
+												r.getLength() - 2);
+
+										// definition found return it
+										if (val.equals(definitionName)) {
+											return new Region(
+													r.getOffset() + 1,
+													r.getLength() - 2);
+										}
+									} catch (BadLocationException e) {
+										e.printStackTrace();
+									}
+									// set key to null
+									attrKey = null;
+								} else if (!quotesToken) {
+									attrKey = r.getType();
+								}
+							}
+						}
+					}
+				}
+			}
+
+			return null;
 		} finally {
 			if (partitioner != null) {
 				partitioner.disconnect();

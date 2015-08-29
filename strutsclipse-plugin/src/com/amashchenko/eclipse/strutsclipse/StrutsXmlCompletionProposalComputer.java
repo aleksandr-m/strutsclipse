@@ -21,12 +21,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
@@ -41,7 +41,6 @@ import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
-import com.amashchenko.eclipse.strutsclipse.java.JavaProjectUtil;
 
 public class StrutsXmlCompletionProposalComputer implements
 		ICompletionProposalComputer {
@@ -249,11 +248,10 @@ public class StrutsXmlCompletionProposalComputer implements
 			final List<String> extensions) {
 		final Set<String> paths = new HashSet<String>();
 		try {
-			IJavaProject javaProject = JavaProjectUtil
-					.getCurrentJavaProject(currentDocument);
-			if (javaProject != null && javaProject.exists()) {
+			IProject project = ProjectUtil.getCurrentProject(currentDocument);
+			if (project != null && project.exists()) {
 				IVirtualComponent rootComponent = ComponentCore
-						.createComponent(javaProject.getProject());
+						.createComponent(project);
 				final IVirtualFolder rootFolder = rootComponent.getRootFolder();
 
 				rootFolder.getUnderlyingResource().accept(
@@ -289,10 +287,10 @@ public class StrutsXmlCompletionProposalComputer implements
 	private Set<String> findTilesDefinitionNames(final IDocument currentDocument) {
 		final Set<String> names = new HashSet<String>();
 		try {
-			IJavaProject javaProject = JavaProjectUtil
-					.getCurrentJavaProject(currentDocument);
-			if (javaProject != null && javaProject.exists()) {
-				javaProject.getProject().accept(new IResourceVisitor() {
+			final IDocumentProvider provider = new TextFileDocumentProvider();
+			IProject project = ProjectUtil.getCurrentProject(currentDocument);
+			if (project != null && project.exists()) {
+				project.accept(new IResourceVisitor() {
 					@Override
 					public boolean visit(IResource resource)
 							throws CoreException {
@@ -305,7 +303,6 @@ public class StrutsXmlCompletionProposalComputer implements
 										.toLowerCase()
 										.contains(
 												StrutsXmlConstants.TILES_RESULT)) {
-							IDocumentProvider provider = new TextFileDocumentProvider();
 							provider.connect(resource);
 							IDocument document = provider.getDocument(resource);
 							provider.disconnect(resource);

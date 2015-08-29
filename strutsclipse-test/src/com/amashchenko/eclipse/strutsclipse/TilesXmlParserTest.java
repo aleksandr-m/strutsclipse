@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -148,5 +149,21 @@ public class TilesXmlParserTest {
 
 		Assert.assertNotNull(names);
 		Assert.assertTrue(names.isEmpty());
+	}
+
+	// get definition region
+	@Test
+	public void testGetDefinitionRegion() throws Exception {
+		final String name = "somename";
+		final String content = "<definition name=\"" + name
+				+ "\" extends=\"some\"><put-attribute name=\"" + name
+				+ "\" value=\"someval\"/></definition>";
+		IDocument document = new Document(content);
+		IRegion region = TilesXmlParser.getDefinitionRegion(document, name);
+
+		Assert.assertNotNull(region);
+
+		Assert.assertEquals(content.indexOf(name), region.getOffset());
+		Assert.assertEquals(name.length(), region.getLength());
 	}
 }

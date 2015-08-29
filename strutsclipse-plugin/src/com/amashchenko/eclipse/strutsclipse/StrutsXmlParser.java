@@ -223,9 +223,6 @@ public class StrutsXmlParser {
 			// get parent
 			tagRegion = partitioner.getPartition(tagRegion.getOffset() - 1);
 
-			ElementRegion currentElement = null;
-			String elementValuePrefix = null;
-
 			if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
 					&& !CLOSE_TAG_TOKEN.equals(tagRegion.getType())) {
 				IPredicateRule[] attrRules = new IPredicateRule[ATTRS.length];
@@ -270,19 +267,6 @@ public class StrutsXmlParser {
 
 									allAttrs.put(attrKey, new ElementRegion(
 											attrKey, val, valDocOffset));
-
-									// if not in tag body and current attribute
-									if (currentElement == null
-											&& valDocOffset <= offset
-											&& r.getOffset() + r.getLength() > offset) {
-										currentElement = new ElementRegion(
-												attrKey, val, valDocOffset);
-
-										// attribute value to invocation offset
-										elementValuePrefix = document.get(
-												valDocOffset, offset
-														- valDocOffset);
-									}
 								} catch (BadLocationException e) {
 									e.printStackTrace();
 								}
@@ -294,8 +278,8 @@ public class StrutsXmlParser {
 						}
 					}
 				}
-				result = new TagRegion(tagRegion.getType(), currentElement,
-						elementValuePrefix, allAttrs);
+				result = new TagRegion(tagRegion.getType(), null, null,
+						allAttrs);
 			}
 
 			return result;

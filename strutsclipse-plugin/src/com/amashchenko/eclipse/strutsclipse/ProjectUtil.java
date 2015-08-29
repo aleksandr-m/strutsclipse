@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse.java;
+package com.amashchenko.eclipse.strutsclipse;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -25,26 +25,33 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.text.IDocument;
 
-public class JavaProjectUtil {
-	private JavaProjectUtil() {
+public class ProjectUtil {
+	private ProjectUtil() {
+	}
+
+	public static IProject getCurrentProject(IDocument document) {
+		// try file buffers
+		ITextFileBuffer textFileBuffer = FileBuffers.getTextFileBufferManager()
+				.getTextFileBuffer(document);
+		if (textFileBuffer != null) {
+			IPath basePath = textFileBuffer.getLocation();
+			if (basePath != null && !basePath.isEmpty()) {
+				IProject project = ResourcesPlugin.getWorkspace().getRoot()
+						.getProject(basePath.segment(0));
+				if (basePath.segmentCount() > 1 && project.isAccessible()) {
+					return project;
+				}
+			}
+		}
+		return null;
 	}
 
 	public static IJavaProject getCurrentJavaProject(IDocument document) {
 		IJavaProject javaProject = null;
 		try {
-			// try file buffers
-			ITextFileBuffer textFileBuffer = FileBuffers
-					.getTextFileBufferManager().getTextFileBuffer(document);
-			if (textFileBuffer != null) {
-				IPath basePath = textFileBuffer.getLocation();
-				if (basePath != null && !basePath.isEmpty()) {
-					IProject project = ResourcesPlugin.getWorkspace().getRoot()
-							.getProject(basePath.segment(0));
-					if (basePath.segmentCount() > 1 && project.isAccessible()
-							&& project.hasNature(JavaCore.NATURE_ID)) {
-						javaProject = JavaCore.create(project);
-					}
-				}
+			IProject project = getCurrentProject(document);
+			if (project != null && project.hasNature(JavaCore.NATURE_ID)) {
+				javaProject = JavaCore.create(project);
 			}
 		} catch (CoreException e) {
 			e.printStackTrace();

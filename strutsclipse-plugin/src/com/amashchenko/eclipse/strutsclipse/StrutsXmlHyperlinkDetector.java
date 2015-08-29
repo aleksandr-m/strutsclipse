@@ -15,6 +15,15 @@
  */
 package com.amashchenko.eclipse.strutsclipse;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -26,9 +35,18 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-
-import com.amashchenko.eclipse.strutsclipse.java.JavaProjectUtil;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.ide.IDE;
+import org.eclipse.ui.part.MultiPageEditorPart;
+import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.eclipse.ui.texteditor.ITextEditor;
+import org.eclipse.wst.common.componentcore.ComponentCore;
+import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
+import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
 public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 	@Override
@@ -36,65 +54,236 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 			IRegion region, boolean canShowMultipleHyperlinks) {
 		IDocument document = textViewer.getDocument();
 
-		IHyperlink link = null;
+		List<IHyperlink> linksList = new ArrayList<IHyperlink>();
 
 		final TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
 				region.getOffset());
 
 		if (tagRegion != null && tagRegion.getCurrentElement() != null) {
+			final String elementName = tagRegion.getCurrentElement().getName();
+			final IRegion elementRegion = tagRegion.getCurrentElement()
+					.getValueRegion();
+			final String elementValue = tagRegion.getCurrentElement()
+					.getValue();
+
 			if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
 				final ElementRegion classAttr = tagRegion.getAttrs().get(
 						StrutsXmlConstants.CLASS_ATTR);
-				if (StrutsXmlConstants.METHOD_ATTR.equalsIgnoreCase(tagRegion
-						.getCurrentElement().getName()) && classAttr != null) {
-					try {
-						IJavaProject javaProject = JavaProjectUtil
-								.getCurrentJavaProject(document);
-						if (javaProject != null && javaProject.exists()) {
-							IType type = javaProject.findType(classAttr
-									.getValue());
-							if (type != null && type.exists()) {
-								IMethod method = type.getMethod(tagRegion
-										.getCurrentElement().getValue(), null);
-								if (method != null && method.exists()) {
-									link = new JavaElementHyperlink(tagRegion
-											.getCurrentElement()
-											.getValueRegion(), method);
-								} else {
-									// try super classes
-									IType[] superClasses = type
-											.newSupertypeHierarchy(null)
-											.getAllSuperclasses(type);
-									for (IType superType : superClasses) {
-										method = superType.getMethod(
-												tagRegion.getCurrentElement()
-														.getValue(), null);
-										if (method != null && method.exists()) {
-											link = new JavaElementHyperlink(
-													tagRegion
-															.getCurrentElement()
-															.getValueRegion(),
-													method);
-											break;
-										}
-									}
-								}
-							}
+				if (StrutsXmlConstants.METHOD_ATTR
+						.equalsIgnoreCase(elementName) && classAttr != null) {
+					linksList.add(createClassMethodLink(document, elementValue,
+							elementRegion, classAttr.getValue()));
+				}
+			} else if (StrutsXmlConstants.RESULT_TAG.equalsIgnoreCase(tagRegion
+					.getName())) {
+				if (elementName == null) { // result tag body
+					final ElementRegion typeAttr = tagRegion.getAttrs().get(
+							StrutsXmlConstants.TYPE_ATTR);
+					linksList.addAll(createResultLocationLinks(document,
+							elementValue, elementRegion,
+							typeAttr == null ? null : typeAttr.getValue()));
+				}
+			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
+					.getName())) {
+				if (elementName == null) { // param tag body
+					final ElementRegion nameAttr = tagRegion.getAttrs().get(
+							StrutsXmlConstants.NAME_ATTR);
+					if (nameAttr != null
+							&& StrutsXmlConstants.LOCATION_PARAM
+									.equals(nameAttr.getValue())) {
+						final TagRegion parentResultTagRegion = StrutsXmlParser
+								.getParentTagRegion(document,
+										region.getOffset(),
+										StrutsXmlConstants.RESULT_TAG);
+						if (parentResultTagRegion != null
+								&& parentResultTagRegion.getAttrs() != null) {
+							final ElementRegion typeAttr = parentResultTagRegion
+									.getAttrs().get(
+											StrutsXmlConstants.TYPE_ATTR);
+							linksList.addAll(createResultLocationLinks(
+									document,
+									elementValue,
+									elementRegion,
+									typeAttr == null ? null : typeAttr
+											.getValue()));
 						}
-					} catch (JavaModelException e) {
-						e.printStackTrace();
 					}
 				}
 			}
 		}
 
 		IHyperlink[] links = null;
-		if (link != null) {
-			links = new IHyperlink[] { link };
+		if (linksList != null && !linksList.isEmpty()) {
+			links = linksList.toArray(new IHyperlink[linksList.size()]);
 		}
 
 		return links;
+	}
+
+	private List<IHyperlink> createResultLocationLinks(
+			final IDocument document, final String elementValue,
+			final IRegion elementRegion, final String typeAttrValue) {
+		final List<IHyperlink> links = new ArrayList<IHyperlink>();
+
+		// assume that default is dispatcher for now, TODO improve
+		// that
+		if (typeAttrValue == null
+				|| StrutsXmlConstants.DISPATCHER_RESULT.equals(typeAttrValue)
+				|| StrutsXmlConstants.FREEMARKER_RESULT.equals(typeAttrValue)) {
+			IProject project = ProjectUtil.getCurrentProject(document);
+			if (project != null && project.exists()) {
+				IVirtualComponent rootComponent = ComponentCore
+						.createComponent(project);
+				final IVirtualFolder rootFolder = rootComponent.getRootFolder();
+				IPath path = rootFolder.getProjectRelativePath().append(
+						elementValue);
+
+				IFile file = project.getFile(path);
+				if (file.exists()) {
+					links.add(new FileHyperlink(elementRegion, file));
+				}
+			}
+		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
+			try {
+				final IDocumentProvider provider = new TextFileDocumentProvider();
+				final IProject project = ProjectUtil
+						.getCurrentProject(document);
+				if (project != null && project.exists()) {
+					project.accept(new IResourceVisitor() {
+						@Override
+						public boolean visit(IResource resource)
+								throws CoreException {
+							if (resource.isAccessible()
+									&& resource.getType() == IResource.FILE
+									&& "xml".equalsIgnoreCase(resource
+											.getFileExtension())
+									&& resource
+											.getName()
+											.toLowerCase()
+											.contains(
+													StrutsXmlConstants.TILES_RESULT)) {
+								provider.connect(resource);
+								IDocument document = provider
+										.getDocument(resource);
+								provider.disconnect(resource);
+
+								IRegion region = TilesXmlParser
+										.getDefinitionRegion(document,
+												elementValue);
+								if (region != null) {
+									IFile file = project.getFile(resource
+											.getProjectRelativePath());
+									if (file.exists()) {
+										links.add(new FileHyperlink(
+												elementRegion, file, region));
+									}
+								}
+							}
+							return true;
+						}
+					});
+				}
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
+		}
+		return links;
+	}
+
+	private IHyperlink createClassMethodLink(final IDocument document,
+			final String elementValue, final IRegion elementRegion,
+			final String className) {
+		IHyperlink link = null;
+		try {
+			IJavaProject javaProject = ProjectUtil
+					.getCurrentJavaProject(document);
+			if (javaProject != null && javaProject.exists()) {
+				IType type = javaProject.findType(className);
+				if (type != null && type.exists()) {
+					IMethod method = type.getMethod(elementValue, null);
+					if (method != null && method.exists()) {
+						link = new JavaElementHyperlink(elementRegion, method);
+					} else {
+						// try super classes
+						IType[] superClasses = type.newSupertypeHierarchy(null)
+								.getAllSuperclasses(type);
+						for (IType superType : superClasses) {
+							method = superType.getMethod(elementValue, null);
+							if (method != null && method.exists()) {
+								link = new JavaElementHyperlink(elementRegion,
+										method);
+								break;
+							}
+						}
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		return link;
+	}
+
+	private static class FileHyperlink implements IHyperlink {
+		private final IFile fFile;
+		private final IRegion fRegion;
+		private final IRegion fHighlightRange;
+
+		private FileHyperlink(IRegion region, IFile file) {
+			this(region, file, null);
+		}
+
+		public FileHyperlink(IRegion region, IFile file, IRegion range) {
+			fRegion = region;
+			fFile = file;
+			fHighlightRange = range;
+		}
+
+		@Override
+		public IRegion getHyperlinkRegion() {
+			return fRegion;
+		}
+
+		@Override
+		public String getHyperlinkText() {
+			return fFile == null ? null : fFile.getProjectRelativePath()
+					.toString();
+		}
+
+		@Override
+		public String getTypeLabel() {
+			return null;
+		}
+
+		@Override
+		public void open() {
+			try {
+				IWorkbenchPage page = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage();
+				IEditorPart editor = IDE.openEditor(page, fFile, true);
+
+				ITextEditor textEditor = null;
+
+				if (editor instanceof MultiPageEditorPart) {
+					MultiPageEditorPart part = (MultiPageEditorPart) editor;
+
+					Object editorPage = part.getSelectedPage();
+					if (editorPage != null && editorPage instanceof ITextEditor) {
+						textEditor = (ITextEditor) editorPage;
+					}
+				} else if (editor instanceof ITextEditor) {
+					textEditor = (ITextEditor) editor;
+				}
+
+				// highlight range in editor if possible
+				if (fHighlightRange != null && textEditor != null) {
+					textEditor.selectAndReveal(fHighlightRange.getOffset(),
+							fHighlightRange.getLength());
+				}
+			} catch (PartInitException e) {
+			}
+		}
 	}
 
 	private static class JavaElementHyperlink implements IHyperlink {

@@ -29,6 +29,8 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+
 public class JavaClassCompletion {
 	private static final String CLASS_NAME = "_xxx";
 	private static final String CLASS_SOURCE_END = "\n" + "    }\n" + "}";
@@ -105,8 +107,7 @@ public class JavaClassCompletion {
 			IDocument document) throws JavaModelException {
 		ICompilationUnit unit = null;
 
-		IJavaProject javaProject = JavaProjectUtil
-				.getCurrentJavaProject(document);
+		IJavaProject javaProject = ProjectUtil.getCurrentJavaProject(document);
 		if (javaProject != null) {
 			IPackageFragment packageFragment = javaProject
 					.getPackageFragments()[0];
