@@ -16,6 +16,7 @@
 package com.amashchenko.eclipse.strutsclipse;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -115,7 +116,17 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 
 		IHyperlink[] links = null;
 		if (linksList != null && !linksList.isEmpty()) {
-			links = linksList.toArray(new IHyperlink[linksList.size()]);
+			// remove null-s
+			Iterator<IHyperlink> itr = linksList.iterator();
+			while (itr.hasNext()) {
+				if (itr.next() == null) {
+					itr.remove();
+				}
+			}
+
+			if (!linksList.isEmpty()) {
+				links = linksList.toArray(new IHyperlink[linksList.size()]);
+			}
 		}
 
 		return links;
