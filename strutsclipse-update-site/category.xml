@@ -5,7 +5,7 @@
    </feature>
    <category-def name="com.amashchenko.eclipse.strutsclipse" label="StrutsClipse">
       <description>
-         Support for Struts2 (https://struts.apache.org/).
+         StrutsClipse provides Eclipse IDE integration for developing Apache Struts2 (https://struts.apache.org/) based applications.
       </description>
    </category-def>
 </site>
