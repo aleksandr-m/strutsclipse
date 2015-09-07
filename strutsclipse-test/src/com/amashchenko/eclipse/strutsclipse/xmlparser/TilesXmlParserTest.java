@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
 import java.util.Set;
 
@@ -24,6 +24,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 public class TilesXmlParserTest {
+	private TilesXmlParser tilesXmlParser = new TilesXmlParser();
+
 	@Test
 	public void testGetDefinitionNames() throws Exception {
 		final String name = "somename";
@@ -31,7 +33,7 @@ public class TilesXmlParserTest {
 				+ name
 				+ "\" extends=\"some\"><put-attribute name=\"title\" value=\"someval\"/></definition>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertFalse(names.isEmpty());
@@ -51,7 +53,7 @@ public class TilesXmlParserTest {
 				+ name2
 				+ "\" extends=\"some\"><put-attribute name=\"title2\" value=\"someval2\"/></definition>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertFalse(names.isEmpty());
@@ -68,7 +70,7 @@ public class TilesXmlParserTest {
 				+ name
 				+ "' extends='some'><put-attribute name='title' value='someval'/></definition>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertFalse(names.isEmpty());
@@ -84,7 +86,7 @@ public class TilesXmlParserTest {
 				+ name
 				+ "\" extends=\"some\"><put-attribute name=\"title\" value=\"someval\"/></definition>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertFalse(names.isEmpty());
@@ -100,7 +102,7 @@ public class TilesXmlParserTest {
 				+ name
 				+ "' extends='some'><put-attribute name='title' value='someval'/></definition>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertFalse(names.isEmpty());
@@ -116,7 +118,7 @@ public class TilesXmlParserTest {
 				+ name
 				+ "\" extends=\"some\"><put-attribute name\n=\n\"title\" value=\"someval\"/></definition>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertFalse(names.isEmpty());
@@ -132,7 +134,7 @@ public class TilesXmlParserTest {
 				+ name
 				+ "\" extends=\"some\"><put-attribute name=\"title\" value=\"someval\"/></definition>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertFalse(names.isEmpty());
@@ -145,7 +147,7 @@ public class TilesXmlParserTest {
 	public void testGetDefinitionNamesUnknownTag() throws Exception {
 		final String content = "<unknown></unknown>";
 		IDocument document = new Document(content);
-		Set<String> names = TilesXmlParser.getDefinitionNames(document);
+		Set<String> names = tilesXmlParser.getDefinitionNames(document);
 
 		Assert.assertNotNull(names);
 		Assert.assertTrue(names.isEmpty());
@@ -159,7 +161,7 @@ public class TilesXmlParserTest {
 				+ "\" extends=\"some\"><put-attribute name=\"" + name
 				+ "\" value=\"someval\"/></definition>";
 		IDocument document = new Document(content);
-		IRegion region = TilesXmlParser.getDefinitionRegion(document, name);
+		IRegion region = tilesXmlParser.getDefinitionRegion(document, name);
 
 		Assert.assertNotNull(region);
 

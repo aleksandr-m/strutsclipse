@@ -15,6 +15,7 @@
  */
 package com.amashchenko.eclipse.strutsclipse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jface.text.Document;
@@ -126,8 +127,8 @@ public class StrutsXmlCompletionProposalComputerTest {
 		Assert.assertFalse(proposals.isEmpty());
 
 		Assert.assertEquals(1, proposals.size());
-		Assert.assertEquals("redirectAction", proposals.get(0)
-				.getDisplayString());
+		Assert.assertEquals(StrutsXmlConstants.REDIRECT_ACTION_RESULT,
+				proposals.get(0).getDisplayString());
 	}
 
 	@Test
@@ -230,5 +231,151 @@ public class StrutsXmlCompletionProposalComputerTest {
 		for (ICompletionProposal p : proposals) {
 			Assert.assertTrue(p.getDisplayString().startsWith("j"));
 		}
+	}
+
+	// result body redirectAction proposals
+	@Test
+	public void testResultTagBody() throws Exception {
+		final String thisActionName = "this";
+		final String samePackActionName = "same";
+		final String otherPackActionName = "other";
+		final String otherNamespaceActionName = "othersome";
+
+		final String content = "<package namespace='/'><action name='"
+				+ thisActionName + "'><result type='"
+				+ StrutsXmlConstants.REDIRECT_ACTION_RESULT
+				+ "'></result></action><action name='" + samePackActionName
+				+ "'></action></package>"
+				+ "<package namespace='/'><action name='" + otherPackActionName
+				+ "'></action></package>"
+				+ "<package namespace='/some'><action name='"
+				+ otherNamespaceActionName + "'></action></package>";
+		IDocument document = new Document(content);
+
+		final int invocationOffset = content.lastIndexOf("</result");
+
+		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
+				new MockTextViewer(document), invocationOffset);
+
+		List<ICompletionProposal> proposals = computer
+				.computeCompletionProposals(context, null);
+
+		Assert.assertNotNull(proposals);
+		Assert.assertFalse(proposals.isEmpty());
+		Assert.assertEquals(3, proposals.size());
+
+		List<String> list = new ArrayList<String>();
+		for (ICompletionProposal p : proposals) {
+			list.add(p.getDisplayString());
+		}
+
+		Assert.assertTrue(list.contains(thisActionName));
+		Assert.assertTrue(list.contains(samePackActionName));
+		Assert.assertTrue(list.contains(otherPackActionName));
+		Assert.assertFalse(list.contains(otherNamespaceActionName));
+	}
+
+	@Test
+	public void testResultTagParamBody() throws Exception {
+		final String thisActionName = "this";
+		final String samePackActionName = "same";
+		final String otherPackActionName = "other";
+		final String otherNamespaceActionName = "othersome";
+
+		final String content = "<package namespace='/'><action name='"
+				+ thisActionName + "'><result type='"
+				+ StrutsXmlConstants.REDIRECT_ACTION_RESULT + "'><param name='"
+				+ StrutsXmlConstants.ACTION_NAME_PARAM
+				+ "'></param></result></action><action name='"
+				+ samePackActionName + "'></action></package>"
+				+ "<package namespace='/'><action name='" + otherPackActionName
+				+ "'></action></package>"
+				+ "<package namespace='/some'><action name='"
+				+ otherNamespaceActionName + "'></action></package>";
+		IDocument document = new Document(content);
+
+		final int invocationOffset = content.lastIndexOf("</param");
+
+		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
+				new MockTextViewer(document), invocationOffset);
+
+		List<ICompletionProposal> proposals = computer
+				.computeCompletionProposals(context, null);
+
+		Assert.assertNotNull(proposals);
+		Assert.assertFalse(proposals.isEmpty());
+		Assert.assertEquals(3, proposals.size());
+
+		List<String> list = new ArrayList<String>();
+		for (ICompletionProposal p : proposals) {
+			list.add(p.getDisplayString());
+		}
+
+		Assert.assertTrue(list.contains(thisActionName));
+		Assert.assertTrue(list.contains(samePackActionName));
+		Assert.assertTrue(list.contains(otherPackActionName));
+		Assert.assertFalse(list.contains(otherNamespaceActionName));
+	}
+
+	@Test
+	public void testResultTagParamBodyWrongName() throws Exception {
+		final String thisActionName = "this";
+		final String samePackActionName = "same";
+		final String otherPackActionName = "other";
+		final String otherNamespaceActionName = "othersome";
+
+		final String content = "<package namespace='/'><action name='"
+				+ thisActionName + "'><result type='"
+				+ StrutsXmlConstants.REDIRECT_ACTION_RESULT + "'><param name='"
+				+ StrutsXmlConstants.LOCATION_PARAM
+				+ "'></param></result></action><action name='"
+				+ samePackActionName + "'></action></package>"
+				+ "<package namespace='/'><action name='" + otherPackActionName
+				+ "'></action></package>"
+				+ "<package namespace='/some'><action name='"
+				+ otherNamespaceActionName + "'></action></package>";
+		IDocument document = new Document(content);
+
+		final int invocationOffset = content.lastIndexOf("</param");
+
+		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
+				new MockTextViewer(document), invocationOffset);
+
+		List<ICompletionProposal> proposals = computer
+				.computeCompletionProposals(context, null);
+
+		Assert.assertNotNull(proposals);
+		Assert.assertTrue(proposals.isEmpty());
+	}
+
+	@Test
+	public void testResultTagParamBodyWrongName2() throws Exception {
+		final String thisActionName = "this";
+		final String samePackActionName = "same";
+		final String otherPackActionName = "other";
+		final String otherNamespaceActionName = "othersome";
+
+		final String content = "<package namespace='/'><action name='"
+				+ thisActionName
+				+ "'><result type='"
+				+ StrutsXmlConstants.REDIRECT_ACTION_RESULT
+				+ "'><param name='wrong'></param></result></action><action name='"
+				+ samePackActionName + "'></action></package>"
+				+ "<package namespace='/'><action name='" + otherPackActionName
+				+ "'></action></package>"
+				+ "<package namespace='/some'><action name='"
+				+ otherNamespaceActionName + "'></action></package>";
+		IDocument document = new Document(content);
+
+		final int invocationOffset = content.lastIndexOf("</param");
+
+		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
+				new MockTextViewer(document), invocationOffset);
+
+		List<ICompletionProposal> proposals = computer
+				.computeCompletionProposals(context, null);
+
+		Assert.assertNotNull(proposals);
+		Assert.assertTrue(proposals.isEmpty());
 	}
 }

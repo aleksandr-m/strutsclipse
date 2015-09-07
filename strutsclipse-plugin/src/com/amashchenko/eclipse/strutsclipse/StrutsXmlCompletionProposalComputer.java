@@ -41,20 +41,31 @@ import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
 public class StrutsXmlCompletionProposalComputer implements
 		ICompletionProposalComputer {
-
 	private static final List<String> DISPATCHER_EXTENSIONS = Arrays
 			.asList(new String[] { "jsp", "html", "htm" });
 	private static final List<String> FREEMARKER_EXTENSIONS = Arrays
 			.asList(new String[] { "ftl" });
 
+	private final StrutsXmlParser strutsXmlParser;
+	private final TilesXmlParser tilesXmlParser;
+
+	public StrutsXmlCompletionProposalComputer() {
+		strutsXmlParser = new StrutsXmlParser();
+		tilesXmlParser = new TilesXmlParser();
+	}
+
 	@Override
 	public List<ICompletionProposal> computeCompletionProposals(
 			CompletionProposalInvocationContext context,
 			IProgressMonitor monitor) {
-		final TagRegion tagRegion = StrutsXmlParser.getTagRegion(
+		final TagRegion tagRegion = strutsXmlParser.getTagRegion(
 				context.getDocument(), context.getInvocationOffset());
 
 		String[][] proposals = null;
@@ -111,18 +122,17 @@ public class StrutsXmlCompletionProposalComputer implements
 					final ElementRegion typeAttr = tagRegion.getAttrs().get(
 							StrutsXmlConstants.TYPE_ATTR);
 					proposals = computeResultBodyProposals(
-							context.getDocument(), typeAttr == null ? null
-									: typeAttr.getValue());
+							context.getDocument(),
+							context.getInvocationOffset(),
+							typeAttr == null ? null : typeAttr.getValue());
 				}
 			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
 				if (elementName == null) { // param tag body
 					final ElementRegion nameAttr = tagRegion.getAttrs().get(
 							StrutsXmlConstants.NAME_ATTR);
-					if (nameAttr != null
-							&& StrutsXmlConstants.LOCATION_PARAM
-									.equals(nameAttr.getValue())) {
-						final TagRegion parentResultTagRegion = StrutsXmlParser
+					if (nameAttr != null) {
+						final TagRegion parentResultTagRegion = strutsXmlParser
 								.getParentTagRegion(context.getDocument(),
 										context.getInvocationOffset(),
 										StrutsXmlConstants.RESULT_TAG);
@@ -130,10 +140,20 @@ public class StrutsXmlCompletionProposalComputer implements
 							final ElementRegion typeAttr = parentResultTagRegion
 									.getAttrs().get(
 											StrutsXmlConstants.TYPE_ATTR);
-							proposals = computeResultBodyProposals(
-									context.getDocument(),
-									typeAttr == null ? null : typeAttr
-											.getValue());
+							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
+									.equals(nameAttr.getValue()) && !StrutsXmlConstants.REDIRECT_ACTION_RESULT
+									.equals(typeAttr.getValue()))
+									|| (typeAttr != null
+											&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
+													.equals(typeAttr.getValue()) && StrutsXmlConstants.ACTION_NAME_PARAM
+												.equals(nameAttr.getValue()));
+							if (correctTypeAndName) {
+								proposals = computeResultBodyProposals(
+										context.getDocument(),
+										context.getInvocationOffset(),
+										typeAttr == null ? null : typeAttr
+												.getValue());
+							}
 						}
 					}
 				}
@@ -145,7 +165,7 @@ public class StrutsXmlCompletionProposalComputer implements
 	}
 
 	private String[][] computeResultBodyProposals(final IDocument document,
-			final String typeAttrValue) {
+			final int offset, final String typeAttrValue) {
 		Set<String> set = null;
 		// assume that default is dispatcher for now, TODO improve
 		// that
@@ -156,6 +176,9 @@ public class StrutsXmlCompletionProposalComputer implements
 			set = findTilesDefinitionNames(document);
 		} else if (StrutsXmlConstants.FREEMARKER_RESULT.equals(typeAttrValue)) {
 			set = findFilesPaths(document, FREEMARKER_EXTENSIONS);
+		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
+				.equals(typeAttrValue)) {
+			set = findRedirectActionNames(document, offset);
 		}
 
 		String[][] proposals = null;
@@ -307,7 +330,7 @@ public class StrutsXmlCompletionProposalComputer implements
 							IDocument document = provider.getDocument(resource);
 							provider.disconnect(resource);
 
-							names.addAll(TilesXmlParser
+							names.addAll(tilesXmlParser
 									.getDefinitionNames(document));
 						}
 						return true;
@@ -319,6 +342,22 @@ public class StrutsXmlCompletionProposalComputer implements
 		}
 
 		return names;
+	}
+
+	private Set<String> findRedirectActionNames(final IDocument document,
+			final int offset) {
+		Set<String> set = null;
+		TagRegion packageTag = strutsXmlParser.getParentTagRegion(document,
+				offset, StrutsXmlConstants.PACKAGE_TAG);
+		if (packageTag != null) {
+			ElementRegion namespaceAttr = packageTag.getAttrs().get(
+					StrutsXmlConstants.NAMESPACE_ATTR);
+			if (namespaceAttr != null) {
+				set = strutsXmlParser.getActionNames(document,
+						namespaceAttr.getValue());
+			}
+		}
+		return set;
 	}
 
 	@Override

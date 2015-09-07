@@ -13,19 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.amashchenko.eclipse.strutsclipse.StrutsXmlConstants;
+
 public class StrutsXmlParserTest {
+	private StrutsXmlParser strutsXmlParser = new StrutsXmlParser();
+
 	@Test
 	public void testGetTagRegionPackageTag() throws Exception {
 		final String content = "<package name=\"somename\" extends=\"someextends,otherextends\"></package>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -43,7 +47,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionActionTag() throws Exception {
 		final String content = "<action name=\"someaction\" method=\"somemethod\" class=\"someclass\"></action>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -63,7 +67,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionSingleQuotes() throws Exception {
 		final String content = "<action name='someaction' method='somemethod' class='someclass'></action>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -83,7 +87,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionSingleQuotesInside() throws Exception {
 		final String content = "<action name=\"some'action\" method=\"some''method\" class=\"some'''class\"></action>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -103,7 +107,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionQuotesInside() throws Exception {
 		final String content = "<action name='some\"action' method='some\"\"method' class='some\"\"\"class'></action>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -123,7 +127,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionLineBrakes() throws Exception {
 		final String content = "<action name\n=\"someaction\" method=\n\"somemethod\" class=\"someclass\"></action>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -143,7 +147,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionUnknowAttributes() throws Exception {
 		final String content = "<action unknown=\"someaction\" unknown=\"somemethod\" class=\"someclass\"></action>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -159,7 +163,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionResultTag() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"></result>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNotNull(tagRegion);
 		Assert.assertNull(tagRegion.getCurrentElement());
@@ -182,7 +186,7 @@ public class StrutsXmlParserTest {
 		final int valueOffset = content.indexOf(value);
 
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document,
 				valueOffset);
 
 		Assert.assertNotNull(tagRegion);
@@ -219,7 +223,7 @@ public class StrutsXmlParserTest {
 		final int cursorOffset = content.indexOf(value) + value.length();
 
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document,
 				cursorOffset);
 
 		Assert.assertNotNull(tagRegion);
@@ -250,7 +254,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionResultTagBodyNoValue() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"></result>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document,
 				content.indexOf("</"));
 
 		Assert.assertNotNull(tagRegion);
@@ -279,7 +283,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionResultTagCloseTag() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"></result>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document,
 				content.indexOf("</") + 4);
 
 		Assert.assertNull(tagRegion);
@@ -289,7 +293,7 @@ public class StrutsXmlParserTest {
 	public void testGetTagRegionUnknownTag() throws Exception {
 		final String content = "<unknown></unknown>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document, 2);
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document, 2);
 
 		Assert.assertNull(tagRegion);
 	}
@@ -305,7 +309,7 @@ public class StrutsXmlParserTest {
 		final int valueOffset = content.indexOf("\"") + 1;
 		final String prefix = content.substring(valueOffset, cursorOffset);
 
-		TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getTagRegion(document,
 				cursorOffset);
 
 		Assert.assertNotNull(tagRegion);
@@ -337,7 +341,7 @@ public class StrutsXmlParserTest {
 	public void testGetParentTagRegion() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"><param name=\"some\">paramvalue</param></result>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getParentTagRegion(document,
 				content.indexOf("paramvalue"), StrutsXmlConstants.RESULT_TAG);
 
 		Assert.assertNotNull(tagRegion);
@@ -360,7 +364,7 @@ public class StrutsXmlParserTest {
 	public void testGetParentTagRegionNoValue() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"><param name=\"some\"></param></result>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getParentTagRegion(document,
 				content.indexOf("</param"), StrutsXmlConstants.RESULT_TAG);
 
 		Assert.assertNotNull(tagRegion);
@@ -383,7 +387,7 @@ public class StrutsXmlParserTest {
 	public void testGetParentTagRegionUnknown() throws Exception {
 		final String content = "<unknown name=\"somename\" type=\"sometype\"><param name=\"some\">paramvalue</param></unknown>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getParentTagRegion(document,
 				content.indexOf("paramvalue"), StrutsXmlConstants.RESULT_TAG);
 
 		Assert.assertNull(tagRegion);
@@ -393,7 +397,7 @@ public class StrutsXmlParserTest {
 	public void testGetParentTagRegionOtherParent() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"></result><unknown><param name=\"some\">paramvalue</param></unknown>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getParentTagRegion(document,
 				content.indexOf("paramvalue"), StrutsXmlConstants.RESULT_TAG);
 
 		Assert.assertNull(tagRegion);
@@ -403,7 +407,7 @@ public class StrutsXmlParserTest {
 	public void testGetParentTagRegionOtherParentNoValue() throws Exception {
 		final String content = "<result name=\"somename\" type=\"sometype\"></result><unknown><param name=\"some\"></param></unknown>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getParentTagRegion(document,
 				content.indexOf("</param"), StrutsXmlConstants.RESULT_TAG);
 
 		Assert.assertNull(tagRegion);
@@ -413,7 +417,7 @@ public class StrutsXmlParserTest {
 	public void testGetParentTagRegionDeepNested() throws Exception {
 		final String content = "<package extends=\"some\"><action name=\"somename\"><result><param name=\"some\">paramvalue</param></result></action></package>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getParentTagRegion(document,
 				content.indexOf("paramvalue"), StrutsXmlConstants.PACKAGE_TAG);
 
 		Assert.assertNotNull(tagRegion);
@@ -434,7 +438,7 @@ public class StrutsXmlParserTest {
 	public void testGetParentTagRegionDeepNestedNoValue() throws Exception {
 		final String content = "<package extends=\"some\"><action name=\"somename\"><result><param name=\"some\"></param></result></action></package>";
 		IDocument document = new Document(content);
-		TagRegion tagRegion = StrutsXmlParser.getParentTagRegion(document,
+		TagRegion tagRegion = strutsXmlParser.getParentTagRegion(document,
 				content.indexOf("</param"), StrutsXmlConstants.PACKAGE_TAG);
 
 		Assert.assertNotNull(tagRegion);

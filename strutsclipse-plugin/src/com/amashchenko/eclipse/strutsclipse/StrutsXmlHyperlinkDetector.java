@@ -49,7 +49,20 @@ import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
+
 public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
+	private final StrutsXmlParser strutsXmlParser;
+	private final TilesXmlParser tilesXmlParser;
+
+	public StrutsXmlHyperlinkDetector() {
+		strutsXmlParser = new StrutsXmlParser();
+		tilesXmlParser = new TilesXmlParser();
+	}
+
 	@Override
 	public IHyperlink[] detectHyperlinks(ITextViewer textViewer,
 			IRegion region, boolean canShowMultipleHyperlinks) {
@@ -57,7 +70,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 
 		List<IHyperlink> linksList = new ArrayList<IHyperlink>();
 
-		final TagRegion tagRegion = StrutsXmlParser.getTagRegion(document,
+		final TagRegion tagRegion = strutsXmlParser.getTagRegion(document,
 				region.getOffset());
 
 		if (tagRegion != null && tagRegion.getCurrentElement() != null) {
@@ -93,7 +106,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 					if (nameAttr != null
 							&& StrutsXmlConstants.LOCATION_PARAM
 									.equals(nameAttr.getValue())) {
-						final TagRegion parentResultTagRegion = StrutsXmlParser
+						final TagRegion parentResultTagRegion = strutsXmlParser
 								.getParentTagRegion(document,
 										region.getOffset(),
 										StrutsXmlConstants.RESULT_TAG);
@@ -179,7 +192,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 										.getDocument(resource);
 								provider.disconnect(resource);
 
-								IRegion region = TilesXmlParser
+								IRegion region = tilesXmlParser
 										.getDefinitionRegion(document,
 												elementValue);
 								if (region != null) {
