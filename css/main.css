@@ -58,3 +58,7 @@ footer {
     margin-left: 15px;
     margin-top: 20px;
 }
+
+.wrap-word {
+    word-wrap: break-word;
+}
