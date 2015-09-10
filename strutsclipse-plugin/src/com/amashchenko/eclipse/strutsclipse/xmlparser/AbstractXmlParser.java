@@ -140,6 +140,12 @@ public abstract class AbstractXmlParser {
 
 	protected ElementRegion findTagAttrByValue(IDocument document, String tag,
 			String attr, String attrValue) {
+		return findTagAttrByValue(document, tag, attr, attrValue, 0,
+				document.getLength());
+	}
+
+	protected ElementRegion findTagAttrByValue(IDocument document, String tag,
+			String attr, String attrValue, int offset, int length) {
 		IDocumentPartitioner partitioner = null;
 		try {
 			ElementRegion attrRegion = null;
@@ -147,8 +153,8 @@ public abstract class AbstractXmlParser {
 			// create tag partitioner
 			partitioner = createTagPartitioner(document, new String[] { tag });
 			// get tags regions
-			ITypedRegion[] tagRegions = partitioner.computePartitioning(0,
-					document.getLength());
+			ITypedRegion[] tagRegions = partitioner.computePartitioning(offset,
+					length);
 
 			// create attribute partitioner
 			partitioner = createAttrPartitioner(document, new String[] { attr });

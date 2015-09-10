@@ -19,10 +19,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.filebuffers.FileBuffers;
+import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
@@ -103,9 +106,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 				if (elementName == null) { // param tag body
 					final ElementRegion nameAttr = tagRegion.getAttrs().get(
 							StrutsXmlConstants.NAME_ATTR);
-					if (nameAttr != null
-							&& StrutsXmlConstants.LOCATION_PARAM
-									.equals(nameAttr.getValue())) {
+					if (nameAttr != null) {
 						final TagRegion parentResultTagRegion = strutsXmlParser
 								.getParentTagRegion(document,
 										region.getOffset(),
@@ -115,12 +116,21 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 							final ElementRegion typeAttr = parentResultTagRegion
 									.getAttrs().get(
 											StrutsXmlConstants.TYPE_ATTR);
-							linksList.addAll(createResultLocationLinks(
-									document,
-									elementValue,
-									elementRegion,
-									typeAttr == null ? null : typeAttr
-											.getValue()));
+							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
+									.equals(nameAttr.getValue()) && !StrutsXmlConstants.REDIRECT_ACTION_RESULT
+									.equals(typeAttr.getValue()))
+									|| (typeAttr != null
+											&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
+													.equals(typeAttr.getValue()) && StrutsXmlConstants.ACTION_NAME_PARAM
+												.equals(nameAttr.getValue()));
+							if (correctTypeAndName) {
+								linksList.addAll(createResultLocationLinks(
+										document,
+										elementValue,
+										elementRegion,
+										typeAttr == null ? null : typeAttr
+												.getValue()));
+							}
 						}
 					}
 				}
@@ -166,6 +176,34 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 				IFile file = project.getFile(path);
 				if (file.exists()) {
 					links.add(new FileHyperlink(elementRegion, file));
+				}
+			}
+		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
+				.equals(typeAttrValue)) {
+			// TODO handle namespace param
+			TagRegion packageTagRegion = strutsXmlParser.getParentTagRegion(
+					document, elementRegion.getOffset(),
+					StrutsXmlConstants.PACKAGE_TAG);
+			if (packageTagRegion != null && packageTagRegion.getAttrs() != null) {
+				ElementRegion namespaceAttr = packageTagRegion.getAttrs().get(
+						StrutsXmlConstants.NAMESPACE_ATTR);
+				if (namespaceAttr != null) {
+					IRegion region = strutsXmlParser.getActionRegion(document,
+							namespaceAttr.getValue(), elementValue);
+					if (region != null) {
+						ITextFileBuffer textFileBuffer = FileBuffers
+								.getTextFileBufferManager().getTextFileBuffer(
+										document);
+						if (textFileBuffer != null) {
+							IFile file = ResourcesPlugin.getWorkspace()
+									.getRoot()
+									.getFile(textFileBuffer.getLocation());
+							if (file.exists()) {
+								links.add(new FileHyperlink(elementRegion,
+										file, region));
+							}
+						}
+					}
 				}
 			}
 		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {

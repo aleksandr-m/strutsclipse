@@ -214,4 +214,26 @@ public class StrutsXmlParser extends AbstractXmlParser {
 			}
 		}
 	}
+
+	public IRegion getActionRegion(final IDocument document,
+			final String namespace, final String actionName) {
+		List<IRegion> packBodyRegions = findTagsBodyRegionByAttrValue(document,
+				StrutsXmlConstants.PACKAGE_TAG,
+				StrutsXmlConstants.NAMESPACE_ATTR, namespace);
+
+		IRegion region = null;
+		if (packBodyRegions != null) {
+			for (IRegion r : packBodyRegions) {
+				ElementRegion attrRegion = findTagAttrByValue(document,
+						StrutsXmlConstants.ACTION_TAG,
+						StrutsXmlConstants.NAME_ATTR, actionName,
+						r.getOffset(), r.getLength());
+				if (attrRegion != null) {
+					region = attrRegion.getValueRegion();
+					break;
+				}
+			}
+		}
+		return region;
+	}
 }
