@@ -117,8 +117,8 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 									.getAttrs().get(
 											StrutsXmlConstants.TYPE_ATTR);
 							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
-									.equals(nameAttr.getValue()) && !StrutsXmlConstants.REDIRECT_ACTION_RESULT
-									.equals(typeAttr.getValue()))
+									.equals(nameAttr.getValue()) && (typeAttr == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
+									.equals(typeAttr.getValue())))
 									|| (typeAttr != null
 											&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
 													.equals(typeAttr.getValue()) && StrutsXmlConstants.ACTION_NAME_PARAM
