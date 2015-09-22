@@ -17,6 +17,7 @@ package com.amashchenko.eclipse.strutsclipse;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
@@ -56,9 +58,13 @@ public class StrutsXmlCompletionProposalComputer implements
 	private final StrutsXmlParser strutsXmlParser;
 	private final TilesXmlParser tilesXmlParser;
 
+	private final CompletionProposalComparator proposalComparator;
+
 	public StrutsXmlCompletionProposalComputer() {
 		strutsXmlParser = new StrutsXmlParser();
 		tilesXmlParser = new TilesXmlParser();
+		proposalComparator = new CompletionProposalComparator();
+		proposalComparator.setOrderAlphabetically(true);
 	}
 
 	@Override
@@ -73,6 +79,7 @@ public class StrutsXmlCompletionProposalComputer implements
 		String elementValuePrefix = null;
 		String elementValue = null;
 		String multiValueSeparator = null;
+		boolean sortProposals = false;
 
 		if (tagRegion != null && tagRegion.getCurrentElement() != null) {
 			final String elementName = tagRegion.getCurrentElement().getName();
@@ -125,6 +132,7 @@ public class StrutsXmlCompletionProposalComputer implements
 							context.getDocument(),
 							context.getInvocationOffset(),
 							typeAttr == null ? null : typeAttr.getValue());
+					sortProposals = true;
 				}
 			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
@@ -153,6 +161,7 @@ public class StrutsXmlCompletionProposalComputer implements
 										context.getInvocationOffset(),
 										typeAttr == null ? null : typeAttr
 												.getValue());
+								sortProposals = true;
 							}
 						}
 					}
@@ -161,7 +170,8 @@ public class StrutsXmlCompletionProposalComputer implements
 		}
 
 		return createAttrCompletionProposals(proposals, elementValuePrefix,
-				proposalRegion, multiValueSeparator, elementValue);
+				proposalRegion, multiValueSeparator, elementValue,
+				sortProposals);
 	}
 
 	private String[][] computeResultBodyProposals(final IDocument document,
@@ -194,7 +204,7 @@ public class StrutsXmlCompletionProposalComputer implements
 
 	private List<ICompletionProposal> createAttrCompletionProposals(
 			String[][] proposalsData, String prefix, IRegion region,
-			String valueSeparator, String attrvalue) {
+			String valueSeparator, String attrvalue, boolean sort) {
 		List<ICompletionProposal> list = new ArrayList<ICompletionProposal>();
 		if (proposalsData != null && region != null) {
 			int replacementOffset = region.getOffset();
@@ -264,6 +274,11 @@ public class StrutsXmlCompletionProposalComputer implements
 				}
 			}
 		}
+
+		if (sort) {
+			Collections.sort(list, proposalComparator);
+		}
+
 		return list;
 	}
 
