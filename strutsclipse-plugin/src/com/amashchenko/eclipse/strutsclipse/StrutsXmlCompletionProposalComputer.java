@@ -42,6 +42,7 @@ import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
+import com.amashchenko.eclipse.strutsclipse.java.ActionMethodProposalComparator;
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
@@ -59,12 +60,14 @@ public class StrutsXmlCompletionProposalComputer implements
 	private final TilesXmlParser tilesXmlParser;
 
 	private final CompletionProposalComparator proposalComparator;
+	private final ActionMethodProposalComparator methodProposalComparator;
 
 	public StrutsXmlCompletionProposalComputer() {
 		strutsXmlParser = new StrutsXmlParser();
 		tilesXmlParser = new TilesXmlParser();
 		proposalComparator = new CompletionProposalComparator();
 		proposalComparator.setOrderAlphabetically(true);
+		methodProposalComparator = new ActionMethodProposalComparator();
 	}
 
 	@Override
@@ -106,10 +109,16 @@ public class StrutsXmlCompletionProposalComputer implements
 					if (classAttr == null) {
 						proposals = StrutsXmlConstants.DEFAULT_METHODS;
 					} else {
+						List<ICompletionProposal> methodProposals = JavaClassCompletion
+								.getActionMethodProposals(elementValuePrefix,
+										classAttr.getValue(),
+										context.getDocument(), proposalRegion);
+						// sort
+						Collections.sort(methodProposals,
+								methodProposalComparator);
+
 						// return proposals
-						return JavaClassCompletion.getActionMethodProposals(
-								elementValuePrefix, classAttr.getValue(),
-								context.getDocument(), proposalRegion);
+						return methodProposals;
 					}
 				} else if (StrutsXmlConstants.CLASS_ATTR
 						.equalsIgnoreCase(elementName)) {
