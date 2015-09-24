@@ -209,13 +209,22 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
 			try {
 				final IDocumentProvider provider = new TextFileDocumentProvider();
-				final IProject project = ProjectUtil
-						.getCurrentProject(document);
-				if (project != null && project.exists()) {
+				final IJavaProject javaProject = ProjectUtil
+						.getCurrentJavaProject(document);
+				if (javaProject != null && javaProject.exists()) {
+					final IProject project = javaProject.getProject();
+					final String outputFolder = javaProject.getOutputLocation()
+							.makeRelativeTo(project.getFullPath()).segment(0);
 					project.accept(new IResourceVisitor() {
 						@Override
 						public boolean visit(IResource resource)
 								throws CoreException {
+							// don't visit output folder
+							if (resource.getType() == IResource.FOLDER
+									&& resource.getProjectRelativePath()
+											.segment(0).equals(outputFolder)) {
+								return false;
+							}
 							if (resource.isAccessible()
 									&& resource.getType() == IResource.FILE
 									&& "xml".equalsIgnoreCase(resource
