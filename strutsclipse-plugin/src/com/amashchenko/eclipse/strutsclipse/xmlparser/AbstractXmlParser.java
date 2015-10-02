@@ -26,10 +26,12 @@ import org.eclipse.jface.text.ITypedRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPredicateRule;
+import org.eclipse.jface.text.rules.IWordDetector;
 import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
+import org.eclipse.jface.text.rules.WordPatternRule;
 
 public abstract class AbstractXmlParser {
 	protected static final String CLOSE_TAG_TOKEN = "close_tag_token";
@@ -235,8 +237,8 @@ public abstract class AbstractXmlParser {
 		types[1] = SINGLE_QUOTES_TOKEN;
 
 		for (int i = 0; i < attrs.length; i++) {
-			attrRules[i + 2] = new MultiLineRule(attrs[i], "=", new Token(
-					attrs[i]));
+			attrRules[i + 2] = new WordPatternRule(new AttributeDetector(),
+					attrs[i], "=", new Token(attrs[i]));
 
 			types[i + 2] = attrs[i];
 		}
@@ -277,5 +279,22 @@ public abstract class AbstractXmlParser {
 			}
 		}
 		return attrRegions;
+	}
+
+	private static class AttributeDetector implements IWordDetector {
+		private char prevChar;
+
+		@Override
+		public boolean isWordStart(char c) {
+			return Character.isLetter(c);
+		}
+
+		@Override
+		public boolean isWordPart(char c) {
+			boolean isPart = prevChar != '='
+					&& (c == '=' || Character.isWhitespace(c));
+			prevChar = c;
+			return isPart;
+		}
 	}
 }

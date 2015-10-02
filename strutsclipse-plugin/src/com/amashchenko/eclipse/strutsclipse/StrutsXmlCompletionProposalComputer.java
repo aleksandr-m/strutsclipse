@@ -94,7 +94,19 @@ public class StrutsXmlCompletionProposalComputer implements
 					.getName())) {
 				if (StrutsXmlConstants.EXTENDS_ATTR
 						.equalsIgnoreCase(elementName)) {
-					proposals = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES;
+					Set<String> packageNames = strutsXmlParser
+							.getPackageNames(context.getDocument());
+
+					proposals = new String[StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length
+							+ packageNames.size()][2];
+
+					for (int i = 0; i < StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length; i++) {
+						proposals[i][0] = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES[i][0];
+					}
+					int indx = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length;
+					for (String p : packageNames) {
+						proposals[indx++][0] = p;
+					}
 					// extends attribute can have multiple values separated by ,
 					multiValueSeparator = ",";
 				}

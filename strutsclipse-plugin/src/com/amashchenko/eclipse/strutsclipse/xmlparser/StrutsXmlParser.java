@@ -236,4 +236,16 @@ public class StrutsXmlParser extends AbstractXmlParser {
 		}
 		return region;
 	}
+
+	public Set<String> getPackageNames(final IDocument document) {
+		List<ElementRegion> attrRegions = findAllTagAttr(document,
+				StrutsXmlConstants.PACKAGE_TAG, StrutsXmlConstants.NAME_ATTR);
+		Set<String> result = new HashSet<String>();
+		if (attrRegions != null) {
+			for (ElementRegion r : attrRegions) {
+				result.add(r.getValue());
+			}
+		}
+		return result;
+	}
 }
