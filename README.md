@@ -2,6 +2,10 @@
 
 StrutsClipse provides Eclipse IDE integration for developing <a href="http://struts.apache.org/" target="_blank">Apache Struts2</a> based applications.
 
+[StrutsClipse is in the Eclipse Marketplace](https://marketplace.eclipse.org/content/strutsclipse)
+
+[Plugin site](https://aleksandr-m.github.io/strutsclipse/)
+
 ## Installation
 
 ### Eclipse Marketplace button (recommended)
