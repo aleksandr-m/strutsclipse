@@ -188,9 +188,19 @@ public class StrutsXmlParser extends AbstractXmlParser {
 		try {
 			Set<String> result = new HashSet<String>();
 
-			List<IRegion> packBodyRegions = findTagsBodyRegionByAttrValue(
+			List<String> namespaces = new ArrayList<String>();
+			namespaces.add(packageNamespace);
+
+			// handle special namespaces
+			if (!"".equals(packageNamespace)) {
+				namespaces.add("");
+			} else if (!"/".equals(packageNamespace)) {
+				namespaces.add("/");
+			}
+
+			List<IRegion> packBodyRegions = findTagsBodyRegionByAttrValues(
 					document, StrutsXmlConstants.PACKAGE_TAG,
-					StrutsXmlConstants.NAMESPACE_ATTR, packageNamespace);
+					StrutsXmlConstants.NAMESPACE_ATTR, namespaces, true);
 
 			if (packBodyRegions != null) {
 				List<ElementRegion> actionRegions = new ArrayList<ElementRegion>();
@@ -217,9 +227,19 @@ public class StrutsXmlParser extends AbstractXmlParser {
 
 	public IRegion getActionRegion(final IDocument document,
 			final String namespace, final String actionName) {
-		List<IRegion> packBodyRegions = findTagsBodyRegionByAttrValue(document,
-				StrutsXmlConstants.PACKAGE_TAG,
-				StrutsXmlConstants.NAMESPACE_ATTR, namespace);
+		List<String> namespaces = new ArrayList<String>();
+		namespaces.add(namespace);
+
+		// handle special namespaces
+		if (!"".equals(namespace)) {
+			namespaces.add("");
+		} else if (!"/".equals(namespace)) {
+			namespaces.add("/");
+		}
+
+		List<IRegion> packBodyRegions = findTagsBodyRegionByAttrValues(
+				document, StrutsXmlConstants.PACKAGE_TAG,
+				StrutsXmlConstants.NAMESPACE_ATTR, namespaces, true);
 
 		IRegion region = null;
 		if (packBodyRegions != null) {

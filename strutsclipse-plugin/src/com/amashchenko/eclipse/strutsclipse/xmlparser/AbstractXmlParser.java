@@ -90,8 +90,9 @@ public abstract class AbstractXmlParser {
 		}
 	}
 
-	protected List<IRegion> findTagsBodyRegionByAttrValue(IDocument document,
-			String tag, String attr, String attrValue) {
+	protected List<IRegion> findTagsBodyRegionByAttrValues(IDocument document,
+			String tag, String attr, List<String> attrValues,
+			boolean includeNoAttr) {
 		IDocumentPartitioner partitioner = null;
 		try {
 			List<IRegion> result = new ArrayList<IRegion>();
@@ -115,14 +116,18 @@ public abstract class AbstractXmlParser {
 							- startTagOffset));
 					startTagOffset = 0;
 				} else if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion
-						.getType())) {
+						.getType()) && !closeTag.equals(tagRegion.getType())) {
 					ITypedRegion[] regions = partitioner.computePartitioning(
 							tagRegion.getOffset(), tagRegion.getLength());
 					List<ElementRegion> attrregs = fetchAttrsRegions(document,
 							regions);
-					if (attrregs != null) {
+
+					if (includeNoAttr && attrregs.isEmpty()) {
+						startTagOffset = tagRegion.getOffset()
+								+ tagRegion.getLength();
+					} else {
 						for (ElementRegion r : attrregs) {
-							if (attrValue.equals(r.getValue())) {
+							if (attrValues.contains(r.getValue())) {
 								startTagOffset = tagRegion.getOffset()
 										+ tagRegion.getLength();
 								break;

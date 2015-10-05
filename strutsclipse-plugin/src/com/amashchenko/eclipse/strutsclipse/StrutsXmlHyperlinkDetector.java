@@ -187,21 +187,19 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 			if (packageTagRegion != null && packageTagRegion.getAttrs() != null) {
 				ElementRegion namespaceAttr = packageTagRegion.getAttrs().get(
 						StrutsXmlConstants.NAMESPACE_ATTR);
-				if (namespaceAttr != null) {
-					IRegion region = strutsXmlParser.getActionRegion(document,
-							namespaceAttr.getValue(), elementValue);
-					if (region != null) {
-						ITextFileBuffer textFileBuffer = FileBuffers
-								.getTextFileBufferManager().getTextFileBuffer(
-										document);
-						if (textFileBuffer != null) {
-							IFile file = ResourcesPlugin.getWorkspace()
-									.getRoot()
-									.getFile(textFileBuffer.getLocation());
-							if (file.exists()) {
-								links.add(new FileHyperlink(elementRegion,
-										file, region));
-							}
+				IRegion region = strutsXmlParser.getActionRegion(document,
+						namespaceAttr == null ? "" : namespaceAttr.getValue(),
+						elementValue);
+				if (region != null) {
+					ITextFileBuffer textFileBuffer = FileBuffers
+							.getTextFileBufferManager().getTextFileBuffer(
+									document);
+					if (textFileBuffer != null) {
+						IFile file = ResourcesPlugin.getWorkspace().getRoot()
+								.getFile(textFileBuffer.getLocation());
+						if (file.exists()) {
+							links.add(new FileHyperlink(elementRegion, file,
+									region));
 						}
 					}
 				}

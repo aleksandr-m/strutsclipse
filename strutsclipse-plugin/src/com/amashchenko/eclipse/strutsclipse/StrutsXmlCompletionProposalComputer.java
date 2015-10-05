@@ -388,10 +388,8 @@ public class StrutsXmlCompletionProposalComputer implements
 		if (packageTag != null) {
 			ElementRegion namespaceAttr = packageTag.getAttrs().get(
 					StrutsXmlConstants.NAMESPACE_ATTR);
-			if (namespaceAttr != null) {
-				set = strutsXmlParser.getActionNames(document,
-						namespaceAttr.getValue());
-			}
+			set = strutsXmlParser.getActionNames(document,
+					namespaceAttr == null ? "" : namespaceAttr.getValue());
 		}
 		return set;
 	}
