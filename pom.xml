@@ -21,7 +21,7 @@
     <artifactId>com.amashchenko.eclipse.strutsclipse.parent</artifactId>
     <packaging>pom</packaging>
     <name>strutsclipse-parent</name>
-    <version>1.0.6-SNAPSHOT</version>
+    <version>1.0.7-SNAPSHOT</version>
 
     <description>Parent POM for StrutsClipse. StrutsClipse plugin provides Eclipse IDE integration for developing Apache Struts2 based applications.</description>
  
