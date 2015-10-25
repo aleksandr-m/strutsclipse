@@ -88,4 +88,66 @@ public class StrutsXmlConstants {
 					"postback",
 					"A result that renders the current request parameters as a form which immediately submits a postback to the specified destination." } };
 
+	public static final String[][] DEFAULT_CONSTANTS = {
+			{
+					"struts.devMode",
+					"When set to true, Struts will act much more friendly for developers. This includes: - struts.i18n.reload = true, - struts.configuration.xml.reload = true, - raising various debug or ignorable problems to errors." },
+			{ "struts.i18n.encoding",
+					"The encoding to use for localization messages." },
+			{ "struts.locale", "The default locale for the Struts application." },
+			{ "struts.custom.i18n.resources",
+					"Location of additional localization properties files to load." },
+			{
+					"struts.action.excludePattern",
+					"Comma separated list of patterns (java.util.regex.Pattern) to be excluded from Struts2-processing." },
+			{ "struts.mapper.action.prefix.enabled",
+					"Set support for action: prefix." },
+			{ "struts.mapper.action.prefix.crossNamespaces",
+					"Set access to actions in other namespace than current with action: prefix." },
+			{
+					"struts.mapper.alwaysSelectFullNamespace",
+					"Whether to always select the namespace to be everything before the last slash or not." },
+			{
+					"struts.enable.SlashesInActionNames",
+					"Set this to true if you wish to allow slashes in your action names.  If false, Actions names cannot have slashes, and will be accessible via any directory prefix.  This is the traditional behavior expected of WebWork applications. Setting to true is useful when you want to use wildcards and store values in the URL, to be extracted by wildcard patterns, such as <action name=\"*/*\" method=\"{2}\" class=\"actions.{1}\"> to match \"/foo/edit\" or \"/foo/save\"." },
+			{ "struts.patternMatcher",
+					"The com.opensymphony.xwork2.util.PatternMatcher implementation class." },
+			{ "struts.multipart.maxSize",
+					"The maximize size of a multipart request (file upload)." },
+			{ "struts.multipart.saveDir",
+					"The directory to use for storing uploaded files." },
+			{
+					"struts.multipart.parser",
+					"The org.apache.struts2.dispatcher.multipart.MultiPartRequest parser implementation for a multipart request (file upload)." },
+			{ "struts.ui.theme", "The default UI template theme." },
+			{ "struts.objectFactory",
+					"If specified, the default object factory can be overridden." },
+			{
+					"struts.i18n.reload",
+					"When set to true, resource bundles will be reloaded on _every_ request. This is good during development, but should never be used in production." },
+			{
+					"struts.action.extension",
+					"Used by the DefaultActionMapper You may provide a comma separated list, e.g. struts.action.extension=action,jnlp,do The blank extension allows you to match directory listings as well as pure action names without interfering with static resources, which can be specified as an empty string prior to a comma e.g. struts.action.extension=, or struts.action.extension=x,y,z,," },
+			{
+					"struts.ui.templateDir",
+					"The directory containing UI templates.  All templates must reside in this directory." },
+			{ "struts.configuration.xml.reload",
+					"This will cause the configuration to reload struts.xml when it is changed." },
+			{ "struts.serve.static",
+					"Whether the Struts filter should serve static content or not." },
+			{ "struts.custom.properties",
+					"Location of additional configuration properties files to load." },
+			{ "struts.unknownHandlerManager",
+					"The com.opensymphony.xwork2.UnknownHandlerManager implementation class." },
+			{ "struts.override.excludedPatterns",
+					"Constant is used to override framework's default excluded patterns." },
+			{ "struts.override.acceptedPatterns",
+					"Constant is used to override framework's default accepted patterns." },
+			{ "struts.additional.excludedPatterns",
+					"Additional excluded patterns." },
+			{ "struts.additional.acceptedPatterns",
+					"Additional accepted patterns." },
+			{
+					"struts.enable.DynamicMethodInvocation",
+					"Set this to false if you wish to disable implicit dynamic method invocation via the URL request. This includes URLs like foo!bar.action, as well as params like method:bar (but not action:foo). An alternative to implicit dynamic method invocation is to use wildcard mappings, such as <action name=\"*/*\" method=\"{2}\" class=\"actions.{1}\">." } };
 }

@@ -110,6 +110,11 @@ public class StrutsXmlCompletionProposalComputer implements
 					// extends attribute can have multiple values separated by ,
 					multiValueSeparator = ",";
 				}
+			} else if (StrutsXmlConstants.CONSTANT_TAG
+					.equalsIgnoreCase(tagRegion.getName())) {
+				if (StrutsXmlConstants.NAME_ATTR.equalsIgnoreCase(elementName)) {
+					proposals = StrutsXmlConstants.DEFAULT_CONSTANTS;
+				}
 			} else if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
 				if (StrutsXmlConstants.NAME_ATTR.equalsIgnoreCase(elementName)

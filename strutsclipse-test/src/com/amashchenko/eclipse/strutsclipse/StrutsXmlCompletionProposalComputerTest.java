@@ -378,4 +378,24 @@ public class StrutsXmlCompletionProposalComputerTest {
 		Assert.assertNotNull(proposals);
 		Assert.assertTrue(proposals.isEmpty());
 	}
+
+	@Test
+	public void testConstantTagName() throws Exception {
+		final String content = "<constant name=\"\" />";
+		IDocument document = new Document(content);
+
+		final int invocationOffset = content.lastIndexOf("\"");
+
+		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
+				new MockTextViewer(document), invocationOffset);
+
+		List<ICompletionProposal> proposals = computer
+				.computeCompletionProposals(context, null);
+
+		Assert.assertNotNull(proposals);
+		Assert.assertFalse(proposals.isEmpty());
+
+		Assert.assertEquals(StrutsXmlConstants.DEFAULT_CONSTANTS.length,
+				proposals.size());
+	}
 }
