@@ -6,7 +6,10 @@
       provider-name="Aleksandr Mashchenko">
 
    <description url="https://aleksandr-m.github.io/strutsclipse/">
-      StrutsClipse provides Eclipse IDE integration for developing Apache Struts2 (https://struts.apache.org/) based applications.
+      StrutsClipse provides Eclipse IDE integration for developing
+Apache Struts2 (https://struts.apache.org/) based applications.
+
+StrutsClipse site - https://aleksandr-m.github.io/strutsclipse/
    </description>
 
    <copyright>
