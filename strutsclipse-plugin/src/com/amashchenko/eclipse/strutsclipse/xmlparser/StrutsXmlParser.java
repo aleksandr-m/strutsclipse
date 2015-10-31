@@ -16,10 +16,8 @@
 package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -100,16 +98,11 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				List<ElementRegion> attrRegions = parseTag(document, tagRegion,
 						ATTRS);
 
-				// all attributes
-				Map<String, ElementRegion> allAttrs = new HashMap<String, ElementRegion>();
-
 				if (attrRegions != null) {
 					for (ElementRegion r : attrRegions) {
 						try {
 							final int valDocOffset = r.getValueRegion()
 									.getOffset();
-
-							allAttrs.put(r.getName(), r);
 
 							// if not in tag body and current attribute
 							if (currentElement == null
@@ -130,7 +123,7 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				}
 
 				result = new TagRegion(tagRegion.getType(), currentElement,
-						elementValuePrefix, allAttrs);
+						elementValuePrefix, attrRegions);
 			}
 
 			return result;
@@ -162,17 +155,8 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				List<ElementRegion> attrRegions = parseTag(document, tagRegion,
 						ATTRS);
 
-				// all attributes
-				Map<String, ElementRegion> allAttrs = new HashMap<String, ElementRegion>();
-
-				if (attrRegions != null) {
-					for (ElementRegion r : attrRegions) {
-						allAttrs.put(r.getName(), r);
-					}
-				}
-
 				result = new TagRegion(tagRegion.getType(), null, null,
-						allAttrs);
+						attrRegions);
 			}
 
 			return result;

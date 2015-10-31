@@ -152,12 +152,11 @@ public class StrutsXmlCompletionProposalComputer implements
 						.equalsIgnoreCase(elementName)) {
 					proposals = StrutsXmlConstants.DEFAULT_RESULT_TYPES;
 				} else if (elementName == null) { // result tag body
-					final ElementRegion typeAttr = tagRegion.getAttrs().get(
-							StrutsXmlConstants.TYPE_ATTR);
 					proposals = computeResultBodyProposals(
 							context.getDocument(),
 							context.getInvocationOffset(),
-							typeAttr == null ? null : typeAttr.getValue());
+							tagRegion.getAttrValue(
+									StrutsXmlConstants.TYPE_ATTR, null));
 					sortProposals = true;
 				}
 			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
@@ -171,22 +170,21 @@ public class StrutsXmlCompletionProposalComputer implements
 										context.getInvocationOffset(),
 										StrutsXmlConstants.RESULT_TAG);
 						if (parentResultTagRegion != null) {
-							final ElementRegion typeAttr = parentResultTagRegion
-									.getAttrs().get(
-											StrutsXmlConstants.TYPE_ATTR);
+							final String typeAttrValue = parentResultTagRegion
+									.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
+											null);
 							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
-									.equals(nameAttr.getValue()) && (typeAttr == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
-									.equals(typeAttr.getValue())))
-									|| (typeAttr != null
+									.equals(nameAttr.getValue()) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
+									.equals(typeAttrValue)))
+									|| (typeAttrValue != null
 											&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
-													.equals(typeAttr.getValue()) && StrutsXmlConstants.ACTION_NAME_PARAM
+													.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
 												.equals(nameAttr.getValue()));
 							if (correctTypeAndName) {
 								proposals = computeResultBodyProposals(
 										context.getDocument(),
 										context.getInvocationOffset(),
-										typeAttr == null ? null : typeAttr
-												.getValue());
+										typeAttrValue);
 								sortProposals = true;
 							}
 						}
@@ -391,10 +389,8 @@ public class StrutsXmlCompletionProposalComputer implements
 		TagRegion packageTag = strutsXmlParser.getParentTagRegion(document,
 				offset, StrutsXmlConstants.PACKAGE_TAG);
 		if (packageTag != null) {
-			ElementRegion namespaceAttr = packageTag.getAttrs().get(
-					StrutsXmlConstants.NAMESPACE_ATTR);
-			set = strutsXmlParser.getActionNames(document,
-					namespaceAttr == null ? "" : namespaceAttr.getValue());
+			set = strutsXmlParser.getActionNames(document, packageTag
+					.getAttrValue(StrutsXmlConstants.NAMESPACE_ATTR, ""));
 		}
 		return set;
 	}

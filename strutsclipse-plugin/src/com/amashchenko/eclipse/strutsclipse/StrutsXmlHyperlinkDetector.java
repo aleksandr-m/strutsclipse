@@ -95,11 +95,10 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 			} else if (StrutsXmlConstants.RESULT_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
 				if (elementName == null) { // result tag body
-					final ElementRegion typeAttr = tagRegion.getAttrs().get(
-							StrutsXmlConstants.TYPE_ATTR);
 					linksList.addAll(createResultLocationLinks(document,
-							elementValue, elementRegion,
-							typeAttr == null ? null : typeAttr.getValue()));
+							elementValue, elementRegion, tagRegion
+									.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
+											null)));
 				}
 			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
@@ -113,23 +112,20 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 										StrutsXmlConstants.RESULT_TAG);
 						if (parentResultTagRegion != null
 								&& parentResultTagRegion.getAttrs() != null) {
-							final ElementRegion typeAttr = parentResultTagRegion
-									.getAttrs().get(
-											StrutsXmlConstants.TYPE_ATTR);
+							final String typeAttrValue = parentResultTagRegion
+									.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
+											null);
 							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
-									.equals(nameAttr.getValue()) && (typeAttr == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
-									.equals(typeAttr.getValue())))
-									|| (typeAttr != null
+									.equals(nameAttr.getValue()) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
+									.equals(typeAttrValue)))
+									|| (typeAttrValue != null
 											&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
-													.equals(typeAttr.getValue()) && StrutsXmlConstants.ACTION_NAME_PARAM
+													.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
 												.equals(nameAttr.getValue()));
 							if (correctTypeAndName) {
 								linksList.addAll(createResultLocationLinks(
-										document,
-										elementValue,
-										elementRegion,
-										typeAttr == null ? null : typeAttr
-												.getValue()));
+										document, elementValue, elementRegion,
+										typeAttrValue));
 							}
 						}
 					}
@@ -185,10 +181,9 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 					document, elementRegion.getOffset(),
 					StrutsXmlConstants.PACKAGE_TAG);
 			if (packageTagRegion != null && packageTagRegion.getAttrs() != null) {
-				ElementRegion namespaceAttr = packageTagRegion.getAttrs().get(
-						StrutsXmlConstants.NAMESPACE_ATTR);
 				IRegion region = strutsXmlParser.getActionRegion(document,
-						namespaceAttr == null ? "" : namespaceAttr.getValue(),
+						packageTagRegion.getAttrValue(
+								StrutsXmlConstants.NAMESPACE_ATTR, ""),
 						elementValue);
 				if (region != null) {
 					ITextFileBuffer textFileBuffer = FileBuffers
@@ -291,6 +286,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 		} catch (JavaModelException e) {
 			e.printStackTrace();
 		}
+
 		return link;
 	}
 
