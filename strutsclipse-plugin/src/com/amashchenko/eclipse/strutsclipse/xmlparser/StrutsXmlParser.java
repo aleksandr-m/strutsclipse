@@ -18,6 +18,7 @@ package com.amashchenko.eclipse.strutsclipse.xmlparser;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
@@ -98,6 +99,7 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				List<ElementRegion> attrRegions = parseTag(document, tagRegion,
 						ATTRS);
 
+				// all attributes
 				if (attrRegions != null) {
 					for (ElementRegion r : attrRegions) {
 						try {
@@ -169,77 +171,65 @@ public class StrutsXmlParser extends AbstractXmlParser {
 
 	public Set<String> getActionNames(final IDocument document,
 			final String packageNamespace) {
-		IDocumentPartitioner partitioner = null;
-		try {
-			Set<String> result = new HashSet<String>();
-
-			List<String> namespaces = new ArrayList<String>();
-			namespaces.add(packageNamespace);
-
-			// handle special namespaces
-			if (!"".equals(packageNamespace)) {
-				namespaces.add("");
-			} else if (!"/".equals(packageNamespace)) {
-				namespaces.add("/");
-			}
-
-			List<IRegion> packBodyRegions = findTagsBodyRegionByAttrValues(
-					document, StrutsXmlConstants.PACKAGE_TAG,
-					StrutsXmlConstants.NAMESPACE_ATTR, namespaces, true);
-
-			if (packBodyRegions != null) {
-				List<ElementRegion> actionRegions = new ArrayList<ElementRegion>();
-				for (IRegion r : packBodyRegions) {
-					actionRegions.addAll(findAllTagAttr(document,
-							StrutsXmlConstants.ACTION_TAG,
-							StrutsXmlConstants.NAME_ATTR, r.getOffset(),
-							r.getLength()));
-				}
-
-				if (actionRegions != null) {
-					for (ElementRegion r : actionRegions) {
-						result.add(r.getValue());
-					}
-				}
-			}
-			return result;
-		} finally {
-			if (partitioner != null) {
-				partitioner.disconnect();
-			}
-		}
-	}
-
-	public IRegion getActionRegion(final IDocument document,
-			final String namespace, final String actionName) {
 		List<String> namespaces = new ArrayList<String>();
-		namespaces.add(namespace);
+		namespaces.add(packageNamespace);
 
 		// handle special namespaces
-		if (!"".equals(namespace)) {
+		if (!"".equals(packageNamespace)) {
 			namespaces.add("");
-		} else if (!"/".equals(namespace)) {
+		} else if (!"/".equals(packageNamespace)) {
 			namespaces.add("/");
 		}
 
-		List<IRegion> packBodyRegions = findTagsBodyRegionByAttrValues(
-				document, StrutsXmlConstants.PACKAGE_TAG,
-				StrutsXmlConstants.NAMESPACE_ATTR, namespaces, true);
+		Map<String, List<TagRegion>> actionRegions = getNamespacedActionTagRegions(document);
 
-		IRegion region = null;
-		if (packBodyRegions != null) {
-			for (IRegion r : packBodyRegions) {
-				ElementRegion attrRegion = findTagAttrByValue(document,
-						StrutsXmlConstants.ACTION_TAG,
-						StrutsXmlConstants.NAME_ATTR, actionName,
-						r.getOffset(), r.getLength());
-				if (attrRegion != null) {
-					region = attrRegion.getValueRegion();
-					break;
+		Set<String> result = new HashSet<String>();
+		if (actionRegions != null) {
+			for (String namespace : namespaces) {
+				if (actionRegions.containsKey(namespace)) {
+					for (TagRegion tr : actionRegions.get(namespace)) {
+						result.add(tr.getAttrValue(
+								StrutsXmlConstants.NAME_ATTR, ""));
+					}
 				}
 			}
 		}
-		return region;
+
+		return result;
+	}
+
+	public IRegion getActionRegion(final IDocument document,
+			final String packageNamespace, final String actionName) {
+		List<String> namespaces = new ArrayList<String>();
+		namespaces.add(packageNamespace);
+
+		// handle special namespaces
+		if (!"".equals(packageNamespace)) {
+			namespaces.add("");
+		} else if (!"/".equals(packageNamespace)) {
+			namespaces.add("/");
+		}
+
+		Map<String, List<TagRegion>> actionRegions = getNamespacedActionTagRegions(document);
+
+		if (actionRegions != null) {
+			for (String namespace : namespaces) {
+				if (actionRegions.containsKey(namespace)) {
+					for (TagRegion tr : actionRegions.get(namespace)) {
+						if (tr.getAttrs() != null) {
+							ElementRegion nameAttr = tr.getAttrs().get(
+									StrutsXmlConstants.NAME_ATTR);
+							if (nameAttr != null
+									&& actionName.equals(nameAttr.getValue())) {
+								return nameAttr.getValueRegion();
+							}
+						}
+					}
+				}
+			}
+		}
+
+		return null;
 	}
 
 	public Set<String> getPackageNames(final IDocument document) {
@@ -252,5 +242,15 @@ public class StrutsXmlParser extends AbstractXmlParser {
 			}
 		}
 		return result;
+	}
+
+	public Map<String, List<TagRegion>> getNamespacedActionTagRegions(
+			final IDocument document) {
+		return getGroupedTagRegions(document, StrutsXmlConstants.PACKAGE_TAG,
+				StrutsXmlConstants.ACTION_TAG, new String[] {
+						StrutsXmlConstants.NAME_ATTR,
+						StrutsXmlConstants.METHOD_ATTR,
+						StrutsXmlConstants.CLASS_ATTR },
+				StrutsXmlConstants.NAMESPACE_ATTR);
 	}
 }

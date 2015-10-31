@@ -16,14 +16,14 @@
 package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IDocumentPartitioner;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
-import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.rules.FastPartitioner;
 import org.eclipse.jface.text.rules.IPredicateRule;
 import org.eclipse.jface.text.rules.IWordDetector;
@@ -90,68 +90,13 @@ public abstract class AbstractXmlParser {
 		}
 	}
 
-	protected List<IRegion> findTagsBodyRegionByAttrValues(IDocument document,
-			String tag, String attr, List<String> attrValues,
-			boolean includeNoAttr) {
-		IDocumentPartitioner partitioner = null;
-		try {
-			List<IRegion> result = new ArrayList<IRegion>();
-
-			final String closeTag = "/" + tag;
-
-			// create tag partitioner
-			partitioner = createTagPartitioner(document, new String[] { tag,
-					closeTag });
-			// get tags regions
-			ITypedRegion[] tagRegions = partitioner.computePartitioning(0,
-					document.getLength());
-
-			// create attribute partitioner
-			partitioner = createAttrPartitioner(document, new String[] { attr });
-
-			int startTagOffset = 0;
-			for (ITypedRegion tagRegion : tagRegions) {
-				if (closeTag.equals(tagRegion.getType()) && startTagOffset > 0) {
-					result.add(new Region(startTagOffset, tagRegion.getOffset()
-							- startTagOffset));
-					startTagOffset = 0;
-				} else if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion
-						.getType()) && !closeTag.equals(tagRegion.getType())) {
-					ITypedRegion[] regions = partitioner.computePartitioning(
-							tagRegion.getOffset(), tagRegion.getLength());
-					List<ElementRegion> attrregs = fetchAttrsRegions(document,
-							regions);
-
-					if (includeNoAttr && attrregs.isEmpty()) {
-						startTagOffset = tagRegion.getOffset()
-								+ tagRegion.getLength();
-					} else {
-						for (ElementRegion r : attrregs) {
-							if (attrValues.contains(r.getValue())) {
-								startTagOffset = tagRegion.getOffset()
-										+ tagRegion.getLength();
-								break;
-							}
-						}
-					}
-				}
-			}
-
-			return result;
-		} finally {
-			if (partitioner != null) {
-				partitioner.disconnect();
-			}
-		}
-	}
-
 	protected ElementRegion findTagAttrByValue(IDocument document, String tag,
 			String attr, String attrValue) {
 		return findTagAttrByValue(document, tag, attr, attrValue, 0,
 				document.getLength());
 	}
 
-	protected ElementRegion findTagAttrByValue(IDocument document, String tag,
+	private ElementRegion findTagAttrByValue(IDocument document, String tag,
 			String attr, String attrValue, int offset, int length) {
 		IDocumentPartitioner partitioner = null;
 		try {
@@ -284,6 +229,112 @@ public abstract class AbstractXmlParser {
 			}
 		}
 		return attrRegions;
+	}
+
+	/**
+	 * Gets tag regions in parent tag grouped by parent tag attribute. <br/>
+	 * <br/>
+	 * E.g. If parentTagName is 'package', parentTagAttrName is `namespace`,
+	 * tagName is 'action' and attrNames are attributes names of action tag;
+	 * this method will produce map of action tags regions where key is a
+	 * package namespace.
+	 * 
+	 * @param document
+	 *            Document to parse.
+	 * @param parentTagName
+	 *            Parent tag name to get tags from.
+	 * @param tagName
+	 *            Tag name to get.
+	 * @param attrNames
+	 *            Attributes names of tag to get.
+	 * @param parentTagAttrName
+	 *            Group by this parent tag attribute.
+	 * @return Map of tags regions where key is a parent tag attribute.
+	 */
+	protected Map<String, List<TagRegion>> getGroupedTagRegions(
+			final IDocument document, final String parentTagName,
+			final String tagName, final String[] attrNames,
+			final String parentTagAttrName) {
+		IDocumentPartitioner tagPartitioner = null;
+		IDocumentPartitioner attrPartitioner = null;
+		try {
+			Map<String, List<TagRegion>> results = new HashMap<String, List<TagRegion>>();
+
+			final String closePackage = "/" + parentTagName;
+
+			// create parent tag partitioner
+			tagPartitioner = createTagPartitioner(document, new String[] {
+					parentTagName, closePackage });
+
+			ITypedRegion[] parentTagRegions = tagPartitioner
+					.computePartitioning(0, document.getLength());
+
+			// create tag partitioner
+			tagPartitioner = createTagPartitioner(document,
+					new String[] { tagName });
+
+			// create attribute partitioner
+			attrPartitioner = createAttrPartitioner(document, attrNames);
+
+			String key = null;
+			int parentBodyOffset = 0;
+			for (ITypedRegion parentTagRegion : parentTagRegions) {
+				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(parentTagRegion
+						.getType())) {
+					if (closePackage.equals(parentTagRegion.getType())) {
+						// get tags regions
+						ITypedRegion[] tagRegions = tagPartitioner
+								.computePartitioning(parentBodyOffset,
+										parentTagRegion.getOffset()
+												- parentBodyOffset);
+
+						List<TagRegion> tagRegionsList = new ArrayList<TagRegion>();
+						// all attributes
+						for (ITypedRegion tagRegion : tagRegions) {
+							if (!IDocument.DEFAULT_CONTENT_TYPE
+									.equals(tagRegion.getType())) {
+								ITypedRegion[] regions = attrPartitioner
+										.computePartitioning(
+												tagRegion.getOffset(),
+												tagRegion.getLength());
+
+								tagRegionsList.add(new TagRegion(tagName, null,
+										null, fetchAttrsRegions(document,
+												regions)));
+							}
+						}
+
+						if (results.containsKey(key)) {
+							results.get(key).addAll(tagRegionsList);
+						} else {
+							results.put(key, tagRegionsList);
+						}
+					} else {
+						List<ElementRegion> parentTagAttrRegions = parseTag(
+								document, parentTagRegion,
+								new String[] { parentTagAttrName });
+
+						if (parentTagAttrRegions.isEmpty()) {
+							key = "";
+						} else {
+							key = parentTagAttrRegions.get(0).getValue();
+						}
+
+						parentBodyOffset = parentTagRegion.getOffset()
+								+ parentTagRegion.getLength();
+					}
+				}
+			}
+
+			return results;
+		} finally {
+			if (tagPartitioner != null) {
+				tagPartitioner.disconnect();
+			}
+			if (attrPartitioner != null) {
+				attrPartitioner.disconnect();
+			}
+		}
 	}
 
 	private static class AttributeDetector implements IWordDetector {
