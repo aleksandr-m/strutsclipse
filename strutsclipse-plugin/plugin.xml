@@ -18,31 +18,46 @@
 -->
 <?eclipse version="3.4"?>
 <plugin>
-    <extension
-        point="org.eclipse.wst.sse.ui.completionProposal">
+    <extension point="org.eclipse.core.contenttype.contentTypes">
+        <content-type
+            id="com.amashchenko.eclipse.strutsclipse.strutsxml"
+            name="Struts XML"
+            base-type="org.eclipse.core.runtime.xml"
+            file-extensions="xml"
+            priority="high">
+            <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
+                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.0.dtd"/>
+                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.1.dtd"/>
+                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.1.7.dtd"/>
+                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.3.dtd"/>
+                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.5.dtd"/>
+            </describer>
+        </content-type>
+    </extension>
+
+    <extension point="org.eclipse.wst.sse.ui.completionProposal">
         <proposalCategory
-            id="com.amashchenko.eclipse.strutsclipse.completionProposal"
+            id="com.amashchenko.eclipse.strutsclipse.strutsxmlcompletionProposal"
             name="Struts XML Proposals">
         </proposalCategory>
 
         <proposalComputer
             activate="true"
-            categoryId="com.amashchenko.eclipse.strutsclipse.completionProposal"
+            categoryId="com.amashchenko.eclipse.strutsclipse.strutsxmlcompletionProposal"
             class="com.amashchenko.eclipse.strutsclipse.StrutsXmlCompletionProposalComputer"
-            id="com.amashchenko.eclipse.strutsclipse.proposalComputer">
-            <contentType id="org.eclipse.core.runtime.xml"/>
+            id="com.amashchenko.eclipse.strutsclipse.strutsxmlproposalComputer">
+            <contentType id="com.amashchenko.eclipse.strutsclipse.strutsxml"/>
         </proposalComputer>
     </extension>
 
     <extension point="org.eclipse.wst.sse.ui.editorConfiguration">
         <quickOutlineConfiguration
-            target="org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorPart"
+            target="com.amashchenko.eclipse.strutsclipse.strutsxml"
             class="com.amashchenko.eclipse.strutsclipse.StrutsXmlQuickOutlineConf">
         </quickOutlineConfiguration>
     </extension>
 
-    <extension
-        point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+    <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
         <hyperlinkDetector
             activate="true"
             class="com.amashchenko.eclipse.strutsclipse.StrutsXmlHyperlinkDetector"
