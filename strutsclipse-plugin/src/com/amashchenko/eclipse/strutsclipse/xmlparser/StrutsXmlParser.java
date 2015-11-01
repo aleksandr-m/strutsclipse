@@ -238,7 +238,9 @@ public class StrutsXmlParser extends AbstractXmlParser {
 		Set<String> result = new HashSet<String>();
 		if (attrRegions != null) {
 			for (ElementRegion r : attrRegions) {
-				result.add(r.getValue());
+				if (r != null && r.getValue() != null) {
+					result.add(r.getValue());
+				}
 			}
 		}
 		return result;

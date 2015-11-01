@@ -94,19 +94,9 @@ public class StrutsXmlCompletionProposalComputer implements
 					.getName())) {
 				if (StrutsXmlConstants.EXTENDS_ATTR
 						.equalsIgnoreCase(elementName)) {
-					Set<String> packageNames = strutsXmlParser
-							.getPackageNames(context.getDocument());
-
-					proposals = new String[StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length
-							+ packageNames.size()][2];
-
-					for (int i = 0; i < StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length; i++) {
-						proposals[i][0] = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES[i][0];
-					}
-					int indx = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length;
-					for (String p : packageNames) {
-						proposals[indx++][0] = p;
-					}
+					proposals = computePackageExtendsProposals(
+							context.getDocument(), tagRegion.getAttrValue(
+									StrutsXmlConstants.NAME_ATTR, null));
 					// extends attribute can have multiple values separated by ,
 					multiValueSeparator = ",";
 				}
@@ -196,6 +186,31 @@ public class StrutsXmlCompletionProposalComputer implements
 		return createAttrCompletionProposals(proposals, elementValuePrefix,
 				proposalRegion, multiValueSeparator, elementValue,
 				sortProposals);
+	}
+
+	private String[][] computePackageExtendsProposals(final IDocument document,
+			final String currentPackageName) {
+		Set<String> packageNames = strutsXmlParser.getPackageNames(document);
+
+		// remove current package name
+		if (currentPackageName != null
+				&& packageNames.contains(currentPackageName)) {
+			packageNames.remove(currentPackageName);
+		}
+
+		final int defaultsLength = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length;
+
+		String[][] proposals = new String[defaultsLength + packageNames.size()][2];
+
+		for (int i = 0; i < defaultsLength; i++) {
+			proposals[i][0] = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES[i][0];
+		}
+
+		int indx = defaultsLength;
+		for (String p : packageNames) {
+			proposals[indx++][0] = p;
+		}
+		return proposals;
 	}
 
 	private String[][] computeResultBodyProposals(final IDocument document,
