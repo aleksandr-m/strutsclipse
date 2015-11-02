@@ -66,4 +66,26 @@
             targetId="org.eclipse.core.runtime.xml">
         </hyperlinkDetector>
     </extension>
+
+    <extension
+        id="com.amashchenko.eclipse.strutsclipse.strutsxmlvalidator"
+        name="Struts XML Validator"
+        point="org.eclipse.wst.validation.validatorV2">
+        <validator
+            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlValidator"
+            markerId="com.amashchenko.eclipse.strutsclipse.strutsxmlproblemmarker">
+            <include>
+                <rules>
+                    <contentType id="com.amashchenko.eclipse.strutsclipse.strutsxml"/>
+                </rules>
+            </include>
+        </validator>
+    </extension>
+    <extension
+        id="com.amashchenko.eclipse.strutsclipse.strutsxmlproblemmarker"
+        name="Struts XML Problem"
+        point="org.eclipse.core.resources.markers">
+        <persistent value="true"/>
+        <super type="org.eclipse.core.resources.problemmarker"/>
+    </extension>
 </plugin>

@@ -22,7 +22,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.IDocument;
 
 public class ProjectUtil {
@@ -57,5 +60,49 @@ public class ProjectUtil {
 			e.printStackTrace();
 		}
 		return javaProject;
+	}
+
+	public static IType findClass(final IDocument document,
+			final String className) {
+		IType result = null;
+		try {
+			IJavaProject javaProject = getCurrentJavaProject(document);
+			if (javaProject != null && javaProject.exists()) {
+				IType type = javaProject.findType(className);
+				if (type != null && type.exists()) {
+					result = type;
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		return result;
+	}
+
+	public static IMethod findClassParameterlessMethod(final IType clazz,
+			final String methodName) {
+		IMethod result = null;
+		try {
+			if (clazz != null) {
+				IMethod method = clazz.getMethod(methodName, null);
+				if (method != null && method.exists()) {
+					result = method;
+				} else {
+					// try super classes
+					IType[] superClasses = clazz.newSupertypeHierarchy(null)
+							.getAllSuperclasses(clazz);
+					for (IType superType : superClasses) {
+						method = superType.getMethod(methodName, null);
+						if (method != null && method.exists()) {
+							result = method;
+							break;
+						}
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		return result;
 	}
 }
