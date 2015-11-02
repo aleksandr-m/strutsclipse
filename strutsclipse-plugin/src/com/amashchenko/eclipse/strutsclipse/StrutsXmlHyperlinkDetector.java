@@ -259,32 +259,14 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 			final String elementValue, final IRegion elementRegion,
 			final String className) {
 		IHyperlink link = null;
-		try {
-			IJavaProject javaProject = ProjectUtil
-					.getCurrentJavaProject(document);
-			if (javaProject != null && javaProject.exists()) {
-				IType type = javaProject.findType(className);
-				if (type != null && type.exists()) {
-					IMethod method = type.getMethod(elementValue, null);
-					if (method != null && method.exists()) {
-						link = new JavaElementHyperlink(elementRegion, method);
-					} else {
-						// try super classes
-						IType[] superClasses = type.newSupertypeHierarchy(null)
-								.getAllSuperclasses(type);
-						for (IType superType : superClasses) {
-							method = superType.getMethod(elementValue, null);
-							if (method != null && method.exists()) {
-								link = new JavaElementHyperlink(elementRegion,
-										method);
-								break;
-							}
-						}
-					}
-				}
+
+		IType clazz = ProjectUtil.findClass(document, className);
+		if (clazz != null) {
+			IMethod method = ProjectUtil.findClassParameterlessMethod(clazz,
+					elementValue);
+			if (method != null) {
+				link = new JavaElementHyperlink(elementRegion, method);
 			}
-		} catch (JavaModelException e) {
-			e.printStackTrace();
 		}
 
 		return link;
