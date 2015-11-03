@@ -20,7 +20,7 @@
     <parent>
         <groupId>com.amashchenko.eclipse.strutsclipse</groupId>
         <artifactId>com.amashchenko.eclipse.strutsclipse.parent</artifactId>
-        <version>1.0.7-SNAPSHOT</version>
+        <version>1.0.8-SNAPSHOT</version>
     </parent>
     <artifactId>com.amashchenko.eclipse.strutsclipse.updatesite</artifactId>
     <packaging>eclipse-repository</packaging>
