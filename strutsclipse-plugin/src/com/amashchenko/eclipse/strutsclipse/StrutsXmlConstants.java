@@ -123,6 +123,12 @@ public class StrutsXmlConstants {
 			{ "struts.objectFactory",
 					"If specified, the default object factory can be overridden." },
 			{
+					"struts.objectFactory.spring.autoWire",
+					"Specifies the autowiring logic when using the SpringObjectFactory. Valid values are: name, type, auto, and constructor (name is the default)." },
+			{
+					"struts.objectFactory.spring.autoWire.alwaysRespect",
+					"Whether the autowire strategy chosen by struts.objectFactory.spring.autoWire is always respected. Defaults to false, which is the legacy behavior that tries to determine the best strategy for the situation." },
+			{
 					"struts.i18n.reload",
 					"When set to true, resource bundles will be reloaded on _every_ request. This is good during development, but should never be used in production." },
 			{
