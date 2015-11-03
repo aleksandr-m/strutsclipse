@@ -2,13 +2,14 @@
 <?compositeMetadataRepository version='1.0.0'?>
 <repository name='StrutsClipse repository' type='org.eclipse.equinox.internal.p2.metadata.repository.CompositeMetadataRepository' version='1.0.0'>
     <properties size='1'>
-        <property name='p2.timestamp' value='1444237305807'/>
+        <property name='p2.timestamp' value='1446571189264'/>
     </properties>
-    <children size='5'>
+    <children size='6'>
         <child location='1.0.1'/>
         <child location='1.0.3'/>
         <child location='1.0.4'/>
         <child location='1.0.5'/>
         <child location='1.0.6'/>
+        <child location='1.0.7'/>
     </children>
 </repository>
