@@ -15,8 +15,12 @@
  */
 package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -453,5 +457,150 @@ public class StrutsXmlParserTest {
 		Assert.assertEquals(1, tagRegion.getAttrs().size());
 		Assert.assertTrue(tagRegion.getAttrs().containsKey(
 				StrutsXmlConstants.EXTENDS_ATTR));
+	}
+
+	// getActionNames
+	@Test
+	public void testGetActionNames() throws Exception {
+		final String content = "<package namespace=\"/\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package><action name=\"not\"></action></package>"
+				+ "<package namespace=\"/\"><action name=\"in3\"></action></package>";
+		IDocument document = new Document(content);
+		Set<String> namespaces = new HashSet<String>();
+		namespaces.add("/");
+		Set<String> actionNames = strutsXmlParser.getActionNames(document,
+				namespaces);
+
+		Assert.assertNotNull(actionNames);
+		Assert.assertEquals(3, actionNames.size());
+	}
+
+	@Test
+	public void testGetActionNamesEmpty() throws Exception {
+		final String content = "<package namespace=\"/\"><action name=\"in1\"></action><action name=\"in2\"></action></package>";
+		IDocument document = new Document(content);
+		Set<String> namespaces = new HashSet<String>();
+		namespaces.add("/notexisting");
+		Set<String> actionNames = strutsXmlParser.getActionNames(document,
+				namespaces);
+
+		Assert.assertNotNull(actionNames);
+		Assert.assertEquals(0, actionNames.size());
+	}
+
+	@Test
+	public void testGetActionNamesNoActions() throws Exception {
+		final String content = "<package namespace=\"/\"></package>";
+		IDocument document = new Document(content);
+		Set<String> namespaces = new HashSet<String>();
+		namespaces.add("/");
+		Set<String> actionNames = strutsXmlParser.getActionNames(document,
+				namespaces);
+
+		Assert.assertNotNull(actionNames);
+		Assert.assertEquals(0, actionNames.size());
+	}
+
+	// getActionRegion
+	@Test
+	public void testGetActionRegion() throws Exception {
+		final String actionName = "in3";
+		final String content = "<package namespace=\"/\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package><action name=\"not\"></action></package>"
+				+ "<package namespace=\"/\"><action name=\""
+				+ actionName
+				+ "\"></action></package>";
+		IDocument document = new Document(content);
+		Set<String> namespaces = new HashSet<String>();
+		namespaces.add("/");
+		IRegion actionRegion = strutsXmlParser.getActionRegion(document,
+				namespaces, actionName);
+
+		Assert.assertNotNull(actionRegion);
+		Assert.assertEquals(content.indexOf(actionName),
+				actionRegion.getOffset());
+	}
+
+	@Test
+	public void testGetActionRegionNoNamespace() throws Exception {
+		final String actionName = "in3";
+		final String content = "<package namespace=\"/\"><action name=\""
+				+ actionName + "\"></action></package>";
+		IDocument document = new Document(content);
+		Set<String> namespaces = new HashSet<String>();
+		namespaces.add("/notexisting");
+		IRegion actionRegion = strutsXmlParser.getActionRegion(document,
+				namespaces, actionName);
+
+		Assert.assertNull(actionRegion);
+	}
+
+	@Test
+	public void testGetActionRegionNoAction() throws Exception {
+		final String content = "<package namespace=\"/\"><action name=\"in3\"></action></package>";
+		IDocument document = new Document(content);
+		Set<String> namespaces = new HashSet<String>();
+		namespaces.add("/");
+		IRegion actionRegion = strutsXmlParser.getActionRegion(document,
+				namespaces, "notexisting");
+
+		Assert.assertNull(actionRegion);
+	}
+
+	// getPackageNames
+	@Test
+	public void testGetPackageNames() throws Exception {
+		final String content = "<package name=\"pack1\"></package><package name=\"pack2\"></package><package name=\"pack3\"></package>";
+		IDocument document = new Document(content);
+		Set<String> packageNames = strutsXmlParser.getPackageNames(document);
+
+		Assert.assertNotNull(packageNames);
+		Assert.assertEquals(3, packageNames.size());
+	}
+
+	// getResultTagRegion
+	@Test
+	public void testGetResultTagRegion() throws Exception {
+		final String type = "redirectAction";
+		final String action = "someAction";
+		final String namespace = "/";
+		final String content = "<result type='" + type + "'><param name='"
+				+ StrutsXmlConstants.NAMESPACE_ATTR + "'>" + namespace
+				+ "</param><param name='"
+				+ StrutsXmlConstants.ACTION_NAME_PARAM + "'>" + action
+				+ "</param><param name='some'>other</param></result>";
+		IDocument document = new Document(content);
+		TagRegion resultTagRegion = strutsXmlParser.getResultTagRegion(
+				document, content.indexOf("someAction"));
+
+		Assert.assertNotNull(resultTagRegion);
+		Assert.assertEquals(type, resultTagRegion.getName());
+
+		Assert.assertNotNull(resultTagRegion.getAttrs());
+		Assert.assertEquals(3, resultTagRegion.getAttrs().size());
+
+		Assert.assertTrue(resultTagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.ACTION_NAME_PARAM));
+		Assert.assertNotNull(resultTagRegion.getAttrs().get(
+				StrutsXmlConstants.ACTION_NAME_PARAM));
+		Assert.assertEquals(
+				StrutsXmlConstants.ACTION_NAME_PARAM,
+				resultTagRegion.getAttrs()
+						.get(StrutsXmlConstants.ACTION_NAME_PARAM).getName());
+		Assert.assertEquals(
+				action,
+				resultTagRegion.getAttrs()
+						.get(StrutsXmlConstants.ACTION_NAME_PARAM).getValue());
+
+		Assert.assertTrue(resultTagRegion.getAttrs().containsKey(
+				StrutsXmlConstants.NAMESPACE_ATTR));
+		Assert.assertNotNull(resultTagRegion.getAttrs().get(
+				StrutsXmlConstants.NAMESPACE_ATTR));
+		Assert.assertEquals(StrutsXmlConstants.NAMESPACE_ATTR, resultTagRegion
+				.getAttrs().get(StrutsXmlConstants.NAMESPACE_ATTR).getName());
+		Assert.assertEquals(
+				namespace,
+				resultTagRegion.getAttrs()
+						.get(StrutsXmlConstants.NAMESPACE_ATTR).getValue());
 	}
 }

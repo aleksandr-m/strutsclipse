@@ -146,7 +146,7 @@ public class StrutsXmlCompletionProposalComputer implements
 							context.getDocument(),
 							context.getInvocationOffset(),
 							tagRegion.getAttrValue(
-									StrutsXmlConstants.TYPE_ATTR, null));
+									StrutsXmlConstants.TYPE_ATTR, null), null);
 					sortProposals = true;
 				}
 			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
@@ -155,14 +155,13 @@ public class StrutsXmlCompletionProposalComputer implements
 					final ElementRegion nameAttr = tagRegion.getAttrs().get(
 							StrutsXmlConstants.NAME_ATTR);
 					if (nameAttr != null) {
-						final TagRegion parentResultTagRegion = strutsXmlParser
-								.getParentTagRegion(context.getDocument(),
-										context.getInvocationOffset(),
-										StrutsXmlConstants.RESULT_TAG);
-						if (parentResultTagRegion != null) {
-							final String typeAttrValue = parentResultTagRegion
-									.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
-											null);
+						TagRegion resultTagRegion = strutsXmlParser
+								.getResultTagRegion(context.getDocument(),
+										context.getInvocationOffset());
+						if (resultTagRegion != null) {
+							// name is type value, here
+							final String typeAttrValue = resultTagRegion
+									.getName();
 							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
 									.equals(nameAttr.getValue()) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
 									.equals(typeAttrValue)))
@@ -171,10 +170,14 @@ public class StrutsXmlCompletionProposalComputer implements
 													.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
 												.equals(nameAttr.getValue()));
 							if (correctTypeAndName) {
+								final String namespaceParamValue = resultTagRegion
+										.getAttrValue(
+												StrutsXmlConstants.NAMESPACE_ATTR,
+												null);
 								proposals = computeResultBodyProposals(
 										context.getDocument(),
 										context.getInvocationOffset(),
-										typeAttrValue);
+										typeAttrValue, namespaceParamValue);
 								sortProposals = true;
 							}
 						}
@@ -214,7 +217,8 @@ public class StrutsXmlCompletionProposalComputer implements
 	}
 
 	private String[][] computeResultBodyProposals(final IDocument document,
-			final int offset, final String typeAttrValue) {
+			final int offset, final String typeAttrValue,
+			final String namespaceParamValue) {
 		Set<String> set = null;
 		// assume that default is dispatcher for now, TODO improve
 		// that
@@ -227,7 +231,7 @@ public class StrutsXmlCompletionProposalComputer implements
 			set = findFilesPaths(document, FREEMARKER_EXTENSIONS);
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
 				.equals(typeAttrValue)) {
-			set = findRedirectActionNames(document, offset);
+			set = findRedirectActionNames(document, offset, namespaceParamValue);
 		}
 
 		String[][] proposals = null;
@@ -399,15 +403,31 @@ public class StrutsXmlCompletionProposalComputer implements
 	}
 
 	private Set<String> findRedirectActionNames(final IDocument document,
-			final int offset) {
-		Set<String> set = null;
-		TagRegion packageTag = strutsXmlParser.getParentTagRegion(document,
-				offset, StrutsXmlConstants.PACKAGE_TAG);
-		if (packageTag != null) {
-			set = strutsXmlParser.getActionNames(document, packageTag
-					.getAttrValue(StrutsXmlConstants.NAMESPACE_ATTR, ""));
+			final int offset, final String namespaceParamValue) {
+		Set<String> namespaces = new HashSet<String>();
+
+		// if there is a namespaceParamValue then used it, else get
+		// namespace from parent package
+		String namespace = namespaceParamValue;
+		if (namespace == null) {
+			TagRegion packageTagRegion = strutsXmlParser.getParentTagRegion(
+					document, offset, StrutsXmlConstants.PACKAGE_TAG);
+			if (packageTagRegion != null) {
+				namespace = packageTagRegion.getAttrValue(
+						StrutsXmlConstants.NAMESPACE_ATTR, "");
+			} else {
+				namespace = "";
+			}
+
+			// if namespace came NOT from namespaceParamValue then add special
+			// namespaces
+			namespaces.add("");
+			namespaces.add("/");
 		}
-		return set;
+
+		namespaces.add(namespace);
+
+		return strutsXmlParser.getActionNames(document, namespaces);
 	}
 
 	@Override

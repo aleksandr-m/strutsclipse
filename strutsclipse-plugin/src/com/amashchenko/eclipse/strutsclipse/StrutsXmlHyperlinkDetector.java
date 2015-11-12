@@ -16,8 +16,10 @@
 package com.amashchenko.eclipse.strutsclipse;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
@@ -98,7 +100,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 					linksList.addAll(createResultLocationLinks(document,
 							elementValue, elementRegion, tagRegion
 									.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
-											null)));
+											null), null));
 				}
 			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
 					.getName())) {
@@ -106,15 +108,13 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 					final ElementRegion nameAttr = tagRegion.getAttrs().get(
 							StrutsXmlConstants.NAME_ATTR);
 					if (nameAttr != null) {
-						final TagRegion parentResultTagRegion = strutsXmlParser
-								.getParentTagRegion(document,
-										region.getOffset(),
-										StrutsXmlConstants.RESULT_TAG);
-						if (parentResultTagRegion != null
-								&& parentResultTagRegion.getAttrs() != null) {
-							final String typeAttrValue = parentResultTagRegion
-									.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
-											null);
+						TagRegion resultTagRegion = strutsXmlParser
+								.getResultTagRegion(document,
+										region.getOffset());
+						if (resultTagRegion != null) {
+							// name is type value, here
+							final String typeAttrValue = resultTagRegion
+									.getName();
 							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
 									.equals(nameAttr.getValue()) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
 									.equals(typeAttrValue)))
@@ -123,9 +123,13 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 													.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
 												.equals(nameAttr.getValue()));
 							if (correctTypeAndName) {
+								final String namespaceParamValue = resultTagRegion
+										.getAttrValue(
+												StrutsXmlConstants.NAMESPACE_ATTR,
+												null);
 								linksList.addAll(createResultLocationLinks(
 										document, elementValue, elementRegion,
-										typeAttrValue));
+										typeAttrValue, namespaceParamValue));
 							}
 						}
 					}
@@ -153,7 +157,8 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 
 	private List<IHyperlink> createResultLocationLinks(
 			final IDocument document, final String elementValue,
-			final IRegion elementRegion, final String typeAttrValue) {
+			final IRegion elementRegion, final String typeAttrValue,
+			final String namespaceParamValue) {
 		final List<IHyperlink> links = new ArrayList<IHyperlink>();
 
 		// assume that default is dispatcher for now, TODO improve
@@ -176,26 +181,41 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 			}
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
 				.equals(typeAttrValue)) {
-			// TODO handle namespace param
-			TagRegion packageTagRegion = strutsXmlParser.getParentTagRegion(
-					document, elementRegion.getOffset(),
-					StrutsXmlConstants.PACKAGE_TAG);
-			if (packageTagRegion != null && packageTagRegion.getAttrs() != null) {
-				IRegion region = strutsXmlParser.getActionRegion(document,
-						packageTagRegion.getAttrValue(
-								StrutsXmlConstants.NAMESPACE_ATTR, ""),
-						elementValue);
-				if (region != null) {
-					ITextFileBuffer textFileBuffer = FileBuffers
-							.getTextFileBufferManager().getTextFileBuffer(
-									document);
-					if (textFileBuffer != null) {
-						IFile file = ResourcesPlugin.getWorkspace().getRoot()
-								.getFile(textFileBuffer.getLocation());
-						if (file.exists()) {
-							links.add(new FileHyperlink(elementRegion, file,
-									region));
-						}
+			Set<String> namespaces = new HashSet<String>();
+
+			// if there is a namespaceParamValue then used it, else get
+			// namespace from parent package
+			String namespace = namespaceParamValue;
+			if (namespace == null) {
+				TagRegion packageTagRegion = strutsXmlParser
+						.getParentTagRegion(document,
+								elementRegion.getOffset(),
+								StrutsXmlConstants.PACKAGE_TAG);
+				if (packageTagRegion != null) {
+					namespace = packageTagRegion.getAttrValue(
+							StrutsXmlConstants.NAMESPACE_ATTR, "");
+				} else {
+					namespace = "";
+				}
+
+				// if namespace came NOT from namespaceParamValue then add
+				// special namespaces
+				namespaces.add("");
+				namespaces.add("/");
+			}
+
+			namespaces.add(namespace);
+
+			IRegion region = strutsXmlParser.getActionRegion(document,
+					namespaces, elementValue);
+			if (region != null) {
+				ITextFileBuffer textFileBuffer = FileBuffers
+						.getTextFileBufferManager().getTextFileBuffer(document);
+				if (textFileBuffer != null) {
+					IFile file = ResourcesPlugin.getWorkspace().getRoot()
+							.getFile(textFileBuffer.getLocation());
+					if (file.exists()) {
+						links.add(new FileHyperlink(elementRegion, file, region));
 					}
 				}
 			}

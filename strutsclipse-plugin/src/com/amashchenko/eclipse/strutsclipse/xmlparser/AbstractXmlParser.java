@@ -42,9 +42,11 @@ public abstract class AbstractXmlParser {
 	/**
 	 * Finds the concrete attribute in the concrete tag. Returns multiple
 	 * attribute {@link ElementRegion}-s if there are more than one tag with
-	 * such name in the document. This method searches the whole document. If
-	 * there is need to search specific region of the document use
-	 * {@link #findAllTagAttr(IDocument, String, String, int, int)} method.
+	 * such name in the document. This method searches the whole document and
+	 * doesn't get body of the tag. If there is need to search specific region
+	 * of the document or to get body of the tag use
+	 * {@link #findAllTagAttr(IDocument, String, String, boolean, int, int)}
+	 * method.
 	 * 
 	 * @param document
 	 *            Document to search.
@@ -56,17 +58,27 @@ public abstract class AbstractXmlParser {
 	 */
 	protected List<ElementRegion> findAllTagAttr(IDocument document,
 			String tag, String attr) {
-		return findAllTagAttr(document, tag, attr, 0, document.getLength());
+		return findAllTagAttr(document, tag, attr, false, 0,
+				document.getLength());
 	}
 
 	protected List<ElementRegion> findAllTagAttr(IDocument document,
-			String tag, String attr, int offset, int length) {
+			String tag, String attr, boolean fetchBody, int offset, int length) {
 		IDocumentPartitioner partitioner = null;
 		try {
 			List<ElementRegion> attrRegions = new ArrayList<ElementRegion>();
 
+			final String closeTag = "/" + tag;
+
+			final String[] tags;
+			if (fetchBody) {
+				tags = new String[] { tag, closeTag };
+			} else {
+				tags = new String[] { tag };
+			}
+
 			// create tag partitioner
-			partitioner = createTagPartitioner(document, new String[] { tag });
+			partitioner = createTagPartitioner(document, tags);
 			// get tags regions
 			ITypedRegion[] tagRegions = partitioner.computePartitioning(offset,
 					length);
@@ -74,14 +86,34 @@ public abstract class AbstractXmlParser {
 			// create attribute partitioner
 			partitioner = createAttrPartitioner(document, new String[] { attr });
 
+			int bodyOffset = -1;
 			for (ITypedRegion tagRegion : tagRegions) {
 				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())) {
-					ITypedRegion[] regions = partitioner.computePartitioning(
-							tagRegion.getOffset(), tagRegion.getLength());
-					attrRegions.addAll(fetchAttrsRegions(document, regions));
+					if (closeTag.equals(tagRegion.getType())) {
+						if (bodyOffset != -1) {
+							try {
+								ElementRegion region = new ElementRegion(null,
+										document.get(bodyOffset,
+												tagRegion.getOffset()
+														- bodyOffset),
+										bodyOffset);
+								attrRegions.add(region);
+							} catch (BadLocationException e) {
+								e.printStackTrace();
+							}
+							bodyOffset = -1;
+						}
+					} else {
+						ITypedRegion[] regions = partitioner
+								.computePartitioning(tagRegion.getOffset(),
+										tagRegion.getLength());
+						attrRegions
+								.addAll(fetchAttrsRegions(document, regions));
+						bodyOffset = tagRegion.getOffset()
+								+ tagRegion.getLength();
+					}
 				}
 			}
-
 			return attrRegions;
 		} finally {
 			if (partitioner != null) {
@@ -260,11 +292,11 @@ public abstract class AbstractXmlParser {
 		try {
 			Map<String, List<TagRegion>> results = new HashMap<String, List<TagRegion>>();
 
-			final String closePackage = "/" + parentTagName;
+			final String closeTagName = "/" + parentTagName;
 
 			// create parent tag partitioner
 			tagPartitioner = createTagPartitioner(document, new String[] {
-					parentTagName, closePackage });
+					parentTagName, closeTagName });
 
 			ITypedRegion[] parentTagRegions = tagPartitioner
 					.computePartitioning(0, document.getLength());
@@ -281,7 +313,7 @@ public abstract class AbstractXmlParser {
 			for (ITypedRegion parentTagRegion : parentTagRegions) {
 				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(parentTagRegion
 						.getType())) {
-					if (closePackage.equals(parentTagRegion.getType())) {
+					if (closeTagName.equals(parentTagRegion.getType())) {
 						// get tags regions
 						ITypedRegion[] tagRegions = tagPartitioner
 								.computePartitioning(parentBodyOffset,

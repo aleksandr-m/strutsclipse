@@ -170,22 +170,12 @@ public class StrutsXmlParser extends AbstractXmlParser {
 	}
 
 	public Set<String> getActionNames(final IDocument document,
-			final String packageNamespace) {
-		List<String> namespaces = new ArrayList<String>();
-		namespaces.add(packageNamespace);
-
-		// handle special namespaces
-		if (!"".equals(packageNamespace)) {
-			namespaces.add("");
-		} else if (!"/".equals(packageNamespace)) {
-			namespaces.add("/");
-		}
-
+			final Set<String> packageNamespaces) {
 		Map<String, List<TagRegion>> actionRegions = getNamespacedActionTagRegions(document);
 
 		Set<String> result = new HashSet<String>();
 		if (actionRegions != null) {
-			for (String namespace : namespaces) {
+			for (String namespace : packageNamespaces) {
 				if (actionRegions.containsKey(namespace)) {
 					for (TagRegion tr : actionRegions.get(namespace)) {
 						result.add(tr.getAttrValue(
@@ -199,21 +189,11 @@ public class StrutsXmlParser extends AbstractXmlParser {
 	}
 
 	public IRegion getActionRegion(final IDocument document,
-			final String packageNamespace, final String actionName) {
-		List<String> namespaces = new ArrayList<String>();
-		namespaces.add(packageNamespace);
-
-		// handle special namespaces
-		if (!"".equals(packageNamespace)) {
-			namespaces.add("");
-		} else if (!"/".equals(packageNamespace)) {
-			namespaces.add("/");
-		}
-
+			final Set<String> packageNamespaces, final String actionName) {
 		Map<String, List<TagRegion>> actionRegions = getNamespacedActionTagRegions(document);
 
 		if (actionRegions != null) {
-			for (String namespace : namespaces) {
+			for (String namespace : packageNamespaces) {
 				if (actionRegions.containsKey(namespace)) {
 					for (TagRegion tr : actionRegions.get(namespace)) {
 						if (tr.getAttrs() != null) {
@@ -254,5 +234,77 @@ public class StrutsXmlParser extends AbstractXmlParser {
 						StrutsXmlConstants.METHOD_ATTR,
 						StrutsXmlConstants.CLASS_ATTR },
 				StrutsXmlConstants.NAMESPACE_ATTR);
+	}
+
+	/**
+	 * Gets result tag with its param tags.
+	 * 
+	 * @param document
+	 *            Document to search.
+	 * @param offset
+	 *            Document offset.
+	 * @return {@link TagRegion} instance where {@link TagRegion#getName()}
+	 *         holds result tag type attribute value and
+	 *         {@link TagRegion#getAttrs()} hold param tags (attr.name is param
+	 *         name value, attr.value is param body).
+	 */
+	public TagRegion getResultTagRegion(final IDocument document,
+			final int offset) {
+		IDocumentPartitioner partitioner = null;
+		try {
+			final String closeResultTag = "/" + StrutsXmlConstants.RESULT_TAG;
+
+			partitioner = createTagPartitioner(document, new String[] {
+					StrutsXmlConstants.RESULT_TAG, closeResultTag });
+
+			ITypedRegion tagRegion = partitioner.getPartition(offset);
+
+			int tagOffset = tagRegion.getOffset();
+			int length = tagRegion.getLength();
+
+			List<ElementRegion> paramTags = findAllTagAttr(document,
+					StrutsXmlConstants.PARAM_TAG, StrutsXmlConstants.NAME_ATTR,
+					true, tagOffset, length);
+
+			// get result type attribute value
+			String resultTypeValue = null;
+			tagRegion = partitioner.getPartition(tagOffset - 1);
+			if (StrutsXmlConstants.RESULT_TAG.equals(tagRegion.getType())) {
+				List<ElementRegion> attrRegions = parseTag(document, tagRegion,
+						new String[] { StrutsXmlConstants.TYPE_ATTR });
+				if (!attrRegions.isEmpty() && attrRegions.get(0) != null) {
+					resultTypeValue = attrRegions.get(0).getValue();
+				}
+			}
+
+			// re-map parameters because name is name attribute value and value
+			// is param tag body
+			List<ElementRegion> list = new ArrayList<ElementRegion>();
+			String paramName = null;
+			String paramValue = null;
+			int paramValueOffset = 0;
+			for (ElementRegion r : paramTags) {
+				if (StrutsXmlConstants.NAME_ATTR.equals(r.getName())) {
+					paramName = r.getValue();
+				} else if (r.getName() == null) {
+					paramValue = r.getValue();
+					paramValueOffset = r.getValueRegion().getOffset();
+				}
+
+				if (paramName != null && paramValue != null) {
+					list.add(new ElementRegion(paramName, paramValue,
+							paramValueOffset));
+
+					paramName = null;
+					paramValue = null;
+				}
+			}
+
+			return new TagRegion(resultTypeValue, null, null, list);
+		} finally {
+			if (partitioner != null) {
+				partitioner.disconnect();
+			}
+		}
 	}
 }
