@@ -17,8 +17,10 @@ package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -261,6 +263,20 @@ public abstract class AbstractXmlParser {
 			}
 		}
 		return attrRegions;
+	}
+
+	protected Set<String> getAttrsValues(final IDocument document,
+			final String tag, final String attr) {
+		List<ElementRegion> attrRegions = findAllTagAttr(document, tag, attr);
+		Set<String> result = new HashSet<String>();
+		if (attrRegions != null) {
+			for (ElementRegion r : attrRegions) {
+				if (r != null && r.getValue() != null) {
+					result.add(r.getValue());
+				}
+			}
+		}
+		return result;
 	}
 
 	/**

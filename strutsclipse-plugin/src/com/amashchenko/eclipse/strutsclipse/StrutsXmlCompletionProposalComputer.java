@@ -162,23 +162,43 @@ public class StrutsXmlCompletionProposalComputer implements
 							// name is type value, here
 							final String typeAttrValue = resultTagRegion
 									.getName();
-							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
-									.equals(nameAttr.getValue()) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
-									.equals(typeAttrValue)))
-									|| (typeAttrValue != null
-											&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
-													.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
+
+							boolean redirectAction = typeAttrValue != null
+									&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
+											.equals(typeAttrValue);
+
+							// param name="namespace"
+							if (redirectAction
+									&& StrutsXmlConstants.NAMESPACE_ATTR
+											.equals(nameAttr.getValue())) {
+								Set<String> packageNames = strutsXmlParser
+										.getPackageNamespaces(context
+												.getDocument());
+								packageNames.remove("");
+								if (packageNames != null
+										&& !packageNames.isEmpty()) {
+									proposals = new String[packageNames.size()][2];
+									int indx = 0;
+									for (String p : packageNames) {
+										proposals[indx++][0] = p;
+									}
+								}
+							} else {
+								boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
+										.equals(nameAttr.getValue()) && !redirectAction)
+										|| (redirectAction && StrutsXmlConstants.ACTION_NAME_PARAM
 												.equals(nameAttr.getValue()));
-							if (correctTypeAndName) {
-								final String namespaceParamValue = resultTagRegion
-										.getAttrValue(
-												StrutsXmlConstants.NAMESPACE_ATTR,
-												null);
-								proposals = computeResultBodyProposals(
-										context.getDocument(),
-										context.getInvocationOffset(),
-										typeAttrValue, namespaceParamValue);
-								sortProposals = true;
+								if (correctTypeAndName) {
+									final String namespaceParamValue = resultTagRegion
+											.getAttrValue(
+													StrutsXmlConstants.NAMESPACE_ATTR,
+													null);
+									proposals = computeResultBodyProposals(
+											context.getDocument(),
+											context.getInvocationOffset(),
+											typeAttrValue, namespaceParamValue);
+									sortProposals = true;
+								}
 							}
 						}
 					}

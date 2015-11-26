@@ -15,8 +15,6 @@
  */
 package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
-import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.text.IDocument;
@@ -27,15 +25,7 @@ public class TilesXmlParser extends AbstractXmlParser {
 	private static final String NAME_ATTR = "name";
 
 	public Set<String> getDefinitionNames(final IDocument document) {
-		List<ElementRegion> attrRegions = findAllTagAttr(document,
-				DEFINITION_TAG, NAME_ATTR);
-		Set<String> result = new HashSet<String>();
-		if (attrRegions != null) {
-			for (ElementRegion r : attrRegions) {
-				result.add(r.getValue());
-			}
-		}
-		return result;
+		return getAttrsValues(document, DEFINITION_TAG, NAME_ATTR);
 	}
 
 	public IRegion getDefinitionRegion(final IDocument document,
