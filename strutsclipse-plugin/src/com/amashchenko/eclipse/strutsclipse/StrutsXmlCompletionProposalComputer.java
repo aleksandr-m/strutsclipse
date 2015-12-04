@@ -44,13 +44,12 @@ import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
 import com.amashchenko.eclipse.strutsclipse.java.ActionMethodProposalComparator;
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
 public class StrutsXmlCompletionProposalComputer implements
-		ICompletionProposalComputer {
+		ICompletionProposalComputer, StrutsXmlLocations {
 	private static final List<String> DISPATCHER_EXTENSIONS = Arrays
 			.asList(new String[] { "jsp", "html", "htm" });
 	private static final List<String> FREEMARKER_EXTENSIONS = Arrays
@@ -77,7 +76,9 @@ public class StrutsXmlCompletionProposalComputer implements
 		final TagRegion tagRegion = strutsXmlParser.getTagRegion(
 				context.getDocument(), context.getInvocationOffset());
 
-		String[][] proposals = null;
+		List<ICompletionProposal> proposals = null;
+		String[][] proposalsData = null;
+
 		IRegion proposalRegion = null;
 		String elementValuePrefix = null;
 		String elementValue = null;
@@ -85,130 +86,124 @@ public class StrutsXmlCompletionProposalComputer implements
 		boolean sortProposals = false;
 
 		if (tagRegion != null && tagRegion.getCurrentElement() != null) {
-			final String elementName = tagRegion.getCurrentElement().getName();
 			proposalRegion = tagRegion.getCurrentElement().getValueRegion();
 			elementValuePrefix = tagRegion.getCurrentElementValuePrefix();
 			elementValue = tagRegion.getCurrentElement().getValue();
 
-			if (StrutsXmlConstants.PACKAGE_TAG.equalsIgnoreCase(tagRegion
-					.getName())) {
-				if (StrutsXmlConstants.EXTENDS_ATTR
-						.equalsIgnoreCase(elementName)) {
-					proposals = computePackageExtendsProposals(
-							context.getDocument(), tagRegion.getAttrValue(
-									StrutsXmlConstants.NAME_ATTR, null));
-					// extends attribute can have multiple values separated by ,
-					multiValueSeparator = ",";
-				}
-			} else if (StrutsXmlConstants.CONSTANT_TAG
-					.equalsIgnoreCase(tagRegion.getName())) {
-				if (StrutsXmlConstants.NAME_ATTR.equalsIgnoreCase(elementName)) {
-					proposals = StrutsXmlConstants.DEFAULT_CONSTANTS;
-				}
-			} else if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
-					.getName())) {
-				if (StrutsXmlConstants.NAME_ATTR.equalsIgnoreCase(elementName)
-						|| StrutsXmlConstants.METHOD_ATTR
-								.equalsIgnoreCase(elementName)) {
-					final ElementRegion classAttr = tagRegion.getAttrs().get(
-							StrutsXmlConstants.CLASS_ATTR);
+			final String key = tagRegion.getName()
+					+ tagRegion.getCurrentElement().getName();
 
-					if (classAttr == null) {
-						proposals = StrutsXmlConstants.DEFAULT_METHODS;
-					} else {
-						List<ICompletionProposal> methodProposals = JavaClassCompletion
-								.getActionMethodProposals(elementValuePrefix,
-										classAttr.getValue(),
-										context.getDocument(), proposalRegion);
-						// sort
-						Collections.sort(methodProposals,
-								methodProposalComparator);
+			switch (key) {
+			case PACKAGE_EXTENDS:
+				proposalsData = computePackageExtendsProposals(
+						context.getDocument(), tagRegion.getAttrValue(
+								StrutsXmlConstants.NAME_ATTR, null));
+				// extends attribute can have multiple values separated by ,
+				multiValueSeparator = ",";
+				break;
+			case CONSTANT_NAME:
+				proposalsData = StrutsXmlConstants.DEFAULT_CONSTANTS;
+				break;
+			case ACTION_NAME:
+			case ACTION_METHOD:
+				final String classAttrValue = tagRegion.getAttrValue(
+						StrutsXmlConstants.CLASS_ATTR, null);
 
-						// return proposals
-						return methodProposals;
-					}
-				} else if (StrutsXmlConstants.CLASS_ATTR
-						.equalsIgnoreCase(elementName)) {
-					// return proposals
-					return JavaClassCompletion.getSimpleJavaProposals(
-							elementValuePrefix, context.getDocument(),
-							proposalRegion);
+				if (classAttrValue == null) {
+					proposalsData = StrutsXmlConstants.DEFAULT_METHODS;
+				} else {
+					List<ICompletionProposal> methodProposals = JavaClassCompletion
+							.getActionMethodProposals(elementValuePrefix,
+									classAttrValue, context.getDocument(),
+									proposalRegion);
+					// sort
+					Collections.sort(methodProposals, methodProposalComparator);
+
+					// real proposals
+					proposals = methodProposals;
 				}
-			} else if (StrutsXmlConstants.RESULT_TAG.equalsIgnoreCase(tagRegion
-					.getName())) {
-				if (StrutsXmlConstants.NAME_ATTR.equalsIgnoreCase(elementName)) {
-					proposals = StrutsXmlConstants.DEFAULT_RESULT_NAMES;
-				} else if (StrutsXmlConstants.TYPE_ATTR
-						.equalsIgnoreCase(elementName)) {
-					proposals = StrutsXmlConstants.DEFAULT_RESULT_TYPES;
-				} else if (elementName == null) { // result tag body
-					proposals = computeResultBodyProposals(
-							context.getDocument(),
-							context.getInvocationOffset(),
-							tagRegion.getAttrValue(
-									StrutsXmlConstants.TYPE_ATTR, null), null);
-					sortProposals = true;
-				}
-			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
-					.getName())) {
-				if (elementName == null) { // param tag body
-					final ElementRegion nameAttr = tagRegion.getAttrs().get(
-							StrutsXmlConstants.NAME_ATTR);
-					if (nameAttr != null) {
-						TagRegion resultTagRegion = strutsXmlParser
-								.getResultTagRegion(context.getDocument(),
-										context.getInvocationOffset());
-						if (resultTagRegion != null) {
-							// name is type value, here
-							final String typeAttrValue = resultTagRegion
-									.getName();
+				break;
+			case ACTION_CLASS:
+				// real proposals
+				proposals = JavaClassCompletion.getSimpleJavaProposals(
+						elementValuePrefix, context.getDocument(),
+						proposalRegion);
+				break;
+			case RESULT_NAME:
+				proposalsData = StrutsXmlConstants.DEFAULT_RESULT_NAMES;
+				break;
+			case RESULT_TYPE:
+				proposalsData = StrutsXmlConstants.DEFAULT_RESULT_TYPES;
+				break;
+			case RESULT_BODY:
+				proposalsData = computeResultBodyProposals(
+						context.getDocument(), context.getInvocationOffset(),
+						tagRegion.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
+								null), null);
+				sortProposals = true;
+				break;
+			case PARAM_BODY:
+				final String nameAttrValue = tagRegion.getAttrValue(
+						StrutsXmlConstants.NAME_ATTR, null);
+				if (nameAttrValue != null) {
+					TagRegion resultTagRegion = strutsXmlParser
+							.getResultTagRegion(context.getDocument(),
+									context.getInvocationOffset());
+					if (resultTagRegion != null) {
+						// name is type value, here
+						final String typeAttrValue = resultTagRegion.getName();
 
-							boolean redirectAction = typeAttrValue != null
-									&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
-											.equals(typeAttrValue);
+						boolean redirectAction = typeAttrValue != null
+								&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
+										.equals(typeAttrValue);
 
-							// param name="namespace"
-							if (redirectAction
-									&& StrutsXmlConstants.NAMESPACE_ATTR
-											.equals(nameAttr.getValue())) {
-								Set<String> packageNames = strutsXmlParser
-										.getPackageNamespaces(context
-												.getDocument());
-								packageNames.remove("");
-								if (packageNames != null
-										&& !packageNames.isEmpty()) {
-									proposals = new String[packageNames.size()][2];
-									int indx = 0;
-									for (String p : packageNames) {
-										proposals[indx++][0] = p;
-									}
+						// param name="namespace"
+						if (redirectAction
+								&& StrutsXmlConstants.NAMESPACE_ATTR
+										.equals(nameAttrValue)) {
+							Set<String> packageNames = strutsXmlParser
+									.getPackageNamespaces(context.getDocument());
+							packageNames.remove("");
+							if (packageNames != null && !packageNames.isEmpty()) {
+								proposalsData = new String[packageNames.size()][2];
+								int indx = 0;
+								for (String p : packageNames) {
+									proposalsData[indx++][0] = p;
 								}
-							} else {
-								boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
-										.equals(nameAttr.getValue()) && !redirectAction)
-										|| (redirectAction && StrutsXmlConstants.ACTION_NAME_PARAM
-												.equals(nameAttr.getValue()));
-								if (correctTypeAndName) {
-									final String namespaceParamValue = resultTagRegion
-											.getAttrValue(
-													StrutsXmlConstants.NAMESPACE_ATTR,
-													null);
-									proposals = computeResultBodyProposals(
-											context.getDocument(),
-											context.getInvocationOffset(),
-											typeAttrValue, namespaceParamValue);
-									sortProposals = true;
-								}
+							}
+						} else {
+							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
+									.equals(nameAttrValue) && !redirectAction)
+									|| (redirectAction && StrutsXmlConstants.ACTION_NAME_PARAM
+											.equals(nameAttrValue));
+							if (correctTypeAndName) {
+								final String namespaceParamValue = resultTagRegion
+										.getAttrValue(
+												StrutsXmlConstants.NAMESPACE_ATTR,
+												null);
+								proposalsData = computeResultBodyProposals(
+										context.getDocument(),
+										context.getInvocationOffset(),
+										typeAttrValue, namespaceParamValue);
+								sortProposals = true;
 							}
 						}
 					}
 				}
+				break;
 			}
 		}
 
-		return createAttrCompletionProposals(proposals, elementValuePrefix,
-				proposalRegion, multiValueSeparator, elementValue,
-				sortProposals);
+		if (proposals == null && proposalsData != null) {
+			proposals = createAttrCompletionProposals(proposalsData,
+					elementValuePrefix, proposalRegion, multiValueSeparator,
+					elementValue, sortProposals);
+		}
+		if (proposals == null) {
+			proposals = new ArrayList<ICompletionProposal>();
+		}
+
+		return proposals;
 	}
 
 	private String[][] computePackageExtendsProposals(final IDocument document,

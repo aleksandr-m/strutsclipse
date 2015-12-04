@@ -54,12 +54,12 @@ import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
-import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
-public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
+public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
+		implements StrutsXmlLocations {
 	private final StrutsXmlParser strutsXmlParser;
 	private final TilesXmlParser tilesXmlParser;
 
@@ -79,61 +79,56 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector {
 				region.getOffset());
 
 		if (tagRegion != null && tagRegion.getCurrentElement() != null) {
-			final String elementName = tagRegion.getCurrentElement().getName();
 			final IRegion elementRegion = tagRegion.getCurrentElement()
 					.getValueRegion();
 			final String elementValue = tagRegion.getCurrentElement()
 					.getValue();
 
-			if (StrutsXmlConstants.ACTION_TAG.equalsIgnoreCase(tagRegion
-					.getName())) {
-				final ElementRegion classAttr = tagRegion.getAttrs().get(
-						StrutsXmlConstants.CLASS_ATTR);
-				if (StrutsXmlConstants.METHOD_ATTR
-						.equalsIgnoreCase(elementName) && classAttr != null) {
+			final String key = tagRegion.getName()
+					+ tagRegion.getCurrentElement().getName();
+
+			switch (key) {
+			case ACTION_METHOD:
+				final String classAttrValue = tagRegion.getAttrValue(
+						StrutsXmlConstants.CLASS_ATTR, null);
+				if (classAttrValue != null) {
 					linksList.add(createClassMethodLink(document, elementValue,
-							elementRegion, classAttr.getValue()));
+							elementRegion, classAttrValue));
 				}
-			} else if (StrutsXmlConstants.RESULT_TAG.equalsIgnoreCase(tagRegion
-					.getName())) {
-				if (elementName == null) { // result tag body
-					linksList.addAll(createResultLocationLinks(document,
-							elementValue, elementRegion, tagRegion
-									.getAttrValue(StrutsXmlConstants.TYPE_ATTR,
-											null), null));
-				}
-			} else if (StrutsXmlConstants.PARAM_TAG.equalsIgnoreCase(tagRegion
-					.getName())) {
-				if (elementName == null) { // param tag body
-					final ElementRegion nameAttr = tagRegion.getAttrs().get(
-							StrutsXmlConstants.NAME_ATTR);
-					if (nameAttr != null) {
-						TagRegion resultTagRegion = strutsXmlParser
-								.getResultTagRegion(document,
-										region.getOffset());
-						if (resultTagRegion != null) {
-							// name is type value, here
-							final String typeAttrValue = resultTagRegion
-									.getName();
-							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
-									.equals(nameAttr.getValue()) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
-									.equals(typeAttrValue)))
-									|| (typeAttrValue != null
-											&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
-													.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
-												.equals(nameAttr.getValue()));
-							if (correctTypeAndName) {
-								final String namespaceParamValue = resultTagRegion
-										.getAttrValue(
-												StrutsXmlConstants.NAMESPACE_ATTR,
-												null);
-								linksList.addAll(createResultLocationLinks(
-										document, elementValue, elementRegion,
-										typeAttrValue, namespaceParamValue));
-							}
+				break;
+			case RESULT_BODY:
+				linksList.addAll(createResultLocationLinks(document,
+						elementValue, elementRegion, tagRegion.getAttrValue(
+								StrutsXmlConstants.TYPE_ATTR, null), null));
+				break;
+			case PARAM_BODY:
+				final String nameAttrValue = tagRegion.getAttrValue(
+						StrutsXmlConstants.NAME_ATTR, null);
+				if (nameAttrValue != null) {
+					TagRegion resultTagRegion = strutsXmlParser
+							.getResultTagRegion(document, region.getOffset());
+					if (resultTagRegion != null) {
+						// name is type value, here
+						final String typeAttrValue = resultTagRegion.getName();
+						boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
+								.equals(nameAttrValue) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
+								.equals(typeAttrValue)))
+								|| (typeAttrValue != null
+										&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
+												.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
+											.equals(nameAttrValue));
+						if (correctTypeAndName) {
+							final String namespaceParamValue = resultTagRegion
+									.getAttrValue(
+											StrutsXmlConstants.NAMESPACE_ATTR,
+											null);
+							linksList.addAll(createResultLocationLinks(
+									document, elementValue, elementRegion,
+									typeAttrValue, namespaceParamValue));
 						}
 					}
 				}
+				break;
 			}
 		}
 
