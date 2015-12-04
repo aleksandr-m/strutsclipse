@@ -18,6 +18,10 @@ package com.amashchenko.eclipse.strutsclipse;
 public interface StrutsXmlLocations {
 	String CONSTANT_NAME = StrutsXmlConstants.CONSTANT_TAG
 			+ StrutsXmlConstants.NAME_ATTR;
+	String BEAN_CLASS = StrutsXmlConstants.BEAN_TAG
+			+ StrutsXmlConstants.CLASS_ATTR;
+	String BEAN_SCOPE = StrutsXmlConstants.BEAN_TAG
+			+ StrutsXmlConstants.SCOPE_ATTR;
 	String PACKAGE_EXTENDS = StrutsXmlConstants.PACKAGE_TAG
 			+ StrutsXmlConstants.EXTENDS_ATTR;
 	String ACTION_NAME = StrutsXmlConstants.ACTION_TAG

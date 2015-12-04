@@ -30,15 +30,15 @@ import org.eclipse.jface.text.ITypedRegion;
 import com.amashchenko.eclipse.strutsclipse.StrutsXmlConstants;
 
 public class StrutsXmlParser extends AbstractXmlParser {
-	private static final String[] TAGS = { StrutsXmlConstants.CONSTANT_TAG,
-			StrutsXmlConstants.PACKAGE_TAG, StrutsXmlConstants.ACTION_TAG,
-			StrutsXmlConstants.RESULT_TAG, StrutsXmlConstants.PARAM_TAG,
-			CLOSE_TAG_TOKEN };
+	private static final String[] TAGS = { StrutsXmlConstants.BEAN_TAG,
+			StrutsXmlConstants.CONSTANT_TAG, StrutsXmlConstants.PACKAGE_TAG,
+			StrutsXmlConstants.ACTION_TAG, StrutsXmlConstants.RESULT_TAG,
+			StrutsXmlConstants.PARAM_TAG, CLOSE_TAG_TOKEN };
 
 	private static final String[] ATTRS = { StrutsXmlConstants.EXTENDS_ATTR,
 			StrutsXmlConstants.NAMESPACE_ATTR, StrutsXmlConstants.NAME_ATTR,
 			StrutsXmlConstants.TYPE_ATTR, StrutsXmlConstants.METHOD_ATTR,
-			StrutsXmlConstants.CLASS_ATTR };
+			StrutsXmlConstants.CLASS_ATTR, StrutsXmlConstants.SCOPE_ATTR };
 
 	public TagRegion getTagRegion(final IDocument document, final int offset) {
 		IDocumentPartitioner partitioner = null;

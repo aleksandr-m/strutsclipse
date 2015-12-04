@@ -101,6 +101,9 @@ public class StrutsXmlCompletionProposalComputer implements
 				// extends attribute can have multiple values separated by ,
 				multiValueSeparator = ",";
 				break;
+			case BEAN_SCOPE:
+				proposalsData = StrutsXmlConstants.DEFAULT_BEAN_SCOPES;
+				break;
 			case CONSTANT_NAME:
 				proposalsData = StrutsXmlConstants.DEFAULT_CONSTANTS;
 				break;
@@ -123,6 +126,7 @@ public class StrutsXmlCompletionProposalComputer implements
 					proposals = methodProposals;
 				}
 				break;
+			case BEAN_CLASS:
 			case ACTION_CLASS:
 				// real proposals
 				proposals = JavaClassCompletion.getSimpleJavaProposals(

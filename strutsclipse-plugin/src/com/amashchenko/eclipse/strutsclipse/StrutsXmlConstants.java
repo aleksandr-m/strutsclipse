@@ -30,6 +30,7 @@ public class StrutsXmlConstants {
 	public static final String VALUE_ATTR = "value";
 	public static final String EXTENDS_ATTR = "extends";
 	public static final String NAMESPACE_ATTR = "namespace";
+	public static final String SCOPE_ATTR = "scope";
 
 	public static final String DISPATCHER_RESULT = "dispatcher";
 	public static final String REDIRECT_ACTION_RESULT = "redirectAction";
@@ -52,6 +53,17 @@ public class StrutsXmlConstants {
 	public static final String[][] DEFAULT_RESULT_NAMES = {
 			{ "success", null }, { "input", null }, { "error", null },
 			{ "login", null } };
+	public static final String[][] DEFAULT_BEAN_SCOPES = {
+			{ "default",
+					"One instance per injection. Removed since 2.5 use 'prototype' instead." },
+			{ "prototype", "One instance per injection. Since 2.5" },
+			{ "singleton",
+					"One instance per container. This is the default scope." },
+			{ "request", "One instance per request." },
+			{ "session", "One instance per session." },
+			{
+					"thread",
+					"One instance per thread. Note: if a thread local object strongly references its Container, neither the Container nor the object will be eligible for garbage collection, i.e. memory leak." } };
 	public static final String[][] DEFAULT_RESULT_TYPES = {
 			{
 					DISPATCHER_RESULT,

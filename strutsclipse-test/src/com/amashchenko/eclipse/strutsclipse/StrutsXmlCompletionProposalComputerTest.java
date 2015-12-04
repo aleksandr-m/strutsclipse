@@ -398,4 +398,24 @@ public class StrutsXmlCompletionProposalComputerTest {
 		Assert.assertEquals(StrutsXmlConstants.DEFAULT_CONSTANTS.length,
 				proposals.size());
 	}
+
+	@Test
+	public void testBeanTagScope() throws Exception {
+		final String content = "<bean scope=\"\" />";
+		IDocument document = new Document(content);
+
+		final int invocationOffset = content.lastIndexOf("\"");
+
+		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
+				new MockTextViewer(document), invocationOffset);
+
+		List<ICompletionProposal> proposals = computer
+				.computeCompletionProposals(context, null);
+
+		Assert.assertNotNull(proposals);
+		Assert.assertFalse(proposals.isEmpty());
+
+		Assert.assertEquals(StrutsXmlConstants.DEFAULT_BEAN_SCOPES.length,
+				proposals.size());
+	}
 }
