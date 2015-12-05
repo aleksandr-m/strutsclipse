@@ -44,6 +44,7 @@ public class StrutsXmlValidator extends AbstractValidator {
 	private static final String PROBLEM_MARKER_ID = "com.amashchenko.eclipse.strutsclipse.strutsxmlproblemmarker";
 
 	private static final String DUP_ACTION_MESSAGE_TEXT = "Duplicate action name.";
+	private static final String DUP_PACKAGE_MESSAGE_TEXT = "Duplicate package name.";
 	private static final String NO_METHOD_MESSAGE_TEXT = "No such method.";
 
 	private final StrutsXmlParser strutsXmlParser;
@@ -68,10 +69,36 @@ public class StrutsXmlValidator extends AbstractValidator {
 
 		ValidationResult result = new ValidationResult();
 		if (document != null) {
+			// validate packages
+			List<ElementRegion> packageNameRegions = strutsXmlParser
+					.getPackageNameRegions(document);
+
+			Map<String, ElementRegion> dupPackNameCheckMap = new HashMap<String, ElementRegion>();
+			List<String> reportedPackages = new ArrayList<String>();
+
+			for (ElementRegion pregion : packageNameRegions) {
+				if (dupPackNameCheckMap.containsKey(pregion.getValue())) {
+					result.add(createMessage(resource,
+							pregion.getValueRegion(), IMarker.SEVERITY_WARNING,
+							DUP_PACKAGE_MESSAGE_TEXT));
+
+					if (!reportedPackages.contains(pregion.getValue())) {
+						reportedPackages.add(pregion.getValue());
+						result.add(createMessage(resource, dupPackNameCheckMap
+								.get(pregion.getValue()).getValueRegion(),
+								IMarker.SEVERITY_WARNING,
+								DUP_PACKAGE_MESSAGE_TEXT));
+					}
+				} else {
+					dupPackNameCheckMap.put(pregion.getValue(), pregion);
+				}
+			}
+
+			// validate actions
 			Map<String, List<TagRegion>> actionRegions = strutsXmlParser
 					.getNamespacedActionTagRegions(document);
 
-			Map<String, ElementRegion> dupCheckList = new HashMap<String, ElementRegion>();
+			Map<String, ElementRegion> dupCheckMap = new HashMap<String, ElementRegion>();
 			List<String> reportedActions = new ArrayList<String>();
 
 			for (Entry<String, List<TagRegion>> entr : actionRegions.entrySet()) {
@@ -83,7 +110,7 @@ public class StrutsXmlValidator extends AbstractValidator {
 						if (nameAttr != null) {
 							String actionName = entr.getKey()
 									+ nameAttr.getValue();
-							if (dupCheckList.containsKey(actionName)) {
+							if (dupCheckMap.containsKey(actionName)) {
 								result.add(createMessage(resource,
 										nameAttr.getValueRegion(),
 										IMarker.SEVERITY_WARNING,
@@ -92,13 +119,13 @@ public class StrutsXmlValidator extends AbstractValidator {
 								if (!reportedActions.contains(actionName)) {
 									reportedActions.add(actionName);
 									result.add(createMessage(resource,
-											dupCheckList.get(actionName)
+											dupCheckMap.get(actionName)
 													.getValueRegion(),
 											IMarker.SEVERITY_WARNING,
 											DUP_ACTION_MESSAGE_TEXT));
 								}
 							} else {
-								dupCheckList.put(actionName, nameAttr);
+								dupCheckMap.put(actionName, nameAttr);
 							}
 						}
 

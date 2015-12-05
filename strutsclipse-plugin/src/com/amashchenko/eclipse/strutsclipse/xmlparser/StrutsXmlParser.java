@@ -222,6 +222,11 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				StrutsXmlConstants.NAMESPACE_ATTR);
 	}
 
+	public List<ElementRegion> getPackageNameRegions(final IDocument document) {
+		return findAllTagAttr(document, StrutsXmlConstants.PACKAGE_TAG,
+				StrutsXmlConstants.NAME_ATTR);
+	}
+
 	public Map<String, List<TagRegion>> getNamespacedActionTagRegions(
 			final IDocument document) {
 		return getGroupedTagRegions(document, StrutsXmlConstants.PACKAGE_TAG,
