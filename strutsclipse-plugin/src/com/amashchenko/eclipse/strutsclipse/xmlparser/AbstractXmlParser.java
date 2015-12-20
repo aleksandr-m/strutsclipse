@@ -37,6 +37,7 @@ import org.eclipse.jface.text.rules.WordPatternRule;
 
 public abstract class AbstractXmlParser {
 	protected static final String CLOSE_TAG_TOKEN = "close_tag_token";
+	protected static final String COMMENT_TOKEN = "comment_token";
 
 	private static final String DOUBLE_QUOTES_TOKEN = "double_quotes_token";
 	private static final String SINGLE_QUOTES_TOKEN = "single_quotes_token";
@@ -74,9 +75,9 @@ public abstract class AbstractXmlParser {
 
 			final String[] tags;
 			if (fetchBody) {
-				tags = new String[] { tag, closeTag };
+				tags = new String[] { tag, COMMENT_TOKEN, closeTag };
 			} else {
-				tags = new String[] { tag };
+				tags = new String[] { tag, COMMENT_TOKEN };
 			}
 
 			// create tag partitioner
@@ -90,7 +91,8 @@ public abstract class AbstractXmlParser {
 
 			int bodyOffset = -1;
 			for (ITypedRegion tagRegion : tagRegions) {
-				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())) {
+				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
+						&& !COMMENT_TOKEN.equals(tagRegion.getType())) {
 					if (closeTag.equals(tagRegion.getType())) {
 						if (bodyOffset != -1) {
 							try {
@@ -200,6 +202,9 @@ public abstract class AbstractXmlParser {
 		for (int i = 0; i < tags.length; i++) {
 			if (CLOSE_TAG_TOKEN.equals(tags[i])) {
 				tagRules[i] = new MultiLineRule("</", ">", new Token(tags[i]));
+			} else if (COMMENT_TOKEN.equals(tags[i])) {
+				tagRules[i] = new MultiLineRule("<!--", "-->", new Token(
+						tags[i]));
 			} else {
 				tagRules[i] = new MultiLineRule("<" + tags[i], ">", new Token(
 						tags[i]));
@@ -312,14 +317,14 @@ public abstract class AbstractXmlParser {
 
 			// create parent tag partitioner
 			tagPartitioner = createTagPartitioner(document, new String[] {
-					parentTagName, closeTagName });
+					parentTagName, closeTagName, COMMENT_TOKEN });
 
 			ITypedRegion[] parentTagRegions = tagPartitioner
 					.computePartitioning(0, document.getLength());
 
 			// create tag partitioner
-			tagPartitioner = createTagPartitioner(document,
-					new String[] { tagName });
+			tagPartitioner = createTagPartitioner(document, new String[] {
+					tagName, COMMENT_TOKEN });
 
 			// create attribute partitioner
 			attrPartitioner = createAttrPartitioner(document, attrNames);
@@ -328,7 +333,8 @@ public abstract class AbstractXmlParser {
 			int parentBodyOffset = 0;
 			for (ITypedRegion parentTagRegion : parentTagRegions) {
 				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(parentTagRegion
-						.getType())) {
+						.getType())
+						&& !COMMENT_TOKEN.equals(parentTagRegion.getType())) {
 					if (closeTagName.equals(parentTagRegion.getType())) {
 						// get tags regions
 						ITypedRegion[] tagRegions = tagPartitioner
@@ -340,7 +346,9 @@ public abstract class AbstractXmlParser {
 						// all attributes
 						for (ITypedRegion tagRegion : tagRegions) {
 							if (!IDocument.DEFAULT_CONTENT_TYPE
-									.equals(tagRegion.getType())) {
+									.equals(tagRegion.getType())
+									&& !COMMENT_TOKEN.equals(tagRegion
+											.getType())) {
 								ITypedRegion[] regions = attrPartitioner
 										.computePartitioning(
 												tagRegion.getOffset(),

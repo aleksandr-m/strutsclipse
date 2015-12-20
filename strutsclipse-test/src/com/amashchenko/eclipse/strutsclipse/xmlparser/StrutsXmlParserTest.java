@@ -16,6 +16,8 @@
 package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jface.text.Document;
@@ -602,5 +604,148 @@ public class StrutsXmlParserTest {
 				namespace,
 				resultTagRegion.getAttrs()
 						.get(StrutsXmlConstants.NAMESPACE_ATTR).getValue());
+	}
+
+	// getNamespacedActionTagRegions
+	@Test
+	public void testGetNamespacedActionTagRegions() throws Exception {
+		final String actionName = "in3";
+		final String namespace = "/";
+		final String content = "<package namespace=\""
+				+ namespace
+				+ "\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package><action name=\"" + actionName
+				+ "\"></action></package>" + "<package namespace=\""
+				+ namespace + "\"><action name=\"in4\"></action></package>";
+		IDocument document = new Document(content);
+		Map<String, List<TagRegion>> actionRegions = strutsXmlParser
+				.getNamespacedActionTagRegions(document);
+
+		Assert.assertNotNull(actionRegions);
+		Assert.assertTrue(actionRegions.containsKey(namespace));
+		Assert.assertNotNull(actionRegions.get(namespace));
+		Assert.assertEquals(3, actionRegions.get(namespace).size());
+
+		Assert.assertTrue(actionRegions.containsKey(""));
+		Assert.assertNotNull(actionRegions.get(""));
+		Assert.assertEquals(1, actionRegions.get("").size());
+
+		Assert.assertNotNull(actionRegions.get("").get(0));
+		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG, actionRegions
+				.get("").get(0).getName());
+		Assert.assertEquals(actionName, actionRegions.get("").get(0)
+				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+	}
+
+	@Test
+	public void testGetNamespacedActionTagRegionsCommented() throws Exception {
+		final String actionName = "in3";
+		final String actionName2 = "in4";
+		final String namespace = "/";
+		final String content = "<!-- <package namespace=\""
+				+ namespace
+				+ "\"><action name=\"in1\"></action><action name=\"in2\"></action></package> -->"
+				+ "<package><action name=\"" + actionName
+				+ "\"></action></package>" + "<package namespace=\""
+				+ namespace + "\"><action name=\"" + actionName2
+				+ "\"></action></package>";
+		IDocument document = new Document(content);
+		Map<String, List<TagRegion>> actionRegions = strutsXmlParser
+				.getNamespacedActionTagRegions(document);
+
+		Assert.assertNotNull(actionRegions);
+		Assert.assertTrue(actionRegions.containsKey(namespace));
+		Assert.assertNotNull(actionRegions.get(namespace));
+		Assert.assertEquals(1, actionRegions.get(namespace).size());
+
+		Assert.assertNotNull(actionRegions.get(namespace).get(0));
+		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG,
+				actionRegions.get(namespace).get(0).getName());
+		Assert.assertEquals(actionName2, actionRegions.get(namespace).get(0)
+				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+
+		//
+		Assert.assertTrue(actionRegions.containsKey(""));
+		Assert.assertNotNull(actionRegions.get(""));
+		Assert.assertEquals(1, actionRegions.get("").size());
+
+		Assert.assertNotNull(actionRegions.get("").get(0));
+		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG, actionRegions
+				.get("").get(0).getName());
+		Assert.assertEquals(actionName, actionRegions.get("").get(0)
+				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+	}
+
+	@Test
+	public void testGetNamespacedActionTagRegionsCommented2() throws Exception {
+		final String actionName = "in3";
+		final String actionName2 = "in4";
+		final String namespace = "/";
+		final String content = "<package namespace=\""
+				+ namespace
+				+ "\"><!-- <action name=\"in1\"></action><action name=\"in2\"></action> --></package>"
+				+ "<package><action name=\"" + actionName
+				+ "\"></action></package>" + "<package namespace=\""
+				+ namespace + "\"><action name=\"" + actionName2
+				+ "\"></action></package>";
+		IDocument document = new Document(content);
+		Map<String, List<TagRegion>> actionRegions = strutsXmlParser
+				.getNamespacedActionTagRegions(document);
+
+		Assert.assertNotNull(actionRegions);
+		Assert.assertTrue(actionRegions.containsKey(namespace));
+		Assert.assertNotNull(actionRegions.get(namespace));
+		Assert.assertEquals(1, actionRegions.get(namespace).size());
+
+		Assert.assertNotNull(actionRegions.get(namespace).get(0));
+		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG,
+				actionRegions.get(namespace).get(0).getName());
+		Assert.assertEquals(actionName2, actionRegions.get(namespace).get(0)
+				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+
+		//
+		Assert.assertTrue(actionRegions.containsKey(""));
+		Assert.assertNotNull(actionRegions.get(""));
+		Assert.assertEquals(1, actionRegions.get("").size());
+
+		Assert.assertNotNull(actionRegions.get("").get(0));
+		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG, actionRegions
+				.get("").get(0).getName());
+		Assert.assertEquals(actionName, actionRegions.get("").get(0)
+				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+	}
+
+	// getPackageNameRegions
+	@Test
+	public void testGetPackageNameRegions() throws Exception {
+		final String content = "<package name=\"firstpackage\" namespace=\"/\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package name=\"secondpackage\"><action name=\"in3\"></action></package>"
+				+ "<package name=\"thirdpackage\" namespace=\"/\"><action name=\"in4\"></action></package>";
+		IDocument document = new Document(content);
+		List<ElementRegion> packageNameRegions = strutsXmlParser
+				.getPackageNameRegions(document);
+
+		Assert.assertNotNull(packageNameRegions);
+		Assert.assertEquals(3, packageNameRegions.size());
+		Assert.assertNotNull(packageNameRegions.get(0));
+		Assert.assertEquals(StrutsXmlConstants.NAME_ATTR, packageNameRegions
+				.get(0).getName());
+	}
+
+	@Test
+	public void testGetPackageNameRegionsCommented() throws Exception {
+		final String content = "<package name=\"firstpackage\" namespace=\"/\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package name=\"secondpackage\"><action name=\"in3\"></action></package>"
+				+ "<!-- <package name=\"commentedpackage\"><action name=\"inCommented\"></action></package> -->"
+				+ "<package name=\"thirdpackage\" namespace=\"/\"><action name=\"in4\"></action></package>";
+		IDocument document = new Document(content);
+		List<ElementRegion> packageNameRegions = strutsXmlParser
+				.getPackageNameRegions(document);
+
+		Assert.assertNotNull(packageNameRegions);
+		Assert.assertEquals(3, packageNameRegions.size());
+		Assert.assertNotNull(packageNameRegions.get(0));
+		Assert.assertEquals(StrutsXmlConstants.NAME_ATTR, packageNameRegions
+				.get(0).getName());
 	}
 }
