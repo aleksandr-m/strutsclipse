@@ -15,27 +15,45 @@
  */
 package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 
+import com.amashchenko.eclipse.strutsclipse.TilesXmlConstants;
+
 public class TilesXmlParser extends AbstractXmlParser {
-	private static final String DEFINITION_TAG = "definition";
-	private static final String NAME_ATTR = "name";
+	private static final String[] TAGS = { TilesXmlConstants.DEFINITION_TAG,
+			TilesXmlConstants.PUT_ATTRIBUTE_TAG, CLOSE_TAG_TOKEN };
+
+	private static final String[] ATTRS = { TilesXmlConstants.EXTENDS_ATTR,
+			TilesXmlConstants.TEMPLATE_ATTR, TilesXmlConstants.NAME_ATTR,
+			TilesXmlConstants.VALUE_ATTR };
 
 	public Set<String> getDefinitionNames(final IDocument document) {
-		return getAttrsValues(document, DEFINITION_TAG, NAME_ATTR);
+		return getAttrsValues(document, TilesXmlConstants.DEFINITION_TAG,
+				TilesXmlConstants.NAME_ATTR);
 	}
 
 	public IRegion getDefinitionRegion(final IDocument document,
 			final String definitionName) {
-		ElementRegion attrRegion = findTagAttrByValue(document, DEFINITION_TAG,
-				NAME_ATTR, definitionName);
+		ElementRegion attrRegion = findTagAttrByValue(document,
+				TilesXmlConstants.DEFINITION_TAG, TilesXmlConstants.NAME_ATTR,
+				definitionName);
 		IRegion region = null;
 		if (attrRegion != null) {
 			region = attrRegion.getValueRegion();
 		}
 		return region;
+	}
+
+	public List<ElementRegion> getDefinitionNameRegions(final IDocument document) {
+		return findAllTagAttr(document, TilesXmlConstants.DEFINITION_TAG,
+				TilesXmlConstants.NAME_ATTR);
+	}
+
+	public TagRegion getTagRegion(final IDocument document, final int offset) {
+		return getTagRegion(document, offset, TAGS, ATTRS);
 	}
 }

@@ -42,6 +42,103 @@ public abstract class AbstractXmlParser {
 	private static final String DOUBLE_QUOTES_TOKEN = "double_quotes_token";
 	private static final String SINGLE_QUOTES_TOKEN = "single_quotes_token";
 
+	protected TagRegion getTagRegion(final IDocument document,
+			final int offset, final String[] tags, final String[] attrs) {
+		IDocumentPartitioner partitioner = null;
+		try {
+			TagRegion result = null;
+
+			// create tag partitioner
+			partitioner = createTagPartitioner(document, tags);
+
+			ITypedRegion tagRegion = partitioner.getPartition(offset);
+
+			ElementRegion currentElement = null;
+			String elementValuePrefix = null;
+
+			// check if offset is between start and end tags
+			int bodyOffset = -1;
+			int bodyLength = -1;
+			if (IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())) {
+				ITypedRegion nextRegion = partitioner.getPartition(tagRegion
+						.getOffset() + tagRegion.getLength());
+				if (CLOSE_TAG_TOKEN.equals(nextRegion.getType())) {
+					bodyOffset = tagRegion.getOffset();
+					bodyLength = tagRegion.getLength();
+				}
+			} else if (CLOSE_TAG_TOKEN.equals(tagRegion.getType())
+					&& tagRegion.getOffset() == offset) {
+				ITypedRegion prevRegion = partitioner.getPartition(tagRegion
+						.getOffset() - 1);
+				if (IDocument.DEFAULT_CONTENT_TYPE.equals(prevRegion.getType())) {
+					bodyOffset = prevRegion.getOffset();
+					bodyLength = prevRegion.getLength();
+				} else {
+					bodyOffset = tagRegion.getOffset();
+				}
+			}
+			if (bodyOffset != -1) {
+				if (bodyLength == -1) {
+					currentElement = new ElementRegion(null, "",
+							tagRegion.getOffset());
+					elementValuePrefix = "";
+				} else {
+					try {
+						currentElement = new ElementRegion(null, document.get(
+								bodyOffset, bodyLength), bodyOffset);
+						elementValuePrefix = document.get(bodyOffset, offset
+								- bodyOffset);
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+
+				// get start tag of current tag body
+				tagRegion = partitioner.getPartition(bodyOffset - 1);
+			}
+
+			if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
+					&& !CLOSE_TAG_TOKEN.equals(tagRegion.getType())) {
+				List<ElementRegion> attrRegions = parseTag(document, tagRegion,
+						attrs);
+
+				// all attributes
+				if (attrRegions != null) {
+					for (ElementRegion r : attrRegions) {
+						try {
+							final int valDocOffset = r.getValueRegion()
+									.getOffset();
+
+							// if not in tag body and current attribute
+							if (currentElement == null
+									&& valDocOffset - 1 <= offset
+									&& valDocOffset
+											+ r.getValueRegion().getLength()
+											+ 1 > offset) {
+								currentElement = r;
+
+								// attribute value to invocation offset
+								elementValuePrefix = document.get(valDocOffset,
+										offset - valDocOffset);
+							}
+						} catch (BadLocationException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+
+				result = new TagRegion(tagRegion.getType(), currentElement,
+						elementValuePrefix, attrRegions);
+			}
+
+			return result;
+		} finally {
+			if (partitioner != null) {
+				partitioner.disconnect();
+			}
+		}
+	}
+
 	/**
 	 * Finds the concrete attribute in the concrete tag. Returns multiple
 	 * attribute {@link ElementRegion}-s if there are more than one tag with

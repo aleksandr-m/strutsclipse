@@ -16,7 +16,6 @@
 package com.amashchenko.eclipse.strutsclipse;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -26,21 +25,15 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
-import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.wst.common.componentcore.ComponentCore;
-import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
-import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
-import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
 import com.amashchenko.eclipse.strutsclipse.java.ActionMethodProposalComparator;
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
@@ -48,13 +41,8 @@ import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
-public class StrutsXmlCompletionProposalComputer implements
-		ICompletionProposalComputer, StrutsXmlLocations {
-	private static final List<String> DISPATCHER_EXTENSIONS = Arrays
-			.asList(new String[] { "jsp", "html", "htm" });
-	private static final List<String> FREEMARKER_EXTENSIONS = Arrays
-			.asList(new String[] { "ftl" });
-
+public class StrutsXmlCompletionProposalComputer extends
+		AbstractXmlCompletionProposalComputer implements StrutsXmlLocations {
 	private final StrutsXmlParser strutsXmlParser;
 	private final TilesXmlParser tilesXmlParser;
 
@@ -168,13 +156,7 @@ public class StrutsXmlCompletionProposalComputer implements
 							Set<String> packageNames = strutsXmlParser
 									.getPackageNamespaces(context.getDocument());
 							packageNames.remove("");
-							if (packageNames != null && !packageNames.isEmpty()) {
-								proposalsData = new String[packageNames.size()][2];
-								int indx = 0;
-								for (String p : packageNames) {
-									proposalsData[indx++][0] = p;
-								}
-							}
+							proposalsData = proposalDataFromSet(packageNames);
 						} else {
 							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
 									.equals(nameAttrValue) && !redirectAction)
@@ -201,7 +183,7 @@ public class StrutsXmlCompletionProposalComputer implements
 		if (proposals == null && proposalsData != null) {
 			proposals = createAttrCompletionProposals(proposalsData,
 					elementValuePrefix, proposalRegion, multiValueSeparator,
-					elementValue, sortProposals);
+					elementValue, sortProposals ? proposalComparator : null);
 		}
 		if (proposals == null) {
 			proposals = new ArrayList<ICompletionProposal>();
@@ -243,145 +225,17 @@ public class StrutsXmlCompletionProposalComputer implements
 		// that
 		if (typeAttrValue == null
 				|| StrutsXmlConstants.DISPATCHER_RESULT.equals(typeAttrValue)) {
-			set = findFilesPaths(document, DISPATCHER_EXTENSIONS);
+			set = findJspHtmlFilesPaths(document);
 		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
 			set = findTilesDefinitionNames(document);
 		} else if (StrutsXmlConstants.FREEMARKER_RESULT.equals(typeAttrValue)) {
-			set = findFilesPaths(document, FREEMARKER_EXTENSIONS);
+			set = findFreeMarkerFilesPaths(document);
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
 				.equals(typeAttrValue)) {
 			set = findRedirectActionNames(document, offset, namespaceParamValue);
 		}
 
-		String[][] proposals = null;
-		if (set != null && !set.isEmpty()) {
-			proposals = new String[set.size()][2];
-			int indx = 0;
-			for (String p : set) {
-				proposals[indx++][0] = p;
-			}
-		}
-		return proposals;
-	}
-
-	private List<ICompletionProposal> createAttrCompletionProposals(
-			String[][] proposalsData, String prefix, IRegion region,
-			String valueSeparator, String attrvalue, boolean sort) {
-		List<ICompletionProposal> list = new ArrayList<ICompletionProposal>();
-		if (proposalsData != null && region != null) {
-			int replacementOffset = region.getOffset();
-			int replacementLength = region.getLength();
-
-			boolean multivalue = valueSeparator != null
-					&& attrvalue.contains(valueSeparator);
-
-			List<String> excludes = new ArrayList<String>();
-
-			if (multivalue) {
-				int startSeprIndx = prefix.lastIndexOf(valueSeparator) + 1;
-
-				// spaces between valueSeparator and current value prefix
-				// (one,_t|wo -> 1; one,_|two -> 1; one,__t|wo -> 2)
-				int spacesCount = 0;
-
-				String currentValue = "";
-
-				// first value in attrvalue
-				if (startSeprIndx <= 0) {
-					currentValue = attrvalue.substring(0,
-							attrvalue.indexOf(valueSeparator));
-				} else {
-					prefix = prefix.substring(startSeprIndx);
-					spacesCount = prefix.length();
-					prefix = prefix.trim();
-					spacesCount = spacesCount - prefix.length();
-
-					int endSeprIndx = attrvalue.indexOf(valueSeparator,
-							startSeprIndx);
-					if (endSeprIndx <= 0) {
-						// last value in attrvalue
-						currentValue = attrvalue.substring(startSeprIndx);
-					} else {
-						// somewhere in the middle of attrvalue
-						currentValue = attrvalue.substring(startSeprIndx,
-								endSeprIndx);
-					}
-				}
-
-				currentValue = currentValue.trim();
-
-				if (spacesCount < 0) {
-					spacesCount = 0;
-				}
-
-				replacementOffset = replacementOffset + startSeprIndx
-						+ spacesCount;
-				replacementLength = currentValue.length();
-
-				// exclude already defined values except current value
-				String[] valArr = attrvalue.split(valueSeparator);
-				for (String val : valArr) {
-					if (!currentValue.equalsIgnoreCase(val.trim())) {
-						excludes.add(val.trim());
-					}
-				}
-			}
-
-			for (String[] proposal : proposalsData) {
-				if (proposal[0].toLowerCase().startsWith(prefix.toLowerCase())
-						&& !excludes.contains(proposal[0])) {
-					list.add(new CompletionProposal(proposal[0],
-							replacementOffset, replacementLength, proposal[0]
-									.length(), null, null, null, proposal[1]));
-				}
-			}
-		}
-
-		if (sort) {
-			Collections.sort(list, proposalComparator);
-		}
-
-		return list;
-	}
-
-	private Set<String> findFilesPaths(final IDocument currentDocument,
-			final List<String> extensions) {
-		final Set<String> paths = new HashSet<String>();
-		try {
-			IProject project = ProjectUtil.getCurrentProject(currentDocument);
-			if (project != null && project.exists()) {
-				IVirtualComponent rootComponent = ComponentCore
-						.createComponent(project);
-				final IVirtualFolder rootFolder = rootComponent.getRootFolder();
-
-				rootFolder.getUnderlyingResource().accept(
-						new IResourceVisitor() {
-							@Override
-							public boolean visit(IResource resource)
-									throws CoreException {
-								if (resource.isAccessible()
-										&& resource.getType() == IResource.FILE
-										&& extensions.contains(resource
-												.getFileExtension()
-												.toLowerCase())) {
-									IPath path = resource
-											.getProjectRelativePath()
-											.makeRelativeTo(
-													rootFolder
-															.getProjectRelativePath())
-											.makeAbsolute();
-
-									paths.add(path.toString());
-								}
-								return true;
-							}
-						});
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-
-		return paths;
+		return proposalDataFromSet(set);
 	}
 
 	private Set<String> findTilesDefinitionNames(final IDocument currentDocument) {

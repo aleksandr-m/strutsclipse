@@ -3,6 +3,9 @@
    <feature url="features/com.amashchenko.eclipse.strutsclipse.feature_1.0.9.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.feature" version="1.0.9.qualifier">
       <category name="com.amashchenko.eclipse.strutsclipse"/>
    </feature>
+   <feature url="features/com.amashchenko.eclipse.strutsclipse.tiles.feature_1.0.9.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.tiles.feature" version="1.0.9.qualifier">
+      <category name="com.amashchenko.eclipse.strutsclipse"/>
+   </feature>
    <category-def name="com.amashchenko.eclipse.strutsclipse" label="StrutsClipse">
       <description>
          StrutsClipse provides Eclipse IDE integration for developing Apache Struts2 (https://struts.apache.org/) based applications.

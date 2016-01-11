@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: StrutsClipse Tiles
+Bundle-SymbolicName: com.amashchenko.eclipse.strutsclipse.tiles;singleton:=true
+Bundle-Version: 1.0.9.qualifier
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.wst.sse.core,
+ org.eclipse.wst.sse.ui,
+ org.eclipse.wst.xml.core,
+ org.eclipse.wst.xml.ui,
+ org.eclipse.jface.text,
+ org.eclipse.jdt.ui,
+ org.eclipse.ui.ide,
+ org.eclipse.wst.validation,
+ com.amashchenko.eclipse.strutsclipse.plugin
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy

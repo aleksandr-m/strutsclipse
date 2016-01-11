@@ -18,3 +18,5 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.wst.validation
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
+Export-Package: com.amashchenko.eclipse.strutsclipse;x-friends:="com.amashchenko.eclipse.strutsclipse.tiles",
+ com.amashchenko.eclipse.strutsclipse.xmlparser;x-friends:="com.amashchenko.eclipse.strutsclipse.tiles";uses:="org.eclipse.jface.text"

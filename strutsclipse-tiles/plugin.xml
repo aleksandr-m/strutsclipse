@@ -20,70 +20,68 @@
 <plugin>
     <extension point="org.eclipse.core.contenttype.contentTypes">
         <content-type
-            id="com.amashchenko.eclipse.strutsclipse.strutsxml"
-            name="Struts XML"
+            id="com.amashchenko.eclipse.strutsclipse.tilesxml"
+            name="Tiles XML"
             base-type="org.eclipse.core.runtime.xml"
             file-extensions="xml"
             priority="high">
             <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
-                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.0.dtd"/>
-                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.1.dtd"/>
-                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.1.7.dtd"/>
-                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.3.dtd"/>
-                <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.5.dtd"/>
+                <parameter name="element" value="tiles-definitions/http://tiles.apache.org/dtds/tiles-config_2_0.dtd"/>
+                <parameter name="element" value="tiles-definitions/http://tiles.apache.org/dtds/tiles-config_3_1.dtd"/>
+                <parameter name="element" value="tiles-definitions/http://tiles.apache.org/dtds/tiles-config_3_0.dtd"/>
             </describer>
         </content-type>
     </extension>
 
     <extension point="org.eclipse.wst.sse.ui.completionProposal">
         <proposalCategory
-            id="com.amashchenko.eclipse.strutsclipse.strutsxmlcompletionProposal"
-            name="Struts XML Proposals">
+            id="com.amashchenko.eclipse.strutsclipse.tilesxmlcompletionProposal"
+            name="Tiles XML Proposals">
         </proposalCategory>
 
         <proposalComputer
             activate="true"
-            categoryId="com.amashchenko.eclipse.strutsclipse.strutsxmlcompletionProposal"
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlCompletionProposalComputer"
-            id="com.amashchenko.eclipse.strutsclipse.strutsxmlproposalComputer">
-            <contentType id="com.amashchenko.eclipse.strutsclipse.strutsxml"/>
+            categoryId="com.amashchenko.eclipse.strutsclipse.tilesxmlcompletionProposal"
+            class="com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlCompletionProposalComputer"
+            id="com.amashchenko.eclipse.strutsclipse.tilesxmlproposalComputer">
+            <contentType id="com.amashchenko.eclipse.strutsclipse.tilesxml"/>
         </proposalComputer>
     </extension>
 
     <extension point="org.eclipse.wst.sse.ui.editorConfiguration">
         <quickOutlineConfiguration
-            target="com.amashchenko.eclipse.strutsclipse.strutsxml"
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlQuickOutlineConf">
+            target="com.amashchenko.eclipse.strutsclipse.tilesxml"
+            class="com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlQuickOutlineConf">
         </quickOutlineConfiguration>
     </extension>
 
     <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
         <hyperlinkDetector
             activate="true"
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlHyperlinkDetector"
-            id="com.amashchenko.eclipse.strutsclipse.strutsxmlhyperlinkDetector"
-            name="Struts XML"
+            class="com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlHyperlinkDetector"
+            id="com.amashchenko.eclipse.strutsclipse.tilesxmlhyperlinkDetector"
+            name="Tiles XML"
             targetId="org.eclipse.core.runtime.xml">
         </hyperlinkDetector>
     </extension>
 
     <extension
-        id="com.amashchenko.eclipse.strutsclipse.strutsxmlvalidator"
-        name="Struts XML Validator"
+        id="com.amashchenko.eclipse.strutsclipse.tilesxmlvalidator"
+        name="Tiles XML Validator"
         point="org.eclipse.wst.validation.validatorV2">
         <validator
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlValidator"
-            markerId="com.amashchenko.eclipse.strutsclipse.strutsxmlproblemmarker">
+            class="com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlValidator"
+            markerId="com.amashchenko.eclipse.strutsclipse.tilesxmlproblemmarker">
             <include>
                 <rules>
-                    <contentType id="com.amashchenko.eclipse.strutsclipse.strutsxml"/>
+                    <contentType id="com.amashchenko.eclipse.strutsclipse.tilesxml"/>
                 </rules>
             </include>
         </validator>
     </extension>
     <extension
-        id="com.amashchenko.eclipse.strutsclipse.strutsxmlproblemmarker"
-        name="Struts XML Problem"
+        id="com.amashchenko.eclipse.strutsclipse.tilesxmlproblemmarker"
+        name="Tiles XML Problem"
         point="org.eclipse.core.resources.markers">
         <persistent value="true"/>
         <super type="org.eclipse.core.resources.problemmarker"/>

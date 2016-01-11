@@ -50,8 +50,10 @@
     <modules>
         <module>strutsclipse-plugin</module>
         <module>strutsclipse-feature</module>
-        <module>strutsclipse-update-site</module>
         <module>strutsclipse-test</module>
+        <module>strutsclipse-tiles</module>
+        <module>strutsclipse-tiles-feature</module>
+        <module>strutsclipse-update-site</module>
     </modules>
 
     <repositories>
