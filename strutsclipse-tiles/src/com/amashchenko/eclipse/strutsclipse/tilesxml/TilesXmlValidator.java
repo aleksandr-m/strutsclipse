@@ -24,6 +24,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
@@ -72,14 +73,15 @@ public class TilesXmlValidator extends AbstractValidator {
 
 			for (ElementRegion pregion : definitionNameRegions) {
 				if (dupDefnNameCheckMap.containsKey(pregion.getValue())) {
-					result.add(createMessage(resource,
+					result.add(createMessage(resource, document,
 							pregion.getValueRegion(), IMarker.SEVERITY_WARNING,
 							DUP_DEFINITION_MESSAGE_TEXT));
 
 					if (!reportedDefinitions.contains(pregion.getValue())) {
 						reportedDefinitions.add(pregion.getValue());
-						result.add(createMessage(resource, dupDefnNameCheckMap
-								.get(pregion.getValue()).getValueRegion(),
+						result.add(createMessage(resource, document,
+								dupDefnNameCheckMap.get(pregion.getValue())
+										.getValueRegion(),
 								IMarker.SEVERITY_WARNING,
 								DUP_DEFINITION_MESSAGE_TEXT));
 					}
@@ -92,14 +94,20 @@ public class TilesXmlValidator extends AbstractValidator {
 		return result;
 	}
 
-	private ValidatorMessage createMessage(IResource resource, IRegion region,
-			int severity, String text) {
+	private ValidatorMessage createMessage(IResource resource,
+			IDocument document, IRegion region, int severity, String text) {
 		ValidatorMessage message = ValidatorMessage.create(text, resource);
 		message.setType(PROBLEM_MARKER_ID);
 		message.setAttribute(IMarker.SEVERITY, severity);
 		message.setAttribute(IMarker.CHAR_START, region.getOffset());
 		message.setAttribute(IMarker.CHAR_END,
 				region.getOffset() + region.getLength());
+		// add line number
+		try {
+			int line = document.getLineOfOffset(region.getOffset());
+			message.setAttribute(IMarker.LINE_NUMBER, line + 1);
+		} catch (BadLocationException e) {
+		}
 		return message;
 	}
 }

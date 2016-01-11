@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
@@ -78,14 +79,15 @@ public class StrutsXmlValidator extends AbstractValidator {
 
 			for (ElementRegion pregion : packageNameRegions) {
 				if (dupPackNameCheckMap.containsKey(pregion.getValue())) {
-					result.add(createMessage(resource,
+					result.add(createMessage(resource, document,
 							pregion.getValueRegion(), IMarker.SEVERITY_WARNING,
 							DUP_PACKAGE_MESSAGE_TEXT));
 
 					if (!reportedPackages.contains(pregion.getValue())) {
 						reportedPackages.add(pregion.getValue());
-						result.add(createMessage(resource, dupPackNameCheckMap
-								.get(pregion.getValue()).getValueRegion(),
+						result.add(createMessage(resource, document,
+								dupPackNameCheckMap.get(pregion.getValue())
+										.getValueRegion(),
 								IMarker.SEVERITY_WARNING,
 								DUP_PACKAGE_MESSAGE_TEXT));
 					}
@@ -111,7 +113,7 @@ public class StrutsXmlValidator extends AbstractValidator {
 							String actionName = entr.getKey()
 									+ nameAttr.getValue();
 							if (dupCheckMap.containsKey(actionName)) {
-								result.add(createMessage(resource,
+								result.add(createMessage(resource, document,
 										nameAttr.getValueRegion(),
 										IMarker.SEVERITY_WARNING,
 										DUP_ACTION_MESSAGE_TEXT));
@@ -119,6 +121,7 @@ public class StrutsXmlValidator extends AbstractValidator {
 								if (!reportedActions.contains(actionName)) {
 									reportedActions.add(actionName);
 									result.add(createMessage(resource,
+											document,
 											dupCheckMap.get(actionName)
 													.getValueRegion(),
 											IMarker.SEVERITY_WARNING,
@@ -148,6 +151,7 @@ public class StrutsXmlValidator extends AbstractValidator {
 													clazz, methodAttrValue);
 									if (method == null) {
 										result.add(createMessage(resource,
+												document,
 												methodAttr.getValueRegion(),
 												IMarker.SEVERITY_ERROR,
 												NO_METHOD_MESSAGE_TEXT));
@@ -163,14 +167,20 @@ public class StrutsXmlValidator extends AbstractValidator {
 		return result;
 	}
 
-	private ValidatorMessage createMessage(IResource resource, IRegion region,
-			int severity, String text) {
+	private ValidatorMessage createMessage(IResource resource,
+			IDocument document, IRegion region, int severity, String text) {
 		ValidatorMessage message = ValidatorMessage.create(text, resource);
 		message.setType(PROBLEM_MARKER_ID);
 		message.setAttribute(IMarker.SEVERITY, severity);
 		message.setAttribute(IMarker.CHAR_START, region.getOffset());
 		message.setAttribute(IMarker.CHAR_END,
 				region.getOffset() + region.getLength());
+		// add line number
+		try {
+			int line = document.getLineOfOffset(region.getOffset());
+			message.setAttribute(IMarker.LINE_NUMBER, line + 1);
+		} catch (BadLocationException e) {
+		}
 		return message;
 	}
 }
