@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -36,12 +37,16 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
+import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IPersistableElement;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
@@ -54,6 +59,7 @@ import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
@@ -88,6 +94,24 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 					+ tagRegion.getCurrentElement().getName();
 
 			switch (key) {
+			case PACKAGE_EXTENDS:
+				ElementRegion parsedValue = ParseUtil.parseElementValue(
+						elementValue, tagRegion.getCurrentElementValuePrefix(),
+						",", elementRegion.getOffset());
+
+				// find in current document
+				IHyperlink localLink = createPackageExtendsLocalLink(document,
+						parsedValue.getValue(), parsedValue.getValueRegion());
+
+				if (localLink == null) {
+					// find in jars
+					linksList.addAll(createPackageExtendsJarLinks(document,
+							parsedValue.getValue(),
+							parsedValue.getValueRegion()));
+				} else {
+					linksList.add(localLink);
+				}
+				break;
 			case ACTION_METHOD:
 				final String classAttrValue = tagRegion.getAttrValue(
 						StrutsXmlConstants.CLASS_ATTR, null);
@@ -287,6 +311,70 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 		return link;
 	}
 
+	private IHyperlink createPackageExtendsLocalLink(final IDocument document,
+			final String elementValue, final IRegion elementRegion) {
+		IHyperlink link = null;
+
+		IRegion packageNameRegion = strutsXmlParser.getPackageNameRegion(
+				document, elementValue);
+		if (packageNameRegion != null) {
+			ITextFileBuffer textFileBuffer = FileBuffers
+					.getTextFileBufferManager().getTextFileBuffer(document);
+			if (textFileBuffer != null) {
+				IFile file = ResourcesPlugin.getWorkspace().getRoot()
+						.getFile(textFileBuffer.getLocation());
+				if (file.exists()) {
+					link = new FileHyperlink(elementRegion, file,
+							packageNameRegion);
+				}
+			}
+		}
+
+		return link;
+	}
+
+	private List<IHyperlink> createPackageExtendsJarLinks(
+			final IDocument document, final String elementValue,
+			final IRegion elementRegion) {
+		final List<IHyperlink> links = new ArrayList<IHyperlink>();
+
+		List<JarEntryStorage> jarStorages = ProjectUtil
+				.findJarEntryStrutsResources(document);
+		for (JarEntryStorage jarStorage : jarStorages) {
+			IRegion nameRegion = strutsXmlParser.getPackageNameRegion(
+					jarStorage.toDocument(), elementValue);
+			if (nameRegion != null) {
+				links.add(new StorageHyperlink(elementRegion, jarStorage,
+						nameRegion));
+			}
+		}
+
+		return links;
+	}
+
+	// helper method for IHyperlink-s
+	private static void selectAndReveal(IEditorPart editorPart,
+			IRegion highlightRange) {
+		ITextEditor textEditor = null;
+
+		if (editorPart instanceof MultiPageEditorPart) {
+			MultiPageEditorPart part = (MultiPageEditorPart) editorPart;
+
+			Object editorPage = part.getSelectedPage();
+			if (editorPage != null && editorPage instanceof ITextEditor) {
+				textEditor = (ITextEditor) editorPage;
+			}
+		} else if (editorPart instanceof ITextEditor) {
+			textEditor = (ITextEditor) editorPart;
+		}
+
+		// highlight range in editor if possible
+		if (highlightRange != null && textEditor != null) {
+			textEditor.selectAndReveal(highlightRange.getOffset(),
+					highlightRange.getLength());
+		}
+	}
+
 	private static class FileHyperlink implements IHyperlink {
 		private final IFile fFile;
 		private final IRegion fRegion;
@@ -296,7 +384,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 			this(region, file, null);
 		}
 
-		public FileHyperlink(IRegion region, IFile file, IRegion range) {
+		private FileHyperlink(IRegion region, IFile file, IRegion range) {
 			fRegion = region;
 			fFile = file;
 			fHighlightRange = range;
@@ -325,24 +413,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 						.getActiveWorkbenchWindow().getActivePage();
 				IEditorPart editor = IDE.openEditor(page, fFile, true);
 
-				ITextEditor textEditor = null;
-
-				if (editor instanceof MultiPageEditorPart) {
-					MultiPageEditorPart part = (MultiPageEditorPart) editor;
-
-					Object editorPage = part.getSelectedPage();
-					if (editorPage != null && editorPage instanceof ITextEditor) {
-						textEditor = (ITextEditor) editorPage;
-					}
-				} else if (editor instanceof ITextEditor) {
-					textEditor = (ITextEditor) editor;
-				}
-
-				// highlight range in editor if possible
-				if (fHighlightRange != null && textEditor != null) {
-					textEditor.selectAndReveal(fHighlightRange.getOffset(),
-							fHighlightRange.getLength());
-				}
+				selectAndReveal(editor, fHighlightRange);
 			} catch (PartInitException e) {
 			}
 		}
@@ -379,6 +450,103 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 			} catch (PartInitException e) {
 			} catch (JavaModelException e) {
 			}
+		}
+	}
+
+	private static class StorageHyperlink implements IHyperlink {
+		private final IStorage fStorage;
+		private final IRegion fRegion;
+		private final IRegion fHighlightRange;
+
+		private StorageHyperlink(IRegion region, IStorage storage, IRegion range) {
+			fRegion = region;
+			fStorage = storage;
+			fHighlightRange = range;
+		}
+
+		@Override
+		public IRegion getHyperlinkRegion() {
+			return fRegion;
+		}
+
+		@Override
+		public String getHyperlinkText() {
+			return null;
+		}
+
+		@Override
+		public String getTypeLabel() {
+			return null;
+		}
+
+		@Override
+		public void open() {
+			try {
+				IWorkbenchPage page = PlatformUI.getWorkbench()
+						.getActiveWorkbenchWindow().getActivePage();
+
+				IEditorDescriptor editorDescriptor = IDE
+						.getEditorDescriptor(fStorage.getName());
+
+				IEditorPart editor = page.openEditor(new StorageEditorInput(
+						fStorage), editorDescriptor.getId());
+
+				selectAndReveal(editor, fHighlightRange);
+			} catch (PartInitException e) {
+			}
+		}
+	}
+
+	private static class StorageEditorInput implements IStorageEditorInput {
+		private final IStorage fStorage;
+
+		private StorageEditorInput(IStorage storage) {
+			fStorage = storage;
+		}
+
+		@Override
+		public boolean exists() {
+			return fStorage != null;
+		}
+
+		@Override
+		public ImageDescriptor getImageDescriptor() {
+			return null;
+		}
+
+		@Override
+		public String getName() {
+			return fStorage.getName();
+		}
+
+		@Override
+		public IPersistableElement getPersistable() {
+			return null;
+		}
+
+		@Override
+		public IStorage getStorage() {
+			return fStorage;
+		}
+
+		@Override
+		public String getToolTipText() {
+			return fStorage.getFullPath() != null ? fStorage.getFullPath()
+					.toString() : fStorage.getName();
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof StorageEditorInput) {
+				return fStorage.equals(((StorageEditorInput) obj).fStorage);
+			}
+			return super.equals(obj);
+		}
+
+		@SuppressWarnings("rawtypes")
+		@Override
+		public Object getAdapter(Class adapter) {
+			return null;
 		}
 	}
 }

@@ -134,6 +134,18 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				StrutsXmlConstants.NAME_ATTR);
 	}
 
+	public IRegion getPackageNameRegion(final IDocument document,
+			final String nameValue) {
+		ElementRegion attrRegion = findTagAttrByValue(document,
+				StrutsXmlConstants.PACKAGE_TAG, StrutsXmlConstants.NAME_ATTR,
+				nameValue);
+		IRegion region = null;
+		if (attrRegion != null) {
+			region = attrRegion.getValueRegion();
+		}
+		return region;
+	}
+
 	public Map<String, List<TagRegion>> getNamespacedActionTagRegions(
 			final IDocument document) {
 		return getGroupedTagRegions(document, StrutsXmlConstants.PACKAGE_TAG,

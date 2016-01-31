@@ -41,4 +41,10 @@ public class ElementRegion {
 	public IRegion getValueRegion() {
 		return valueRegion;
 	}
+
+	@Override
+	public String toString() {
+		return "ElementRegion [name=" + name + ", value=" + value
+				+ ", valueRegion=" + valueRegion + "]";
+	}
 }

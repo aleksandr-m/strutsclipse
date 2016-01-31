@@ -119,7 +119,7 @@ public class TilesXmlHyperlinkDetector extends AbstractHyperlinkDetector
 		private final IRegion fRegion;
 		private final IRegion fHighlightRange;
 
-		public FileHyperlink(IRegion region, IFile file, IRegion range) {
+		private FileHyperlink(IRegion region, IFile file, IRegion range) {
 			fRegion = region;
 			fFile = file;
 			fHighlightRange = range;

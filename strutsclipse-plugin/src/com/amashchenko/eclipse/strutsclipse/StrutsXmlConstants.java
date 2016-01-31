@@ -40,6 +40,9 @@ public class StrutsXmlConstants {
 	public static final String LOCATION_PARAM = "location";
 	public static final String ACTION_NAME_PARAM = "actionName";
 
+	public static final String STRUTS_DEFAULT_FILE_NAME = "struts-default.xml";
+	public static final String STRUTS_PLUGIN_FILE_NAME = "struts-plugin.xml";
+
 	public static final String[][] DEFAULT_PACKAGE_NAMES = {
 			{ "struts-default", null }, { "json-default", null },
 			{ "tiles-default", null }, { "rest-default", null },

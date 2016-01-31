@@ -15,14 +15,19 @@
  */
 package com.amashchenko.eclipse.strutsclipse;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -104,5 +109,38 @@ public class ProjectUtil {
 			e.printStackTrace();
 		}
 		return result;
+	}
+
+	public static List<JarEntryStorage> findJarEntryStrutsResources(
+			final IDocument document) {
+		List<JarEntryStorage> results = new ArrayList<JarEntryStorage>();
+		try {
+			IJavaProject javaProject = getCurrentJavaProject(document);
+
+			if (javaProject != null && javaProject.exists()) {
+				IPackageFragmentRoot[] roots = javaProject
+						.getPackageFragmentRoots();
+				for (IPackageFragmentRoot root : roots) {
+					if (root.isArchive()) {
+						Object[] nonJavaResources = root.getNonJavaResources();
+						for (Object nonJavaRes : nonJavaResources) {
+							if (nonJavaRes instanceof IJarEntryResource) {
+								IJarEntryResource jarEntry = (IJarEntryResource) nonJavaRes;
+								if (jarEntry.isFile()
+										&& (StrutsXmlConstants.STRUTS_DEFAULT_FILE_NAME
+												.equals(jarEntry.getName()) || StrutsXmlConstants.STRUTS_PLUGIN_FILE_NAME
+												.equals(jarEntry.getName()))) {
+									results.add(new JarEntryStorage(root
+											.getPath(), jarEntry));
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		return results;
 	}
 }
