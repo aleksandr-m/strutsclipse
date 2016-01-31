@@ -37,6 +37,8 @@ import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+
 public abstract class AbstractXmlCompletionProposalComputer implements
 		ICompletionProposalComputer {
 	private static final List<String> JSP_HTML_FILE_EXTENSIONS = Arrays
@@ -50,70 +52,31 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 			CompletionProposalComparator proposalComparator) {
 		List<ICompletionProposal> list = new ArrayList<ICompletionProposal>();
 		if (proposalsData != null && region != null) {
-			int replacementOffset = region.getOffset();
-			int replacementLength = region.getLength();
-
-			boolean multivalue = valueSeparator != null
-					&& attrvalue.contains(valueSeparator);
+			ElementRegion parsedValue = ParseUtil.parseElementValue(attrvalue,
+					prefix, valueSeparator, region.getOffset());
 
 			List<String> excludes = new ArrayList<String>();
-
-			if (multivalue) {
-				int startSeprIndx = prefix.lastIndexOf(valueSeparator) + 1;
-
-				// spaces between valueSeparator and current value prefix
-				// (one,_t|wo -> 1; one,_|two -> 1; one,__t|wo -> 2)
-				int spacesCount = 0;
-
-				String currentValue = "";
-
-				// first value in attrvalue
-				if (startSeprIndx <= 0) {
-					currentValue = attrvalue.substring(0,
-							attrvalue.indexOf(valueSeparator));
-				} else {
-					prefix = prefix.substring(startSeprIndx);
-					spacesCount = prefix.length();
-					prefix = prefix.trim();
-					spacesCount = spacesCount - prefix.length();
-
-					int endSeprIndx = attrvalue.indexOf(valueSeparator,
-							startSeprIndx);
-					if (endSeprIndx <= 0) {
-						// last value in attrvalue
-						currentValue = attrvalue.substring(startSeprIndx);
-					} else {
-						// somewhere in the middle of attrvalue
-						currentValue = attrvalue.substring(startSeprIndx,
-								endSeprIndx);
-					}
-				}
-
-				currentValue = currentValue.trim();
-
-				if (spacesCount < 0) {
-					spacesCount = 0;
-				}
-
-				replacementOffset = replacementOffset + startSeprIndx
-						+ spacesCount;
-				replacementLength = currentValue.length();
-
+			// multivalue
+			if (valueSeparator != null && !valueSeparator.isEmpty()
+					&& attrvalue.contains(valueSeparator)) {
 				// exclude already defined values except current value
 				String[] valArr = attrvalue.split(valueSeparator);
 				for (String val : valArr) {
-					if (!currentValue.equalsIgnoreCase(val.trim())) {
+					if (!parsedValue.getValue().equalsIgnoreCase(val.trim())) {
 						excludes.add(val.trim());
 					}
 				}
 			}
 
+			final String prefixLowCase = parsedValue.getName().toLowerCase();
+
 			for (String[] proposal : proposalsData) {
-				if (proposal[0].toLowerCase().startsWith(prefix.toLowerCase())
+				if (proposal[0].toLowerCase().startsWith(prefixLowCase)
 						&& !excludes.contains(proposal[0])) {
-					list.add(new CompletionProposal(proposal[0],
-							replacementOffset, replacementLength, proposal[0]
-									.length(), null, null, null, proposal[1]));
+					list.add(new CompletionProposal(proposal[0], parsedValue
+							.getValueRegion().getOffset(), parsedValue
+							.getValueRegion().getLength(),
+							proposal[0].length(), null, null, null, proposal[1]));
 				}
 			}
 		}
