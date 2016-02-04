@@ -15,29 +15,23 @@
  */
 package com.amashchenko.eclipse.strutsclipse.tilesxml;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.wst.validation.AbstractValidator;
 import org.eclipse.wst.validation.ValidationResult;
 import org.eclipse.wst.validation.ValidationState;
-import org.eclipse.wst.validation.ValidatorMessage;
 
+import com.amashchenko.eclipse.strutsclipse.AbstractXmlValidator;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
-public class TilesXmlValidator extends AbstractValidator {
+public class TilesXmlValidator extends AbstractXmlValidator {
 	private static final String PROBLEM_MARKER_ID = "com.amashchenko.eclipse.strutsclipse.tilesxmlproblemmarker";
 
 	private static final String DUP_DEFINITION_MESSAGE_TEXT = "Duplicate definition name.";
@@ -46,6 +40,11 @@ public class TilesXmlValidator extends AbstractValidator {
 
 	public TilesXmlValidator() {
 		tilesXmlParser = new TilesXmlParser();
+	}
+
+	@Override
+	protected String getProblemMarkerId() {
+		return PROBLEM_MARKER_ID;
 	}
 
 	@Override
@@ -67,47 +66,10 @@ public class TilesXmlValidator extends AbstractValidator {
 			// validate definitions names
 			List<ElementRegion> definitionNameRegions = tilesXmlParser
 					.getDefinitionNameRegions(document);
-
-			Map<String, ElementRegion> dupDefnNameCheckMap = new HashMap<String, ElementRegion>();
-			List<String> reportedDefinitions = new ArrayList<String>();
-
-			for (ElementRegion pregion : definitionNameRegions) {
-				if (dupDefnNameCheckMap.containsKey(pregion.getValue())) {
-					result.add(createMessage(resource, document,
-							pregion.getValueRegion(), IMarker.SEVERITY_WARNING,
-							DUP_DEFINITION_MESSAGE_TEXT));
-
-					if (!reportedDefinitions.contains(pregion.getValue())) {
-						reportedDefinitions.add(pregion.getValue());
-						result.add(createMessage(resource, document,
-								dupDefnNameCheckMap.get(pregion.getValue())
-										.getValueRegion(),
-								IMarker.SEVERITY_WARNING,
-								DUP_DEFINITION_MESSAGE_TEXT));
-					}
-				} else {
-					dupDefnNameCheckMap.put(pregion.getValue(), pregion);
-				}
-			}
+			validateRegions(resource, document, result, definitionNameRegions,
+					DUP_DEFINITION_MESSAGE_TEXT, IMarker.SEVERITY_WARNING);
 		}
 
 		return result;
-	}
-
-	private ValidatorMessage createMessage(IResource resource,
-			IDocument document, IRegion region, int severity, String text) {
-		ValidatorMessage message = ValidatorMessage.create(text, resource);
-		message.setType(PROBLEM_MARKER_ID);
-		message.setAttribute(IMarker.SEVERITY, severity);
-		message.setAttribute(IMarker.CHAR_START, region.getOffset());
-		message.setAttribute(IMarker.CHAR_END,
-				region.getOffset() + region.getLength());
-		// add line number
-		try {
-			int line = document.getLineOfOffset(region.getOffset());
-			message.setAttribute(IMarker.LINE_NUMBER, line + 1);
-		} catch (BadLocationException e) {
-		}
-		return message;
 	}
 }

@@ -27,31 +27,33 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
-import org.eclipse.jface.text.IRegion;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.wst.validation.AbstractValidator;
 import org.eclipse.wst.validation.ValidationResult;
 import org.eclipse.wst.validation.ValidationState;
-import org.eclipse.wst.validation.ValidatorMessage;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
-public class StrutsXmlValidator extends AbstractValidator {
+public class StrutsXmlValidator extends AbstractXmlValidator {
 	private static final String PROBLEM_MARKER_ID = "com.amashchenko.eclipse.strutsclipse.strutsxmlproblemmarker";
 
 	private static final String DUP_ACTION_MESSAGE_TEXT = "Duplicate action name.";
 	private static final String DUP_PACKAGE_MESSAGE_TEXT = "Duplicate package name.";
+	private static final String DUP_CONSTANT_MESSAGE_TEXT = "Duplicate constant name.";
 	private static final String NO_METHOD_MESSAGE_TEXT = "No such method.";
 
 	private final StrutsXmlParser strutsXmlParser;
 
 	public StrutsXmlValidator() {
 		strutsXmlParser = new StrutsXmlParser();
+	}
+
+	@Override
+	protected String getProblemMarkerId() {
+		return PROBLEM_MARKER_ID;
 	}
 
 	@Override
@@ -70,31 +72,17 @@ public class StrutsXmlValidator extends AbstractValidator {
 
 		ValidationResult result = new ValidationResult();
 		if (document != null) {
+			// validate constants
+			List<ElementRegion> constantNameRegions = strutsXmlParser
+					.getConstantNameRegions(document);
+			validateRegions(resource, document, result, constantNameRegions,
+					DUP_CONSTANT_MESSAGE_TEXT, IMarker.SEVERITY_WARNING);
+
 			// validate packages
 			List<ElementRegion> packageNameRegions = strutsXmlParser
 					.getPackageNameRegions(document);
-
-			Map<String, ElementRegion> dupPackNameCheckMap = new HashMap<String, ElementRegion>();
-			List<String> reportedPackages = new ArrayList<String>();
-
-			for (ElementRegion pregion : packageNameRegions) {
-				if (dupPackNameCheckMap.containsKey(pregion.getValue())) {
-					result.add(createMessage(resource, document,
-							pregion.getValueRegion(), IMarker.SEVERITY_WARNING,
-							DUP_PACKAGE_MESSAGE_TEXT));
-
-					if (!reportedPackages.contains(pregion.getValue())) {
-						reportedPackages.add(pregion.getValue());
-						result.add(createMessage(resource, document,
-								dupPackNameCheckMap.get(pregion.getValue())
-										.getValueRegion(),
-								IMarker.SEVERITY_WARNING,
-								DUP_PACKAGE_MESSAGE_TEXT));
-					}
-				} else {
-					dupPackNameCheckMap.put(pregion.getValue(), pregion);
-				}
-			}
+			validateRegions(resource, document, result, packageNameRegions,
+					DUP_PACKAGE_MESSAGE_TEXT, IMarker.SEVERITY_WARNING);
 
 			// validate actions
 			Map<String, List<TagRegion>> actionRegions = strutsXmlParser
@@ -165,22 +153,5 @@ public class StrutsXmlValidator extends AbstractValidator {
 		}
 
 		return result;
-	}
-
-	private ValidatorMessage createMessage(IResource resource,
-			IDocument document, IRegion region, int severity, String text) {
-		ValidatorMessage message = ValidatorMessage.create(text, resource);
-		message.setType(PROBLEM_MARKER_ID);
-		message.setAttribute(IMarker.SEVERITY, severity);
-		message.setAttribute(IMarker.CHAR_START, region.getOffset());
-		message.setAttribute(IMarker.CHAR_END,
-				region.getOffset() + region.getLength());
-		// add line number
-		try {
-			int line = document.getLineOfOffset(region.getOffset());
-			message.setAttribute(IMarker.LINE_NUMBER, line + 1);
-		} catch (BadLocationException e) {
-		}
-		return message;
 	}
 }
