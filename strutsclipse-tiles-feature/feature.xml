@@ -2,7 +2,7 @@
 <feature
       id="com.amashchenko.eclipse.strutsclipse.tiles.feature"
       label="StrutsClipse Tiles"
-      version="1.0.9.qualifier"
+      version="1.1.0.qualifier"
       provider-name="Aleksandr Mashchenko">
 
    <description url="https://aleksandr-m.github.io/strutsclipse/">
