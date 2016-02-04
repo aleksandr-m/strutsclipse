@@ -3,7 +3,8 @@
       id="com.amashchenko.eclipse.strutsclipse.feature"
       label="StrutsClipse"
       version="1.0.9.qualifier"
-      provider-name="Aleksandr Mashchenko">
+      provider-name="Aleksandr Mashchenko"
+      plugin="com.amashchenko.eclipse.strutsclipse.plugin">
 
    <description url="https://aleksandr-m.github.io/strutsclipse/">
 StrutsClipse provides Eclipse IDE integration for developing Apache Struts2 (https://struts.apache.org/) based applications.

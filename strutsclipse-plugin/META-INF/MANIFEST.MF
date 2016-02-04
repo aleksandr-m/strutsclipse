@@ -1,6 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: StrutsClipse
+Bundle-Vendor: Aleksandr Mashchenko
 Bundle-SymbolicName: com.amashchenko.eclipse.strutsclipse.plugin;singleton:=true
 Bundle-Version: 1.0.9.qualifier
 Require-Bundle: org.eclipse.ui,
