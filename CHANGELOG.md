@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.9
+
+* Branding (About Eclipse dialog)
+* Validation of duplicate `constant` names
+* Added ability to get resources from jar files
+* Hyperlinks for `package` tag `extends` attribute
+* Added line number to validator messages
+* Apache Tiles support
+* Ignore commented out sections in validation
+
 ## 1.0.8
 
 * Validation of duplicate package names in struts.xml
