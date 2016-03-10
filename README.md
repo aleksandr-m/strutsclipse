@@ -14,4 +14,4 @@ Drag and drop the <a href="http://marketplace.eclipse.org/marketplace-client-int
 
 ### Update Site
 
-The update site: https://github.com/aleksandr-m/strutsclipse/raw/master/update/
+The update site: https://aleksandr-m.github.io/strutsclipse/update/
