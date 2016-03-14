@@ -75,27 +75,60 @@
                     <p>StrutsClipse provides Eclipse IDE integration for developing <a href="http://struts.apache.org/" target="_blank">Apache Struts2</a> based applications.</p>
                     
                     <ul>
-                        <li><a href="#package-extends">Package extends content assist</a></li>
-                        <li><a href="#constant-name">Constant name content assist</a></li>
-                        <li><a href="#action-name-method">Action name and method content assist</a></li>
-                        <li><a href="#action-class">Action class content assist</a></li>
-                        <li><a href="#result-type">Result type content assist</a></li>
-                        <li><a href="#result-name">Result name content assist</a></li>
-                        <li><a href="#result-body">Result body content assist</a></li>
-                        <li><a href="#result-body-hyperlink">Result body hyperlink</a></li>
-                        <li><a href="#action-method-hyperlink">Action method hyperlink</a></li>
-                        <li><a href="#quick-outline">Quick Outline</a></li>
-                        <li><a href="#validation-action-name">Action name validation</a></li>
-                        <li><a href="#validation-action-method">Action method validation</a></li>
+                        <li>
+                            <a href="#content-assist">Content assist</a>
+                            <ul>
+                                <li><a href="#package-extends">Package extends content assist</a></li>
+                                <li><a href="#constant-name">Constant name content assist</a></li>
+                                <li><a href="#bean-class">Bean class content assist</a></li>
+                                <li><a href="#bean-scope">Bean scope content assist</a></li>
+                                <li><a href="#action-name-method">Action name and method content assist</a></li>
+                                <li><a href="#action-class">Action class content assist</a></li>
+                                <li><a href="#result-type">Result type content assist</a></li>
+                                <li><a href="#result-name">Result name content assist</a></li>
+                                <li><a href="#result-body">Result body content assist</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#hyperlinks">Hyperlinks</a>
+                            <ul>
+                                <li><a href="#package-extends-hyperlink">Package extends hyperlink</a></li>
+                                <li><a href="#action-method-hyperlink">Action method hyperlink</a></li>
+                                <li><a href="#result-body-hyperlink">Result body hyperlink</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#validation">Validation</a>
+                            <ul>
+                                <li><a href="#validation-package-name">Package name validation</a></li>
+                                <li><a href="#validation-constant-name">Constant name</a></li>
+                                <li><a href="#validation-action-name">Action name validation</a></li>
+                                <li><a href="#validation-action-method">Action method validation</a></li>
+                            </ul>
+                        </li>
+                        <li>
+                            <a href="#quick-outline">Quick Outline</a>
+                            <ul>
+                                <li><a href="#quick-outline-improved">Improved Quick Outline</a></li>
+                            </ul>
+                        </li>
                     </ul>
 
-                    <h4 id="package-extends" class="pad-top">Package tag extends attribute content assist</h4>
+
+                    <h3 id="content-assist" class="pad-top">Content assist</h3>
+                    
+                    <h4 id="package-extends">Package tag extends attribute content assist</h4>
                     <p>The list of proposals will show Struts2 standard packages names along with local package names.</p>
                     <img src="img/extendsassist.png" class="img-responsive" alt="Package extends content assist" />
 
                     <h4 id="constant-name" class="pad-top">Constant tag name attribute content assist</h4>
                     <p>The list of proposals will show Struts2 default constants.</p>
                     <img src="img/constantnameassist.png" class="img-responsive" alt="Constant name content assist" />
+
+                    <h4 id="bean-class" class="pad-top">Bean tag class attribute content assist</h4>
+                    <p>The list of proposals will show java classes.</p>
+                    <h4 id="bean-scope" class="pad-top">Bean tag scope attribute content assist</h4>
+                    <p>The list of proposals will show Struts2 bean scopes.</p>
 
                     <h4 id="action-name-method" class="pad-top">Action tag name and method attributes content assist</h4>
                     <p>The list of proposals will show class methods suitable for action name/method.</p>
@@ -126,25 +159,43 @@
                     <p class="pad-top">Result tag body content assist will also work in the location param tag.</p>
                     <img src="img/resultbodyparam.png" class="img-responsive" alt="Result body in param tag content assist" />
 
-                    <h4 id="result-body-hyperlink" class="pad-top">Result tag body hyperlink</h4>
-                    <p>Depending on the result type hyperlink to the Tiles definition or JSP, HTML, FreeMarker file or action.</p>
-                    <img src="img/resultbodyhyperlink.png" class="img-responsive" alt="Result body hyperlink" />
+
+                    <h3 id="hyperlinks" class="pad-top">Hyperlinks</h3>
+
+                    <h4 id="package-extends-hyperlink" class="pad-top">Package tag extends attribute hyperlink</h4>
+                    <p>Hyperlink to the Struts2 package declaration.</p>
 
                     <h4 id="action-method-hyperlink" class="pad-top">Action tag method attribute hyperlink</h4>
                     <p>Hyperlink to the action class method declaration.</p>
                     <img src="img/methodhyperlink.png" class="img-responsive" alt="Action method hyperlink" />
 
-                    <h4 id="quick-outline" class="pad-top">Quick Outline</h4>
-                    <p>Improved Quick Outline with the search by the action tag name.</p>
-                    <img src="img/quickoutline.png" class="img-responsive" alt="Improved Quick Outline" />
+                    <h4 id="result-body-hyperlink">Result tag body hyperlink</h4>
+                    <p>Depending on the result type hyperlink to the Tiles definition or JSP, HTML, FreeMarker file or action.</p>
+                    <img src="img/resultbodyhyperlink.png" class="img-responsive" alt="Result body hyperlink" />
 
-                    <h4 id="validation-action-name" class="pad-top">Action name validation</h4>
+
+                    <h3 id="validation" class="pad-top">Validation</h3>
+
+                    <h4 id="validation-package-name">Package name validation</h4>
+                    <p>Package tag names will be validated for duplicates.</p>
+
+                    <h4 id="validation-constant-name">Constant name validation</h4>
+                    <p>Constant tag names will be validated for duplicates.</p>
+
+                    <h4 id="validation-action-name">Action name validation</h4>
                     <p>Action tag names will be validated for duplicates.</p>
                     <img src="img/actionnamevalidation.png" class="img-responsive" alt="Action name validation" />
 
                     <h4 id="validation-action-method" class="pad-top">Action method validation</h4>
                     <p>Action tag method will be checked for existence.</p>
                     <img src="img/actionmethodvalidation.png" class="img-responsive" alt="Action method validation" />
+
+
+                    <h3 id="quick-outline" class="pad-top">Quick Outline</h3>
+
+                    <h4 id="quick-outline-improved">Improved Quick Outline</h4>
+                    <p>Improved Quick Outline with the search by the action tag name.</p>
+                    <img src="img/quickoutline.png" class="img-responsive" alt="Improved Quick Outline" />
                 </div>
 
 
@@ -160,20 +211,42 @@
                                     <li><a href="#manual-installation">Manual Installation</a></li>
                                 </ul>
                             </li>
-                            <li><a href="#overview">Overview</a>
+                            <li><a href="#overview">Overview</a></li>
+                            <li>
+                                <a href="#content-assist">Content assist</a>
                                 <ul class="nav-sub nav-stacked">
-                                    <li><a href="#package-extends">Package extends content assist</a></li>
-                                    <li><a href="#constant-name">Constant name content assist</a></li>
-                                    <li><a href="#action-name-method">Action name and method content assist</a></li>
-                                    <li><a href="#action-class">Action class content assist</a></li>
-                                    <li><a href="#result-type">Result type content assist</a></li>
-                                    <li><a href="#result-name">Result name content assist</a></li>
-                                    <li><a href="#result-body">Result body content assist</a></li>
-                                    <li><a href="#result-body-hyperlink">Result body hyperlink</a></li>
-                                    <li><a href="#action-method-hyperlink">Action method hyperlink</a></li>
-                                    <li><a href="#quick-outline">Quick Outline</a></li>
-                                    <li><a href="#validation-action-name">Action name validation</a></li>
-                                    <li><a href="#validation-action-method">Action method validation</a></li>
+                                    <li><a href="#package-extends">Package extends</a></li>
+                                    <li><a href="#constant-name">Constant name</a></li>
+                                    <li><a href="#bean-class">Bean class</a></li>
+                                    <li><a href="#bean-scope">Bean scope</a></li>
+                                    <li><a href="#action-name-method">Action name and method</a></li>
+                                    <li><a href="#action-class">Action class</a></li>
+                                    <li><a href="#result-type">Result type</a></li>
+                                    <li><a href="#result-name">Result name</a></li>
+                                    <li><a href="#result-body">Result body</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#hyperlinks">Hyperlinks</a>
+                                <ul class="nav-sub nav-stacked">
+                                    <li><a href="#package-extends-hyperlink">Package extends</a></li>
+                                    <li><a href="#action-method-hyperlink">Action method</a></li>
+                                    <li><a href="#result-body-hyperlink">Result body</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#validation">Validation</a>
+                                <ul class="nav-sub nav-stacked">
+                                    <li><a href="#validation-package-name">Package name</a></li>
+                                    <li><a href="#validation-constant-name">Constant name</a></li>
+                                    <li><a href="#validation-action-name">Action name</a></li>
+                                    <li><a href="#validation-action-method">Action method</a></li>
+                                </ul>
+                            </li>
+                            <li>
+                                <a href="#quick-outline">Quick Outline</a>
+                                <ul class="nav-sub nav-stacked">
+                                    <li><a href="#quick-outline-improved">Improved Quick Outline</a></li>
                                 </ul>
                             </li>
                         </ul>

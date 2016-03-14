@@ -28,6 +28,8 @@ footer {
 .nav-sub {
     list-style: outside none none;
     padding-left: 0px;
+
+    display: none;
 }
 .nav-sub > li > a {
     text-decoration: none;
@@ -45,6 +47,10 @@ footer {
 }
 .nav > .active > a, .nav-sub > .active > a {
     border-left: 2px solid #242e2e;
+}
+
+.nav > .active > .nav-sub {
+    display: inherit;
 }
 
 #scroll-navbar .affix {
