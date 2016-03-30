@@ -168,6 +168,19 @@ public class StrutsXmlConstants {
 					"Additional excluded patterns." },
 			{ "struts.additional.acceptedPatterns",
 					"Additional accepted patterns." },
+			{ "struts.excludedPatterns.checker",
+					"Dedicated services to check if passed string is excluded." },
+			{ "struts.acceptedPatterns.checker",
+					"Dedicated services to check if passed string is accepted." },
+			{
+					"struts.excludedClasses",
+					"Comma delimited set of excluded classes which cannot be accessed via expressions." },
+			{
+					"struts.excludedPackageNamePatterns",
+					"Comma delimited set of excluded package names which cannot be accessed via expressions. This must be valid regex, each '.' in package name must be escaped! It's more flexible but slower than simple string comparison struts.excludedPackageNames." },
+			{
+					"struts.excludedPackageNames",
+					"Comma delimited set of excluded package names which cannot be accessed via expressions. This is simpler version of the struts.excludedPackageNamePatterns used with string comparison." },
 			{
 					"struts.enable.DynamicMethodInvocation",
 					"Set this to false if you wish to disable implicit dynamic method invocation via the URL request. This includes URLs like foo!bar.action, as well as params like method:bar (but not action:foo). An alternative to implicit dynamic method invocation is to use wildcard mappings, such as <action name=\"*/*\" method=\"{2}\" class=\"actions.{1}\">." } };
