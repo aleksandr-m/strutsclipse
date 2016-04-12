@@ -97,7 +97,8 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 			case PACKAGE_EXTENDS:
 				ElementRegion parsedValue = ParseUtil.parseElementValue(
 						elementValue, tagRegion.getCurrentElementValuePrefix(),
-						",", elementRegion.getOffset());
+						StrutsXmlConstants.MULTI_VALUE_SEPARATOR,
+						elementRegion.getOffset());
 
 				// find in current document
 				IHyperlink localLink = createPackageExtendsLocalLink(document,

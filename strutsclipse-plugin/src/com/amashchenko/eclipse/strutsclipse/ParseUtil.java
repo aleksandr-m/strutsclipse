@@ -15,6 +15,11 @@
  */
 package com.amashchenko.eclipse.strutsclipse;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.eclipse.core.runtime.Assert;
+
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 
 public class ParseUtil {
@@ -68,5 +73,21 @@ public class ParseUtil {
 			st++;
 		}
 		return st;
+	}
+
+	public static Set<String> delimitedStringToSet(String str, String delimiter) {
+		Assert.isNotNull(delimiter);
+
+		Set<String> set = new HashSet<String>();
+		if (str != null) {
+			String[] strArr = str.split(delimiter);
+			for (String s : strArr) {
+				String trimmed = s.trim();
+				if (!trimmed.isEmpty()) {
+					set.add(trimmed);
+				}
+			}
+		}
+		return set;
 	}
 }

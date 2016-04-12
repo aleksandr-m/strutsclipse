@@ -100,6 +100,19 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 		return proposals;
 	}
 
+	protected String[][] proposalDataFromList(List<String[]> list) {
+		String[][] proposals = null;
+		if (list != null && !list.isEmpty()) {
+			proposals = new String[list.size()][2];
+			int indx = 0;
+			for (String[] p : list) {
+				proposals[indx][0] = p[0];
+				proposals[indx++][1] = p[1];
+			}
+		}
+		return proposals;
+	}
+
 	protected Set<String> findJspHtmlFilesPaths(final IDocument currentDocument) {
 		return findFilesPaths(currentDocument, JSP_HTML_FILE_EXTENSIONS);
 	}

@@ -31,8 +31,9 @@ import com.amashchenko.eclipse.strutsclipse.StrutsXmlConstants;
 public class StrutsXmlParser extends AbstractXmlParser {
 	private static final String[] TAGS = { StrutsXmlConstants.BEAN_TAG,
 			StrutsXmlConstants.CONSTANT_TAG, StrutsXmlConstants.PACKAGE_TAG,
-			StrutsXmlConstants.ACTION_TAG, StrutsXmlConstants.RESULT_TAG,
-			StrutsXmlConstants.PARAM_TAG, CLOSE_TAG_TOKEN };
+			StrutsXmlConstants.INTERCEPTOR_REF, StrutsXmlConstants.ACTION_TAG,
+			StrutsXmlConstants.RESULT_TAG, StrutsXmlConstants.PARAM_TAG,
+			CLOSE_TAG_TOKEN };
 
 	private static final String[] ATTRS = { StrutsXmlConstants.EXTENDS_ATTR,
 			StrutsXmlConstants.NAMESPACE_ATTR, StrutsXmlConstants.NAME_ATTR,
@@ -78,13 +79,14 @@ public class StrutsXmlParser extends AbstractXmlParser {
 
 	public Set<String> getActionNames(final IDocument document,
 			final Set<String> packageNamespaces) {
-		Map<String, List<TagRegion>> actionRegions = getNamespacedActionTagRegions(document);
+		Map<String, TagGroup> actionRegions = getNamespacedActionTagRegions(document);
 
 		Set<String> result = new HashSet<String>();
 		if (actionRegions != null) {
 			for (String namespace : packageNamespaces) {
 				if (actionRegions.containsKey(namespace)) {
-					for (TagRegion tr : actionRegions.get(namespace)) {
+					for (TagRegion tr : actionRegions.get(namespace)
+							.getTagRegions()) {
 						result.add(tr.getAttrValue(
 								StrutsXmlConstants.NAME_ATTR, ""));
 					}
@@ -97,12 +99,13 @@ public class StrutsXmlParser extends AbstractXmlParser {
 
 	public IRegion getActionRegion(final IDocument document,
 			final Set<String> packageNamespaces, final String actionName) {
-		Map<String, List<TagRegion>> actionRegions = getNamespacedActionTagRegions(document);
+		Map<String, TagGroup> actionRegions = getNamespacedActionTagRegions(document);
 
 		if (actionRegions != null) {
 			for (String namespace : packageNamespaces) {
 				if (actionRegions.containsKey(namespace)) {
-					for (TagRegion tr : actionRegions.get(namespace)) {
+					for (TagRegion tr : actionRegions.get(namespace)
+							.getTagRegions()) {
 						if (tr.getAttrs() != null) {
 							ElementRegion nameAttr = tr.getAttrs().get(
 									StrutsXmlConstants.NAME_ATTR);
@@ -151,10 +154,11 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				StrutsXmlConstants.NAME_ATTR);
 	}
 
-	public Map<String, List<TagRegion>> getNamespacedActionTagRegions(
+	public Map<String, TagGroup> getNamespacedActionTagRegions(
 			final IDocument document) {
 		return getGroupedTagRegions(document, StrutsXmlConstants.PACKAGE_TAG,
-				StrutsXmlConstants.ACTION_TAG, new String[] {
+				new String[] { StrutsXmlConstants.NAMESPACE_ATTR },
+				new String[] { StrutsXmlConstants.ACTION_TAG }, new String[] {
 						StrutsXmlConstants.NAME_ATTR,
 						StrutsXmlConstants.METHOD_ATTR,
 						StrutsXmlConstants.CLASS_ATTR },
@@ -231,5 +235,18 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				partitioner.disconnect();
 			}
 		}
+	}
+
+	public Map<String, TagGroup> getPackageInterceptorsTagRegions(
+			final IDocument document) {
+		return getGroupedTagRegions(document, StrutsXmlConstants.PACKAGE_TAG,
+				new String[] { StrutsXmlConstants.NAME_ATTR,
+						StrutsXmlConstants.EXTENDS_ATTR }, new String[] {
+						StrutsXmlConstants.INTERCEPTOR_STACK,
+						// this is needed because `interceptor-stack` tag starts
+						// exactly as `interceptor`
+						StrutsXmlConstants.INTERCEPTOR + " " },
+				new String[] { StrutsXmlConstants.NAME_ATTR },
+				StrutsXmlConstants.NAME_ATTR);
 	}
 }

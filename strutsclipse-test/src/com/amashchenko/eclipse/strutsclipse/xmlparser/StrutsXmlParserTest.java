@@ -618,23 +618,26 @@ public class StrutsXmlParserTest {
 				+ "\"></action></package>" + "<package namespace=\""
 				+ namespace + "\"><action name=\"in4\"></action></package>";
 		IDocument document = new Document(content);
-		Map<String, List<TagRegion>> actionRegions = strutsXmlParser
+		Map<String, TagGroup> actionRegions = strutsXmlParser
 				.getNamespacedActionTagRegions(document);
 
 		Assert.assertNotNull(actionRegions);
 		Assert.assertTrue(actionRegions.containsKey(namespace));
 		Assert.assertNotNull(actionRegions.get(namespace));
-		Assert.assertEquals(3, actionRegions.get(namespace).size());
+		Assert.assertNotNull(actionRegions.get(namespace).getTagRegions());
+		Assert.assertEquals(3, actionRegions.get(namespace).getTagRegions()
+				.size());
 
 		Assert.assertTrue(actionRegions.containsKey(""));
 		Assert.assertNotNull(actionRegions.get(""));
-		Assert.assertEquals(1, actionRegions.get("").size());
+		Assert.assertNotNull(actionRegions.get("").getTagRegions());
+		Assert.assertEquals(1, actionRegions.get("").getTagRegions().size());
 
-		Assert.assertNotNull(actionRegions.get("").get(0));
+		Assert.assertNotNull(actionRegions.get("").getTagRegions().get(0));
 		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG, actionRegions
-				.get("").get(0).getName());
-		Assert.assertEquals(actionName, actionRegions.get("").get(0)
-				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+				.get("").getTagRegions().get(0).getName());
+		Assert.assertEquals(actionName, actionRegions.get("").getTagRegions()
+				.get(0).getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
 	}
 
 	@Test
@@ -650,30 +653,35 @@ public class StrutsXmlParserTest {
 				+ namespace + "\"><action name=\"" + actionName2
 				+ "\"></action></package>";
 		IDocument document = new Document(content);
-		Map<String, List<TagRegion>> actionRegions = strutsXmlParser
+		Map<String, TagGroup> actionRegions = strutsXmlParser
 				.getNamespacedActionTagRegions(document);
 
 		Assert.assertNotNull(actionRegions);
 		Assert.assertTrue(actionRegions.containsKey(namespace));
 		Assert.assertNotNull(actionRegions.get(namespace));
-		Assert.assertEquals(1, actionRegions.get(namespace).size());
+		Assert.assertNotNull(actionRegions.get(namespace).getTagRegions());
+		Assert.assertEquals(1, actionRegions.get(namespace).getTagRegions()
+				.size());
 
-		Assert.assertNotNull(actionRegions.get(namespace).get(0));
+		Assert.assertNotNull(actionRegions.get(namespace).getTagRegions()
+				.get(0));
 		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG,
-				actionRegions.get(namespace).get(0).getName());
-		Assert.assertEquals(actionName2, actionRegions.get(namespace).get(0)
-				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+				actionRegions.get(namespace).getTagRegions().get(0).getName());
+		Assert.assertEquals(actionName2,
+				actionRegions.get(namespace).getTagRegions().get(0)
+						.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
 
 		//
 		Assert.assertTrue(actionRegions.containsKey(""));
 		Assert.assertNotNull(actionRegions.get(""));
-		Assert.assertEquals(1, actionRegions.get("").size());
+		Assert.assertNotNull(actionRegions.get("").getTagRegions());
+		Assert.assertEquals(1, actionRegions.get("").getTagRegions().size());
 
-		Assert.assertNotNull(actionRegions.get("").get(0));
+		Assert.assertNotNull(actionRegions.get("").getTagRegions().get(0));
 		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG, actionRegions
-				.get("").get(0).getName());
-		Assert.assertEquals(actionName, actionRegions.get("").get(0)
-				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+				.get("").getTagRegions().get(0).getName());
+		Assert.assertEquals(actionName, actionRegions.get("").getTagRegions()
+				.get(0).getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
 	}
 
 	@Test
@@ -689,30 +697,35 @@ public class StrutsXmlParserTest {
 				+ namespace + "\"><action name=\"" + actionName2
 				+ "\"></action></package>";
 		IDocument document = new Document(content);
-		Map<String, List<TagRegion>> actionRegions = strutsXmlParser
+		Map<String, TagGroup> actionRegions = strutsXmlParser
 				.getNamespacedActionTagRegions(document);
 
 		Assert.assertNotNull(actionRegions);
 		Assert.assertTrue(actionRegions.containsKey(namespace));
 		Assert.assertNotNull(actionRegions.get(namespace));
-		Assert.assertEquals(1, actionRegions.get(namespace).size());
+		Assert.assertNotNull(actionRegions.get(namespace).getTagRegions());
+		Assert.assertEquals(1, actionRegions.get(namespace).getTagRegions()
+				.size());
 
-		Assert.assertNotNull(actionRegions.get(namespace).get(0));
+		Assert.assertNotNull(actionRegions.get(namespace).getTagRegions()
+				.get(0));
 		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG,
-				actionRegions.get(namespace).get(0).getName());
-		Assert.assertEquals(actionName2, actionRegions.get(namespace).get(0)
-				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+				actionRegions.get(namespace).getTagRegions().get(0).getName());
+		Assert.assertEquals(actionName2,
+				actionRegions.get(namespace).getTagRegions().get(0)
+						.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
 
 		//
 		Assert.assertTrue(actionRegions.containsKey(""));
 		Assert.assertNotNull(actionRegions.get(""));
-		Assert.assertEquals(1, actionRegions.get("").size());
+		Assert.assertNotNull(actionRegions.get("").getTagRegions());
+		Assert.assertEquals(1, actionRegions.get("").getTagRegions().size());
 
-		Assert.assertNotNull(actionRegions.get("").get(0));
+		Assert.assertNotNull(actionRegions.get("").getTagRegions().get(0));
 		Assert.assertEquals(StrutsXmlConstants.ACTION_TAG, actionRegions
-				.get("").get(0).getName());
-		Assert.assertEquals(actionName, actionRegions.get("").get(0)
-				.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+				.get("").getTagRegions().get(0).getName());
+		Assert.assertEquals(actionName, actionRegions.get("").getTagRegions()
+				.get(0).getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
 	}
 
 	// getPackageNameRegions
@@ -747,5 +760,51 @@ public class StrutsXmlParserTest {
 		Assert.assertNotNull(packageNameRegions.get(0));
 		Assert.assertEquals(StrutsXmlConstants.NAME_ATTR, packageNameRegions
 				.get(0).getName());
+	}
+
+	// getPackageInterceptorsTagRegions
+	@Test
+	public void testGetPackageInterceptorsTagRegions() throws Exception {
+		final String name = "some-name";
+		final String name2 = "some-name2";
+		final String stackName = "interceptorStack";
+		final String content = "<package name=\""
+				+ name
+				+ "\" extends=\"struts-default\"></package>"
+				+ "<package><interceptors><interceptor-stack name=\""
+				+ stackName
+				+ "\"><interceptor-ref name=\"defaultStack\"></interceptor-ref></interceptor-stack></interceptors></package><package name=\""
+				+ name2
+				+ "\"><interceptors><interceptor name=\"interceptor\"/><interceptor-stack name=\"interceptorStack\"><interceptor-ref name=\"defaultStack\"></interceptor-ref></interceptor-stack></interceptors></package>";
+		IDocument document = new Document(content);
+		Map<String, TagGroup> interceptorRegions = strutsXmlParser
+				.getPackageInterceptorsTagRegions(document);
+
+		Assert.assertNotNull(interceptorRegions);
+
+		Assert.assertTrue(interceptorRegions.containsKey(name));
+		Assert.assertNotNull(interceptorRegions.get(name));
+		Assert.assertNotNull(interceptorRegions.get(name).getTagRegions());
+		Assert.assertEquals(0, interceptorRegions.get(name).getTagRegions()
+				.size());
+
+		Assert.assertTrue(interceptorRegions.containsKey(""));
+		Assert.assertNotNull(interceptorRegions.get(""));
+		Assert.assertNotNull(interceptorRegions.get("").getTagRegions());
+		Assert.assertEquals(1, interceptorRegions.get("").getTagRegions()
+				.size());
+
+		Assert.assertEquals(StrutsXmlConstants.INTERCEPTOR_STACK,
+				interceptorRegions.get("").getTagRegions().get(0).getName());
+		Assert.assertEquals(
+				stackName,
+				interceptorRegions.get("").getTagRegions().get(0)
+						.getAttrValue(StrutsXmlConstants.NAME_ATTR, null));
+
+		Assert.assertTrue(interceptorRegions.containsKey(name2));
+		Assert.assertNotNull(interceptorRegions.get(name2));
+		Assert.assertNotNull(interceptorRegions.get(name2).getTagRegions());
+		Assert.assertEquals(2, interceptorRegions.get(name2).getTagRegions()
+				.size());
 	}
 }

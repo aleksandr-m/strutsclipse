@@ -19,6 +19,9 @@ public class StrutsXmlConstants {
 	public static final String CONSTANT_TAG = "constant";
 	public static final String BEAN_TAG = "bean";
 	public static final String PACKAGE_TAG = "package";
+	public static final String INTERCEPTOR = "interceptor";
+	public static final String INTERCEPTOR_STACK = "interceptor-stack";
+	public static final String INTERCEPTOR_REF = "interceptor-ref";
 	public static final String ACTION_TAG = "action";
 	public static final String RESULT_TAG = "result";
 	public static final String PARAM_TAG = "param";
@@ -42,6 +45,8 @@ public class StrutsXmlConstants {
 
 	public static final String STRUTS_DEFAULT_FILE_NAME = "struts-default.xml";
 	public static final String STRUTS_PLUGIN_FILE_NAME = "struts-plugin.xml";
+
+	public static final String MULTI_VALUE_SEPARATOR = ",";
 
 	public static final String[][] DEFAULT_PACKAGE_NAMES = {
 			{ "struts-default", null }, { "json-default", null },

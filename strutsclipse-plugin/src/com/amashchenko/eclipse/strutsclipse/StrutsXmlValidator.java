@@ -35,6 +35,7 @@ import org.eclipse.wst.validation.ValidationState;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlValidator extends AbstractXmlValidator {
@@ -85,14 +86,14 @@ public class StrutsXmlValidator extends AbstractXmlValidator {
 					DUP_PACKAGE_MESSAGE_TEXT, IMarker.SEVERITY_WARNING);
 
 			// validate actions
-			Map<String, List<TagRegion>> actionRegions = strutsXmlParser
+			Map<String, TagGroup> actionRegions = strutsXmlParser
 					.getNamespacedActionTagRegions(document);
 
 			Map<String, ElementRegion> dupCheckMap = new HashMap<String, ElementRegion>();
 			List<String> reportedActions = new ArrayList<String>();
 
-			for (Entry<String, List<TagRegion>> entr : actionRegions.entrySet()) {
-				for (TagRegion tagRegion : entr.getValue()) {
+			for (Entry<String, TagGroup> entr : actionRegions.entrySet()) {
+				for (TagRegion tagRegion : entr.getValue().getTagRegions()) {
 					if (tagRegion.getAttrs() != null) {
 						// check duplicate action names
 						ElementRegion nameAttr = tagRegion.getAttrs().get(

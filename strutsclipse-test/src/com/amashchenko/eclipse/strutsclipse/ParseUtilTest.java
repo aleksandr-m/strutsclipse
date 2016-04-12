@@ -15,13 +15,15 @@
  */
 package com.amashchenko.eclipse.strutsclipse;
 
+import java.util.Set;
+
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 
 public class ParseUtilTest {
-	private static final String VALUE_SEPARATOR = ",";
 	private static final String VALUE = "one  ,   two, three   ";
 
 	@Test
@@ -29,7 +31,7 @@ public class ParseUtilTest {
 		final String prefix = "on";
 
 		ElementRegion result = ParseUtil.parseElementValue(VALUE, prefix,
-				VALUE_SEPARATOR, 0);
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR, 0);
 
 		Assert.assertEquals(prefix, result.getName());
 		Assert.assertEquals("one", result.getValue());
@@ -42,7 +44,8 @@ public class ParseUtilTest {
 		final String prefix = "on";
 
 		ElementRegion result = ParseUtil.parseElementValue(
-				"   one  ,   two, three   ", prefix, VALUE_SEPARATOR, 0);
+				"   one  ,   two, three   ", prefix,
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR, 0);
 
 		Assert.assertEquals(prefix, result.getName());
 		Assert.assertEquals("one", result.getValue());
@@ -57,7 +60,7 @@ public class ParseUtilTest {
 				+ prefixStr.length());
 
 		ElementRegion result = ParseUtil.parseElementValue(VALUE, prefix,
-				VALUE_SEPARATOR, 0);
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR, 0);
 
 		Assert.assertEquals(prefixStr, result.getName());
 		Assert.assertEquals("two", result.getValue());
@@ -73,7 +76,7 @@ public class ParseUtilTest {
 				+ prefixStr.length());
 
 		ElementRegion result = ParseUtil.parseElementValue(VALUE, prefix,
-				VALUE_SEPARATOR, 0);
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR, 0);
 
 		Assert.assertEquals(prefixStr, result.getName());
 		Assert.assertEquals("three", result.getValue());
@@ -89,7 +92,7 @@ public class ParseUtilTest {
 				+ prefixStr.length());
 
 		ElementRegion result = ParseUtil.parseElementValue(VALUE, prefix,
-				VALUE_SEPARATOR, 0);
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR, 0);
 
 		Assert.assertEquals("three", result.getName());
 		Assert.assertEquals("three", result.getValue());
@@ -106,7 +109,7 @@ public class ParseUtilTest {
 				+ prefixStr.length());
 
 		ElementRegion result = ParseUtil.parseElementValue(value, prefix,
-				VALUE_SEPARATOR, 0);
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR, 0);
 
 		Assert.assertEquals(prefixStr, result.getName());
 		Assert.assertEquals(value, result.getValue());
@@ -122,7 +125,7 @@ public class ParseUtilTest {
 				+ prefixStr.length());
 
 		ElementRegion result = ParseUtil.parseElementValue(value, prefix,
-				VALUE_SEPARATOR, 0);
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR, 0);
 
 		Assert.assertEquals(prefixStr, result.getName());
 		Assert.assertEquals(value.trim(), result.getValue());
@@ -171,5 +174,51 @@ public class ParseUtilTest {
 		Assert.assertEquals(value, result.getValue());
 		Assert.assertEquals(0, result.getValueRegion().getOffset());
 		Assert.assertEquals(value.length(), result.getValueRegion().getLength());
+	}
+
+	// delimitedStringToSet
+	@Test
+	public void testDelimitedStringToSet() throws Exception {
+		final String f = "first";
+		final String s = "second";
+		final String t = "third";
+
+		final String str = f + "  ,   " + s + "," + t;
+		Set<String> set = ParseUtil.delimitedStringToSet(str,
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR);
+
+		Assert.assertNotNull(set);
+		Assert.assertFalse(set.isEmpty());
+		Assert.assertEquals(3, set.size());
+		Assert.assertTrue(set.contains(f));
+		Assert.assertTrue(set.contains(s));
+		Assert.assertTrue(set.contains(t));
+	}
+
+	@Test
+	public void testDelimitedStringToSetSingle() throws Exception {
+		final String str = "single";
+		Set<String> set = ParseUtil.delimitedStringToSet(str,
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR);
+
+		Assert.assertNotNull(set);
+		Assert.assertFalse(set.isEmpty());
+		Assert.assertEquals(1, set.size());
+		Assert.assertTrue(set.contains(str));
+	}
+
+	@Test(expected = AssertionFailedException.class)
+	public void testDelimitedStringToSetNoDelimiter() throws Exception {
+		final String str = "single";
+		ParseUtil.delimitedStringToSet(str, null);
+	}
+
+	@Test
+	public void testDelimitedStringToSetNull() throws Exception {
+		Set<String> set = ParseUtil.delimitedStringToSet(null,
+				StrutsXmlConstants.MULTI_VALUE_SEPARATOR);
+
+		Assert.assertNotNull(set);
+		Assert.assertTrue(set.isEmpty());
 	}
 }

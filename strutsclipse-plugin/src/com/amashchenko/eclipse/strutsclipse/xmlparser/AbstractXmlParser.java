@@ -16,6 +16,7 @@
 package com.amashchenko.eclipse.strutsclipse.xmlparser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -393,22 +394,24 @@ public abstract class AbstractXmlParser {
 	 *            Document to parse.
 	 * @param parentTagName
 	 *            Parent tag name to get tags from.
-	 * @param tagName
-	 *            Tag name to get.
+	 * @param parentTagAttrNames
+	 *            Attributes names of parent tag to get.
+	 * @param tagNames
+	 *            Tags names to get.
 	 * @param attrNames
 	 *            Attributes names of tag to get.
-	 * @param parentTagAttrName
+	 * @param groupByParentTagAttrName
 	 *            Group by this parent tag attribute.
 	 * @return Map of tags regions where key is a parent tag attribute.
 	 */
-	protected Map<String, List<TagRegion>> getGroupedTagRegions(
+	protected Map<String, TagGroup> getGroupedTagRegions(
 			final IDocument document, final String parentTagName,
-			final String tagName, final String[] attrNames,
-			final String parentTagAttrName) {
+			final String[] parentTagAttrNames, final String[] tagNames,
+			final String[] attrNames, final String groupByParentTagAttrName) {
 		IDocumentPartitioner tagPartitioner = null;
 		IDocumentPartitioner attrPartitioner = null;
 		try {
-			Map<String, List<TagRegion>> results = new HashMap<String, List<TagRegion>>();
+			Map<String, TagGroup> results = new HashMap<String, TagGroup>();
 
 			final String closeTagName = "/" + parentTagName;
 
@@ -420,14 +423,16 @@ public abstract class AbstractXmlParser {
 					.computePartitioning(0, document.getLength());
 
 			// create tag partitioner
-			tagPartitioner = createTagPartitioner(document, new String[] {
-					tagName, COMMENT_TOKEN });
+			String[] tags = Arrays.copyOf(tagNames, tagNames.length + 1);
+			tags[tagNames.length] = COMMENT_TOKEN;
+			tagPartitioner = createTagPartitioner(document, tags);
 
 			// create attribute partitioner
 			attrPartitioner = createAttrPartitioner(document, attrNames);
 
 			String key = null;
 			int parentBodyOffset = 0;
+			List<ElementRegion> parentTagAttrRegions = null;
 			for (ITypedRegion parentTagRegion : parentTagRegions) {
 				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(parentTagRegion
 						.getType())
@@ -451,26 +456,30 @@ public abstract class AbstractXmlParser {
 												tagRegion.getOffset(),
 												tagRegion.getLength());
 
-								tagRegionsList.add(new TagRegion(tagName, null,
-										null, fetchAttrsRegions(document,
-												regions)));
+								tagRegionsList.add(new TagRegion(tagRegion
+										.getType(), null, null,
+										fetchAttrsRegions(document, regions)));
 							}
 						}
 
 						if (results.containsKey(key)) {
-							results.get(key).addAll(tagRegionsList);
+							results.get(key).getTagRegions()
+									.addAll(tagRegionsList);
 						} else {
-							results.put(key, tagRegionsList);
+							results.put(key, new TagGroup(new TagRegion(
+									parentTagName, null, null,
+									parentTagAttrRegions), tagRegionsList));
 						}
 					} else {
-						List<ElementRegion> parentTagAttrRegions = parseTag(
-								document, parentTagRegion,
-								new String[] { parentTagAttrName });
+						// parse parent start tag
+						parentTagAttrRegions = parseTag(document,
+								parentTagRegion, parentTagAttrNames);
 
-						if (parentTagAttrRegions.isEmpty()) {
-							key = "";
-						} else {
-							key = parentTagAttrRegions.get(0).getValue();
+						key = "";
+						for (ElementRegion ptr : parentTagAttrRegions) {
+							if (ptr.getName().equals(groupByParentTagAttrName)) {
+								key = ptr.getValue();
+							}
 						}
 
 						parentBodyOffset = parentTagRegion.getOffset()
