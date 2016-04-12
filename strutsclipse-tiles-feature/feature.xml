@@ -3,10 +3,11 @@
       id="com.amashchenko.eclipse.strutsclipse.tiles.feature"
       label="StrutsClipse Tiles"
       version="1.1.0.qualifier"
-      provider-name="Aleksandr Mashchenko">
+      provider-name="Aleksandr Mashchenko"
+      plugin="com.amashchenko.eclipse.strutsclipse.tiles">
 
    <description url="https://aleksandr-m.github.io/strutsclipse/">
-      StrutsClipse Tiles provides Eclipse IDE integration for developing Apache Tiles (https://tiles.apache.org/) based applications.
+      StrutsClipse Tiles provides Eclipse IDE integration for developing Apache Tiles (https://tiles.apache.org/) definitions.
 StrutsClipse site - https://aleksandr-m.github.io/strutsclipse/
    </description>
 
