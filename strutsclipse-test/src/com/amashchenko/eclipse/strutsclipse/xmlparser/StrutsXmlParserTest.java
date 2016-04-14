@@ -794,7 +794,7 @@ public class StrutsXmlParserTest {
 		Assert.assertEquals(1, interceptorRegions.get("").getTagRegions()
 				.size());
 
-		Assert.assertEquals(StrutsXmlConstants.INTERCEPTOR_STACK,
+		Assert.assertEquals(StrutsXmlConstants.INTERCEPTOR_STACK_TAG,
 				interceptorRegions.get("").getTagRegions().get(0).getName());
 		Assert.assertEquals(
 				stackName,

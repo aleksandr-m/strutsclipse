@@ -19,9 +19,9 @@ public class StrutsXmlConstants {
 	public static final String CONSTANT_TAG = "constant";
 	public static final String BEAN_TAG = "bean";
 	public static final String PACKAGE_TAG = "package";
-	public static final String INTERCEPTOR = "interceptor";
-	public static final String INTERCEPTOR_STACK = "interceptor-stack";
-	public static final String INTERCEPTOR_REF = "interceptor-ref";
+	public static final String INTERCEPTOR_TAG = "interceptor";
+	public static final String INTERCEPTOR_STACK_TAG = "interceptor-stack";
+	public static final String INTERCEPTOR_REF_TAG = "interceptor-ref";
 	public static final String ACTION_TAG = "action";
 	public static final String RESULT_TAG = "result";
 	public static final String PARAM_TAG = "param";

@@ -31,9 +31,9 @@ import com.amashchenko.eclipse.strutsclipse.StrutsXmlConstants;
 public class StrutsXmlParser extends AbstractXmlParser {
 	private static final String[] TAGS = { StrutsXmlConstants.BEAN_TAG,
 			StrutsXmlConstants.CONSTANT_TAG, StrutsXmlConstants.PACKAGE_TAG,
-			StrutsXmlConstants.INTERCEPTOR_REF, StrutsXmlConstants.ACTION_TAG,
-			StrutsXmlConstants.RESULT_TAG, StrutsXmlConstants.PARAM_TAG,
-			CLOSE_TAG_TOKEN };
+			StrutsXmlConstants.INTERCEPTOR_REF_TAG,
+			StrutsXmlConstants.ACTION_TAG, StrutsXmlConstants.RESULT_TAG,
+			StrutsXmlConstants.PARAM_TAG, CLOSE_TAG_TOKEN };
 
 	private static final String[] ATTRS = { StrutsXmlConstants.EXTENDS_ATTR,
 			StrutsXmlConstants.NAMESPACE_ATTR, StrutsXmlConstants.NAME_ATTR,
@@ -242,10 +242,10 @@ public class StrutsXmlParser extends AbstractXmlParser {
 		return getGroupedTagRegions(document, StrutsXmlConstants.PACKAGE_TAG,
 				new String[] { StrutsXmlConstants.NAME_ATTR,
 						StrutsXmlConstants.EXTENDS_ATTR }, new String[] {
-						StrutsXmlConstants.INTERCEPTOR_STACK,
+						StrutsXmlConstants.INTERCEPTOR_STACK_TAG,
 						// this is needed because `interceptor-stack` tag starts
 						// exactly as `interceptor`
-						StrutsXmlConstants.INTERCEPTOR + " " },
+						StrutsXmlConstants.INTERCEPTOR_TAG + " " },
 				new String[] { StrutsXmlConstants.NAME_ATTR },
 				StrutsXmlConstants.NAME_ATTR);
 	}
