@@ -100,6 +100,13 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 					appendNameValue(text,
 							attrs.getNamedItem(StrutsXmlConstants.EXTENDS_ATTR));
 					break;
+				case StrutsXmlConstants.INTERCEPTOR_TAG:
+					appendNameValue(text,
+							attrs.getNamedItem(StrutsXmlConstants.CLASS_ATTR));
+					break;
+				case StrutsXmlConstants.INTERCEPTOR_REF_TAG:
+				case StrutsXmlConstants.INTERCEPTOR_STACK_TAG:
+					break;
 				case StrutsXmlConstants.ACTION_TAG:
 					text.delete(0, text.indexOf(" ") + 1);
 					appendNameValue(text,
