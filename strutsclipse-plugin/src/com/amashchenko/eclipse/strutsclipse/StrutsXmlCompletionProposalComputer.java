@@ -99,6 +99,7 @@ public class StrutsXmlCompletionProposalComputer extends
 				proposalsData = StrutsXmlConstants.DEFAULT_CONSTANTS;
 				break;
 			case INTERCEPTOR_REF_NAME:
+			case DEFAULT_INTERCEPTOR_REF_NAME:
 				proposalsData = computeInterceptorRefProposals(
 						context.getDocument(), context.getInvocationOffset());
 				sortProposals = true;

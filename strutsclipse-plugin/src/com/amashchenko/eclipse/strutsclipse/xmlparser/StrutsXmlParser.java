@@ -32,6 +32,7 @@ public class StrutsXmlParser extends AbstractXmlParser {
 	private static final String[] TAGS = { StrutsXmlConstants.BEAN_TAG,
 			StrutsXmlConstants.CONSTANT_TAG, StrutsXmlConstants.PACKAGE_TAG,
 			StrutsXmlConstants.INTERCEPTOR_REF_TAG,
+			StrutsXmlConstants.DEFAULT_INTERCEPTOR_REF_TAG,
 			StrutsXmlConstants.ACTION_TAG, StrutsXmlConstants.RESULT_TAG,
 			StrutsXmlConstants.PARAM_TAG, CLOSE_TAG_TOKEN };
 

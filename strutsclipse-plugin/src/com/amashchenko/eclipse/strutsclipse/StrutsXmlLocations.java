@@ -26,6 +26,8 @@ public interface StrutsXmlLocations {
 			+ StrutsXmlConstants.EXTENDS_ATTR;
 	String INTERCEPTOR_REF_NAME = StrutsXmlConstants.INTERCEPTOR_REF_TAG
 			+ StrutsXmlConstants.NAME_ATTR;
+	String DEFAULT_INTERCEPTOR_REF_NAME = StrutsXmlConstants.DEFAULT_INTERCEPTOR_REF_TAG
+			+ StrutsXmlConstants.NAME_ATTR;
 	String ACTION_NAME = StrutsXmlConstants.ACTION_TAG
 			+ StrutsXmlConstants.NAME_ATTR;
 	String ACTION_CLASS = StrutsXmlConstants.ACTION_TAG
