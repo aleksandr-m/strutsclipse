@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+* Content assist for `interceptor-ref` tag `name` attribute
+* Content assist for `default-interceptor-ref` tag `name` attribute
+* Branding for Tiles feature
+* Added new set of icons
+* Added quick outline icons for Tiles feature
+
 ## 1.0.9
 
 * Branding (About Eclipse dialog)
