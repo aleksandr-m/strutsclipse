@@ -22,7 +22,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 public class QuickLabelProvider extends ColumnLabelProvider {
-
 	private static final String PLUGIN_ID = "com.amashchenko.eclipse.strutsclipse.plugin";
 
 	private static final Image CONSTANT_TAG_IMG = AbstractUIPlugin
@@ -31,6 +30,8 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 			.imageDescriptorFromPlugin(PLUGIN_ID, "icons/b.gif").createImage();
 	private static final Image PACKAGE_TAG_IMG = AbstractUIPlugin
 			.imageDescriptorFromPlugin(PLUGIN_ID, "icons/p.gif").createImage();
+	private static final Image INTERCEPTOR_TAG_IMG = AbstractUIPlugin
+			.imageDescriptorFromPlugin(PLUGIN_ID, "icons/i.gif").createImage();
 	private static final Image ACTION_TAG_IMG = AbstractUIPlugin
 			.imageDescriptorFromPlugin(PLUGIN_ID, "icons/a.gif").createImage();
 	private static final Image RESULT_TAG_IMG = AbstractUIPlugin
@@ -54,6 +55,9 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 				break;
 			case StrutsXmlConstants.PACKAGE_TAG:
 				image = PACKAGE_TAG_IMG;
+				break;
+			case StrutsXmlConstants.INTERCEPTOR_TAG:
+				image = INTERCEPTOR_TAG_IMG;
 				break;
 			case StrutsXmlConstants.ACTION_TAG:
 				image = ACTION_TAG_IMG;

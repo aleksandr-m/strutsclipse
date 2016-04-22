@@ -17,14 +17,40 @@ package com.amashchenko.eclipse.strutsclipse.tilesxml;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import com.amashchenko.eclipse.strutsclipse.TilesXmlConstants;
 
 public class TilesQuickLabelProvider extends ColumnLabelProvider {
+	private static final String PLUGIN_ID = "com.amashchenko.eclipse.strutsclipse.tiles";
+
+	private static final Image DEFINITION_TAG_IMG = AbstractUIPlugin
+			.imageDescriptorFromPlugin(PLUGIN_ID, "icons/d.gif").createImage();
+	private static final Image PUT_ATTRIBUTE_TAG_IMG = AbstractUIPlugin
+			.imageDescriptorFromPlugin(PLUGIN_ID, "icons/p.gif").createImage();
+
 	@Override
 	public Image getImage(Object element) {
+		if (element instanceof Node) {
+			Node node = (Node) element;
+
+			Image image = null;
+
+			switch (node.getNodeName().toLowerCase()) {
+			case TilesXmlConstants.DEFINITION_TAG:
+				image = DEFINITION_TAG_IMG;
+				break;
+			case TilesXmlConstants.PUT_ATTRIBUTE_TAG:
+				image = PUT_ATTRIBUTE_TAG_IMG;
+				break;
+			default:
+				break;
+			}
+
+			return image;
+		}
 		return super.getImage(element);
 	}
 
