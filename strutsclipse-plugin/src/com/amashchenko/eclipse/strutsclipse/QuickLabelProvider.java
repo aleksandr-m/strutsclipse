@@ -45,7 +45,7 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 
 			Image image = null;
 
-			switch (node.getNodeName().toLowerCase()) {
+			switch (node.getNodeName()) {
 			case StrutsXmlConstants.CONSTANT_TAG:
 				image = CONSTANT_TAG_IMG;
 				break;
@@ -87,7 +87,7 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 				appendValue(text,
 						attrs.getNamedItem(StrutsXmlConstants.NAME_ATTR));
 
-				switch (node.getNodeName().toLowerCase()) {
+				switch (node.getNodeName()) {
 				case StrutsXmlConstants.CONSTANT_TAG:
 					text.append('=');
 					appendValue(text,

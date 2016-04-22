@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -263,7 +264,7 @@ public class StrutsXmlCompletionProposalComputer extends
 										.getFileExtension())
 								&& resource
 										.getName()
-										.toLowerCase()
+										.toLowerCase(Locale.ROOT)
 										.contains(
 												StrutsXmlConstants.TILES_RESULT)) {
 							provider.connect(resource);

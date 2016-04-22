@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -68,10 +69,12 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 				}
 			}
 
-			final String prefixLowCase = parsedValue.getName().toLowerCase();
+			final String prefixLowCase = parsedValue.getName().toLowerCase(
+					Locale.ROOT);
 
 			for (String[] proposal : proposalsData) {
-				if (proposal[0].toLowerCase().startsWith(prefixLowCase)
+				if (proposal[0].toLowerCase(Locale.ROOT).startsWith(
+						prefixLowCase)
 						&& !excludes.contains(proposal[0])) {
 					list.add(new CompletionProposal(proposal[0], parsedValue
 							.getValueRegion().getOffset(), parsedValue
@@ -141,7 +144,7 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 										&& resource.getType() == IResource.FILE
 										&& extensions.contains(resource
 												.getFileExtension()
-												.toLowerCase())) {
+												.toLowerCase(Locale.ROOT))) {
 									IPath path = resource
 											.getProjectRelativePath()
 											.makeRelativeTo(
