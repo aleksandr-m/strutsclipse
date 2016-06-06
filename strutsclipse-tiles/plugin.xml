@@ -27,7 +27,7 @@
             priority="high">
             <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
                 <parameter name="element" value="tiles-definitions/http://tiles.apache.org/dtds/tiles-config_2_0.dtd"/>
-                <parameter name="element" value="tiles-definitions/http://tiles.apache.org/dtds/tiles-config_3_1.dtd"/>
+                <parameter name="element" value="tiles-definitions/http://tiles.apache.org/dtds/tiles-config_2_1.dtd"/>
                 <parameter name="element" value="tiles-definitions/http://tiles.apache.org/dtds/tiles-config_3_0.dtd"/>
             </describer>
         </content-type>
