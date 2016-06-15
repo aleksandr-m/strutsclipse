@@ -250,4 +250,12 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				new String[] { StrutsXmlConstants.NAME_ATTR },
 				StrutsXmlConstants.NAME_ATTR);
 	}
+
+	public boolean is2_5(final IDocument document) {
+		ElementRegion doctypeRegion = getDoctype(document);
+		return doctypeRegion != null
+				&& doctypeRegion.getValue() != null
+				&& doctypeRegion.getValue().contains(
+						StrutsXmlConstants.STRUTS_DTD_2_5);
+	}
 }

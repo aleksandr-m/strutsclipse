@@ -43,6 +43,9 @@ public abstract class AbstractXmlParser {
 	private static final String DOUBLE_QUOTES_TOKEN = "double_quotes_token";
 	private static final String SINGLE_QUOTES_TOKEN = "single_quotes_token";
 
+	private static final String DOCTYPE = "!DOCTYPE";
+	private static final String DOCTYPE_LOWER_CASE = "!doctype";
+
 	protected TagRegion getTagRegion(final IDocument document,
 			final int offset, final String[] tags, final String[] attrs) {
 		IDocumentPartitioner partitioner = null;
@@ -495,6 +498,41 @@ public abstract class AbstractXmlParser {
 			}
 			if (attrPartitioner != null) {
 				attrPartitioner.disconnect();
+			}
+		}
+	}
+
+	protected ElementRegion getDoctype(final IDocument document) {
+		IDocumentPartitioner partitioner = null;
+		try {
+			ElementRegion elementRegion = null;
+
+			final String[] tags = new String[] { DOCTYPE, DOCTYPE_LOWER_CASE,
+					COMMENT_TOKEN };
+
+			// create tag partitioner
+			partitioner = createTagPartitioner(document, tags);
+			// get tags regions
+			ITypedRegion[] tagRegions = partitioner.computePartitioning(0,
+					document.getLength());
+
+			for (ITypedRegion tagRegion : tagRegions) {
+				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
+						&& !COMMENT_TOKEN.equals(tagRegion.getType())) {
+					try {
+						elementRegion = new ElementRegion(null, document.get(
+								tagRegion.getOffset(), tagRegion.getLength()),
+								tagRegion.getOffset());
+						break;
+					} catch (BadLocationException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			return elementRegion;
+		} finally {
+			if (partitioner != null) {
+				partitioner.disconnect();
 			}
 		}
 	}
