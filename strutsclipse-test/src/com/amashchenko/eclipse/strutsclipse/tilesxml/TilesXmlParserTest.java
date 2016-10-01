@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse.xmlparser;
+package com.amashchenko.eclipse.strutsclipse.tilesxml;
 
 import java.util.Set;
 

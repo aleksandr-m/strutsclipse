@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse.xmlparser;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.HashSet;
 import java.util.List;
@@ -26,8 +26,9 @@ import org.eclipse.jface.text.IRegion;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
-import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlParserTest {
 	private StrutsXmlParser strutsXmlParser = new StrutsXmlParser();
