@@ -37,8 +37,8 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordPatternRule;
 
 public abstract class AbstractXmlParser {
-	protected static final String CLOSE_TAG_TOKEN = "close_tag_token";
-	protected static final String COMMENT_TOKEN = "comment_token";
+	public static final String CLOSE_TAG_TOKEN = "close_tag_token";
+	public static final String COMMENT_TOKEN = "comment_token";
 
 	private static final String DOUBLE_QUOTES_TOKEN = "double_quotes_token";
 	private static final String SINGLE_QUOTES_TOKEN = "single_quotes_token";

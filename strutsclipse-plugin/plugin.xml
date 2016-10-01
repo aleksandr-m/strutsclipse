@@ -48,6 +48,20 @@
             id="com.amashchenko.eclipse.strutsclipse.strutsxmlproposalComputer">
             <contentType id="com.amashchenko.eclipse.strutsclipse.strutsxml"/>
         </proposalComputer>
+
+
+        <proposalCategory
+            id="com.amashchenko.eclipse.strutsclipse.strutstaglibcompletionProposal"
+            name="Struts Taglib Proposals">
+        </proposalCategory>
+
+        <proposalComputer
+            activate="true"
+            categoryId="com.amashchenko.eclipse.strutsclipse.strutstaglibcompletionProposal"
+            class="com.amashchenko.eclipse.strutsclipse.taglib.StrutsTaglibCompletionProposalComputer"
+            id="com.amashchenko.eclipse.strutsclipse.strutstaglibproposalComputer">
+            <contentType id="org.eclipse.jst.jsp.core.jspsource"/>
+        </proposalComputer>
     </extension>
 
     <extension point="org.eclipse.wst.sse.ui.editorConfiguration">
@@ -64,6 +78,14 @@
             id="com.amashchenko.eclipse.strutsclipse.strutsxmlhyperlinkDetector"
             name="Struts XML"
             targetId="org.eclipse.core.runtime.xml">
+        </hyperlinkDetector>
+
+        <hyperlinkDetector
+            activate="true"
+            class="com.amashchenko.eclipse.strutsclipse.taglib.StrutsTaglibHyperlinkDetector"
+            id="com.amashchenko.eclipse.strutsclipse.strutstaglibhyperlinkDetector"
+            name="Struts Taglib"
+            targetId="org.eclipse.jst.jsp.core.jspsource">
         </hyperlinkDetector>
     </extension>
 

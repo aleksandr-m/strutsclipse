@@ -33,6 +33,8 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
+import org.eclipse.ui.editors.text.TextFileDocumentProvider;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
@@ -163,5 +165,40 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 		}
 
 		return paths;
+	}
+
+	protected List<IDocument> findDocuments(final IDocument currentDocument,
+			final String fileName, final String fileExtension) {
+		final List<IDocument> documents = new ArrayList<IDocument>();
+
+		try {
+			final IDocumentProvider provider = new TextFileDocumentProvider();
+			IProject project = ProjectUtil.getCurrentProject(currentDocument);
+			if (project != null && project.exists()) {
+				project.accept(new IResourceVisitor() {
+					@Override
+					public boolean visit(IResource resource)
+							throws CoreException {
+						if (resource.isAccessible()
+								&& resource.getType() == IResource.FILE
+								&& resource.getFileExtension()
+										.equalsIgnoreCase(fileExtension)
+								&& resource.getName().toLowerCase(Locale.ROOT)
+										.contains(fileName)) {
+							provider.connect(resource);
+							IDocument document = provider.getDocument(resource);
+							provider.disconnect(resource);
+
+							documents.add(document);
+						}
+						return true;
+					}
+				});
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return documents;
 	}
 }

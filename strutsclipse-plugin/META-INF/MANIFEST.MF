@@ -16,7 +16,9 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.jdt.core,
  org.eclipse.jdt.ui,
  org.eclipse.ui.ide,
- org.eclipse.wst.validation
+ org.eclipse.wst.validation,
+ org.eclipse.jst.jsp.core,
+ org.eclipse.jst.jsp.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy
 Export-Package: com.amashchenko.eclipse.strutsclipse;x-friends:="com.amashchenko.eclipse.strutsclipse.tiles",

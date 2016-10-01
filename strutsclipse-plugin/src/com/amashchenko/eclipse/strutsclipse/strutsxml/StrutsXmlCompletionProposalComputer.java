@@ -20,22 +20,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
-import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
@@ -258,36 +251,11 @@ public class StrutsXmlCompletionProposalComputer extends
 
 	private Set<String> findTilesDefinitionNames(final IDocument currentDocument) {
 		final Set<String> names = new HashSet<String>();
-		try {
-			final IDocumentProvider provider = new TextFileDocumentProvider();
-			IProject project = ProjectUtil.getCurrentProject(currentDocument);
-			if (project != null && project.exists()) {
-				project.accept(new IResourceVisitor() {
-					@Override
-					public boolean visit(IResource resource)
-							throws CoreException {
-						if (resource.isAccessible()
-								&& resource.getType() == IResource.FILE
-								&& "xml".equalsIgnoreCase(resource
-										.getFileExtension())
-								&& resource
-										.getName()
-										.toLowerCase(Locale.ROOT)
-										.contains(
-												StrutsXmlConstants.TILES_RESULT)) {
-							provider.connect(resource);
-							IDocument document = provider.getDocument(resource);
-							provider.disconnect(resource);
 
-							names.addAll(tilesXmlParser
-									.getDefinitionNames(document));
-						}
-						return true;
-					}
-				});
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
+		List<IDocument> documents = findDocuments(currentDocument,
+				StrutsXmlConstants.TILES_RESULT, "xml");
+		for (IDocument document : documents) {
+			names.addAll(tilesXmlParser.getDefinitionNames(document));
 		}
 
 		return names;

@@ -16,7 +16,6 @@
 package com.amashchenko.eclipse.strutsclipse.tilesxml;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -26,19 +25,12 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.part.MultiPageEditorPart;
-import org.eclipse.ui.texteditor.ITextEditor;
 
+import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
-public class TilesXmlHyperlinkDetector extends AbstractHyperlinkDetector
+public class TilesXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		implements TilesXmlLocations {
 	private final TilesXmlParser tilesXmlParser;
 
@@ -73,22 +65,7 @@ public class TilesXmlHyperlinkDetector extends AbstractHyperlinkDetector
 			}
 		}
 
-		IHyperlink[] links = null;
-		if (linksList != null && !linksList.isEmpty()) {
-			// remove null-s
-			Iterator<IHyperlink> itr = linksList.iterator();
-			while (itr.hasNext()) {
-				if (itr.next() == null) {
-					itr.remove();
-				}
-			}
-
-			if (!linksList.isEmpty()) {
-				links = linksList.toArray(new IHyperlink[linksList.size()]);
-			}
-		}
-
-		return links;
+		return linksListToArray(linksList);
 	}
 
 	private List<IHyperlink> createDefinitionLocationLinks(
@@ -111,62 +88,5 @@ public class TilesXmlHyperlinkDetector extends AbstractHyperlinkDetector
 		}
 
 		return links;
-	}
-
-	private static class FileHyperlink implements IHyperlink {
-		private final IFile fFile;
-		private final IRegion fRegion;
-		private final IRegion fHighlightRange;
-
-		private FileHyperlink(IRegion region, IFile file, IRegion range) {
-			fRegion = region;
-			fFile = file;
-			fHighlightRange = range;
-		}
-
-		@Override
-		public IRegion getHyperlinkRegion() {
-			return fRegion;
-		}
-
-		@Override
-		public String getHyperlinkText() {
-			return fFile == null ? null : fFile.getProjectRelativePath()
-					.toString();
-		}
-
-		@Override
-		public String getTypeLabel() {
-			return null;
-		}
-
-		@Override
-		public void open() {
-			try {
-				IWorkbenchPage page = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage();
-				IEditorPart editor = IDE.openEditor(page, fFile, true);
-
-				ITextEditor textEditor = null;
-
-				if (editor instanceof MultiPageEditorPart) {
-					MultiPageEditorPart part = (MultiPageEditorPart) editor;
-
-					Object editorPage = part.getSelectedPage();
-					if (editorPage != null && editorPage instanceof ITextEditor) {
-						textEditor = (ITextEditor) editorPage;
-					}
-				} else if (editor instanceof ITextEditor) {
-					textEditor = (ITextEditor) editor;
-				}
-
-				// highlight range in editor if possible
-				if (fHighlightRange != null && textEditor != null) {
-					textEditor.selectAndReveal(fHighlightRange.getOffset(),
-							fHighlightRange.getLength());
-				}
-			} catch (PartInitException e) {
-			}
-		}
 	}
 }

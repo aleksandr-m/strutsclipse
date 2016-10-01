@@ -17,7 +17,6 @@ package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -42,7 +41,6 @@ import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.IEditorDescriptor;
 import org.eclipse.ui.IEditorPart;
@@ -53,13 +51,12 @@ import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.IDocumentProvider;
-import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
+import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
 import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
@@ -67,7 +64,7 @@ import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
-public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
+public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		implements StrutsXmlLocations {
 	private final StrutsXmlParser strutsXmlParser;
 	private final TilesXmlParser tilesXmlParser;
@@ -160,22 +157,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 			}
 		}
 
-		IHyperlink[] links = null;
-		if (linksList != null && !linksList.isEmpty()) {
-			// remove null-s
-			Iterator<IHyperlink> itr = linksList.iterator();
-			while (itr.hasNext()) {
-				if (itr.next() == null) {
-					itr.remove();
-				}
-			}
-
-			if (!linksList.isEmpty()) {
-				links = linksList.toArray(new IHyperlink[linksList.size()]);
-			}
-		}
-
-		return links;
+		return linksListToArray(linksList);
 	}
 
 	private List<IHyperlink> createResultLocationLinks(
@@ -354,73 +336,6 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 		}
 
 		return links;
-	}
-
-	// helper method for IHyperlink-s
-	private static void selectAndReveal(IEditorPart editorPart,
-			IRegion highlightRange) {
-		ITextEditor textEditor = null;
-
-		if (editorPart instanceof MultiPageEditorPart) {
-			MultiPageEditorPart part = (MultiPageEditorPart) editorPart;
-
-			Object editorPage = part.getSelectedPage();
-			if (editorPage != null && editorPage instanceof ITextEditor) {
-				textEditor = (ITextEditor) editorPage;
-			}
-		} else if (editorPart instanceof ITextEditor) {
-			textEditor = (ITextEditor) editorPart;
-		}
-
-		// highlight range in editor if possible
-		if (highlightRange != null && textEditor != null) {
-			textEditor.selectAndReveal(highlightRange.getOffset(),
-					highlightRange.getLength());
-		}
-	}
-
-	private static class FileHyperlink implements IHyperlink {
-		private final IFile fFile;
-		private final IRegion fRegion;
-		private final IRegion fHighlightRange;
-
-		private FileHyperlink(IRegion region, IFile file) {
-			this(region, file, null);
-		}
-
-		private FileHyperlink(IRegion region, IFile file, IRegion range) {
-			fRegion = region;
-			fFile = file;
-			fHighlightRange = range;
-		}
-
-		@Override
-		public IRegion getHyperlinkRegion() {
-			return fRegion;
-		}
-
-		@Override
-		public String getHyperlinkText() {
-			return fFile == null ? null : fFile.getProjectRelativePath()
-					.toString();
-		}
-
-		@Override
-		public String getTypeLabel() {
-			return null;
-		}
-
-		@Override
-		public void open() {
-			try {
-				IWorkbenchPage page = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage();
-				IEditorPart editor = IDE.openEditor(page, fFile, true);
-
-				selectAndReveal(editor, fHighlightRange);
-			} catch (PartInitException e) {
-			}
-		}
 	}
 
 	private static class JavaElementHyperlink implements IHyperlink {
