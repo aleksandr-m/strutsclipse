@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,12 +38,15 @@ import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
+import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
+import com.amashchenko.eclipse.strutsclipse.ParseUtil;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.java.ActionMethodProposalComparator;
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
+import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
 public class StrutsXmlCompletionProposalComputer extends
 		AbstractXmlCompletionProposalComputer implements StrutsXmlLocations {

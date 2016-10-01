@@ -29,7 +29,6 @@ import org.eclipse.wst.validation.ValidationState;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlValidator;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
 public class TilesXmlValidator extends AbstractXmlValidator {
 	private static final String PROBLEM_MARKER_ID = "com.amashchenko.eclipse.strutsclipse.tilesxmlproblemmarker";

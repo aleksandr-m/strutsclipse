@@ -26,6 +26,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.amashchenko.eclipse.strutsclipse.mock.MockTextViewer;
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 
 public class StrutsXmlCompletionProposalComputerTest {
 	private StrutsXmlCompletionProposalComputer computer = new StrutsXmlCompletionProposalComputer();

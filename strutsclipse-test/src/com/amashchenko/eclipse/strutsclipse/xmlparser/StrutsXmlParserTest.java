@@ -26,7 +26,8 @@ import org.eclipse.jface.text.IRegion;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.amashchenko.eclipse.strutsclipse.StrutsXmlConstants;
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 
 public class StrutsXmlParserTest {
 	private StrutsXmlParser strutsXmlParser = new StrutsXmlParser();

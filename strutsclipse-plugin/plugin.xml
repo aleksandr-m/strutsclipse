@@ -44,7 +44,7 @@
         <proposalComputer
             activate="true"
             categoryId="com.amashchenko.eclipse.strutsclipse.strutsxmlcompletionProposal"
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlCompletionProposalComputer"
+            class="com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlCompletionProposalComputer"
             id="com.amashchenko.eclipse.strutsclipse.strutsxmlproposalComputer">
             <contentType id="com.amashchenko.eclipse.strutsclipse.strutsxml"/>
         </proposalComputer>
@@ -53,14 +53,14 @@
     <extension point="org.eclipse.wst.sse.ui.editorConfiguration">
         <quickOutlineConfiguration
             target="com.amashchenko.eclipse.strutsclipse.strutsxml"
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlQuickOutlineConf">
+            class="com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlQuickOutlineConf">
         </quickOutlineConfiguration>
     </extension>
 
     <extension point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
         <hyperlinkDetector
             activate="true"
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlHyperlinkDetector"
+            class="com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlHyperlinkDetector"
             id="com.amashchenko.eclipse.strutsclipse.strutsxmlhyperlinkDetector"
             name="Struts XML"
             targetId="org.eclipse.core.runtime.xml">
@@ -72,7 +72,7 @@
         name="Struts XML Validator"
         point="org.eclipse.wst.validation.validatorV2">
         <validator
-            class="com.amashchenko.eclipse.strutsclipse.StrutsXmlValidator"
+            class="com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlValidator"
             markerId="com.amashchenko.eclipse.strutsclipse.strutsxmlproblemmarker">
             <include>
                 <rules>

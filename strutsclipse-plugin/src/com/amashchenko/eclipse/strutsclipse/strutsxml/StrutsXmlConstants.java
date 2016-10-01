@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 public class StrutsXmlConstants {
 	public static final String CONSTANT_TAG = "constant";

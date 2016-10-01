@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.swt.graphics.Image;
@@ -21,7 +21,7 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-public class QuickLabelProvider extends ColumnLabelProvider {
+public class StrutsXmlQuickLabelProvider extends ColumnLabelProvider {
 	private static final String PLUGIN_ID = "com.amashchenko.eclipse.strutsclipse.plugin";
 
 	private static final Image CONSTANT_TAG_IMG = AbstractUIPlugin
@@ -77,6 +77,7 @@ public class QuickLabelProvider extends ColumnLabelProvider {
 		return super.getImage(element);
 	}
 
+	@Override
 	public String getText(Object element) {
 		if (element instanceof Node) {
 			Node node = (Node) element;

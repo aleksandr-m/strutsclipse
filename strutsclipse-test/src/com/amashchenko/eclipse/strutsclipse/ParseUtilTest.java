@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.AssertionFailedException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 
 public class ParseUtilTest {

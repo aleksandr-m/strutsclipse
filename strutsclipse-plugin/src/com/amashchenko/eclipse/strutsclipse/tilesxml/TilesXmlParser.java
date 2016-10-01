@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse.xmlparser;
+package com.amashchenko.eclipse.strutsclipse.tilesxml;
 
 import java.util.List;
 import java.util.Set;
@@ -21,7 +21,9 @@ import java.util.Set;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 
-import com.amashchenko.eclipse.strutsclipse.TilesXmlConstants;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.AbstractXmlParser;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class TilesXmlParser extends AbstractXmlParser {
 	private static final String[] TAGS = { TilesXmlConstants.DEFINITION_TAG,

@@ -23,6 +23,8 @@ import org.eclipse.jface.text.IRegion;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
+
 public class TilesXmlParserTest {
 	private TilesXmlParser tilesXmlParser = new TilesXmlParser();
 

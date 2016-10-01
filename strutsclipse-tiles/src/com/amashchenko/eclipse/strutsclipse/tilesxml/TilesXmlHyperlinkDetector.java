@@ -37,7 +37,6 @@ import org.eclipse.ui.part.MultiPageEditorPart;
 import org.eclipse.ui.texteditor.ITextEditor;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
 public class TilesXmlHyperlinkDetector extends AbstractHyperlinkDetector
 		implements TilesXmlLocations {

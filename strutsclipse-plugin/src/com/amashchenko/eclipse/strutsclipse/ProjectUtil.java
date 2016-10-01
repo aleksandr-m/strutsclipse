@@ -33,6 +33,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jface.text.IDocument;
 
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
+
 public class ProjectUtil {
 	private ProjectUtil() {
 	}

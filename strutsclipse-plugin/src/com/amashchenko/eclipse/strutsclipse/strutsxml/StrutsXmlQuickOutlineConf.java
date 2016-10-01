@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -25,7 +25,7 @@ public class StrutsXmlQuickOutlineConf extends
 
 	@Override
 	public ILabelProvider getLabelProvider() {
-		return new QuickLabelProvider();
+		return new StrutsXmlQuickLabelProvider();
 	}
 
 	@Override

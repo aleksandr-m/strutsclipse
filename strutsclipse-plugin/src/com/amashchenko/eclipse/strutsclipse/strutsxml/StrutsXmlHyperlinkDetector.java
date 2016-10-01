@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,10 +60,12 @@ import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
+import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
+import com.amashchenko.eclipse.strutsclipse.ParseUtil;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
 public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 		implements StrutsXmlLocations {
@@ -545,7 +547,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractHyperlinkDetector
 			return super.equals(obj);
 		}
 
-		@SuppressWarnings("rawtypes")
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@Override
 		public Object getAdapter(Class adapter) {
 			return null;

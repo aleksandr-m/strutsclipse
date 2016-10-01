@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.tilesxml;
 
 public class TilesXmlConstants {
 	public static final String DEFINITION_TAG = "definition";

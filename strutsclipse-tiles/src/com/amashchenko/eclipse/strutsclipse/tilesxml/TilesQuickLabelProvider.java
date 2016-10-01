@@ -21,8 +21,6 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import com.amashchenko.eclipse.strutsclipse.TilesXmlConstants;
-
 public class TilesQuickLabelProvider extends ColumnLabelProvider {
 	private static final String PLUGIN_ID = "com.amashchenko.eclipse.strutsclipse.tiles";
 
@@ -54,6 +52,7 @@ public class TilesQuickLabelProvider extends ColumnLabelProvider {
 		return super.getImage(element);
 	}
 
+	@Override
 	public String getText(Object element) {
 		if (element instanceof Node) {
 			Node node = (Node) element;

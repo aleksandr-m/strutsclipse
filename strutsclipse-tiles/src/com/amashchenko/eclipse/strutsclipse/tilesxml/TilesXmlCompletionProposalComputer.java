@@ -28,9 +28,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
-import com.amashchenko.eclipse.strutsclipse.TilesXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.TilesXmlParser;
 
 public class TilesXmlCompletionProposalComputer extends
 		AbstractXmlCompletionProposalComputer implements TilesXmlLocations {

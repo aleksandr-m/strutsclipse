@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,8 +33,9 @@ import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.wst.validation.ValidationResult;
 import org.eclipse.wst.validation.ValidationState;
 
+import com.amashchenko.eclipse.strutsclipse.AbstractXmlValidator;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 

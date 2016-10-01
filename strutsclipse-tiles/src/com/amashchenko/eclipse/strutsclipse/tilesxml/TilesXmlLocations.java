@@ -15,8 +15,6 @@
  */
 package com.amashchenko.eclipse.strutsclipse.tilesxml;
 
-import com.amashchenko.eclipse.strutsclipse.TilesXmlConstants;
-
 public interface TilesXmlLocations {
 	String DEFINITION_TEMPLATE = TilesXmlConstants.DEFINITION_TAG
 			+ TilesXmlConstants.TEMPLATE_ATTR;

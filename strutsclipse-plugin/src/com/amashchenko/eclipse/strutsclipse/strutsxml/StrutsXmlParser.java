@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.amashchenko.eclipse.strutsclipse.xmlparser;
+package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +26,10 @@ import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 
-import com.amashchenko.eclipse.strutsclipse.StrutsXmlConstants;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.AbstractXmlParser;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlParser extends AbstractXmlParser {
 	private static final String[] TAGS = { StrutsXmlConstants.BEAN_TAG,

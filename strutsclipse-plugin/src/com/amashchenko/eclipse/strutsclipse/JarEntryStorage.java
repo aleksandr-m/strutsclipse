@@ -68,7 +68,7 @@ public class JarEntryStorage implements IStorage {
 		return true;
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Object getAdapter(Class adapter) {
 		return null;
