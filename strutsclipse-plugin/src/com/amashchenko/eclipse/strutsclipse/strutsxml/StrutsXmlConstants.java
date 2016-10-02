@@ -23,6 +23,7 @@ public class StrutsXmlConstants {
 	public static final String INTERCEPTOR_STACK_TAG = "interceptor-stack";
 	public static final String INTERCEPTOR_REF_TAG = "interceptor-ref";
 	public static final String DEFAULT_INTERCEPTOR_REF_TAG = "default-interceptor-ref";
+	public static final String DEFAULT_ACTION_REF_TAG = "default-action-ref";
 	public static final String ACTION_TAG = "action";
 	public static final String RESULT_TAG = "result";
 	public static final String PARAM_TAG = "param";

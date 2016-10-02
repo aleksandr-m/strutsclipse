@@ -113,6 +113,21 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 					linksList.add(localLink);
 				}
 				break;
+			case DEFAULT_ACTION_REF_NAME:
+				// same as for the result location, but with concrete namespace
+				TagRegion packageTagRegion = strutsXmlParser
+						.getParentTagRegion(document,
+								elementRegion.getOffset(),
+								StrutsXmlConstants.PACKAGE_TAG);
+				if (packageTagRegion != null) {
+					String namespace = packageTagRegion.getAttrValue(
+							StrutsXmlConstants.NAMESPACE_ATTR, "");
+					linksList.addAll(createResultLocationLinks(document,
+							elementValue, elementRegion,
+							StrutsXmlConstants.REDIRECT_ACTION_RESULT,
+							namespace));
+				}
+				break;
 			case ACTION_METHOD:
 				final String classAttrValue = tagRegion.getAttrValue(
 						StrutsXmlConstants.CLASS_ATTR, null);

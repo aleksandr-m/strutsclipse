@@ -101,6 +101,21 @@ public class StrutsXmlCompletionProposalComputer extends
 						context.getDocument(), context.getInvocationOffset());
 				sortProposals = true;
 				break;
+			case DEFAULT_ACTION_REF_NAME:
+				// same as for the result body, but with concrete namespace
+				TagRegion packageTagRegion = strutsXmlParser
+						.getParentTagRegion(context.getDocument(),
+								context.getInvocationOffset(),
+								StrutsXmlConstants.PACKAGE_TAG);
+				if (packageTagRegion != null) {
+					String namespace = packageTagRegion.getAttrValue(
+							StrutsXmlConstants.NAMESPACE_ATTR, "");
+					proposalsData = proposalDataFromSet(findRedirectActionNames(
+							context.getDocument(),
+							context.getInvocationOffset(), namespace));
+					sortProposals = true;
+				}
+				break;
 			case ACTION_NAME:
 			case ACTION_METHOD:
 				final String classAttrValue = tagRegion.getAttrValue(
