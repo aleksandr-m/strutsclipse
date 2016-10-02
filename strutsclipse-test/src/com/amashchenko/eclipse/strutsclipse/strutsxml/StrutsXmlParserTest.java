@@ -809,4 +809,105 @@ public class StrutsXmlParserTest {
 		Assert.assertEquals(2, interceptorRegions.get(name2).getTagRegions()
 				.size());
 	}
+
+	// getPackageNameRegion
+	@Test
+	public void testGetPackageNameRegion() throws Exception {
+		final String packageName = "thirdpackage";
+		final String content = "<package name=\"firstpackage\" namespace=\"/\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package name=\"secondpackage\"><action name=\"in3\"></action></package>"
+				+ "<package name=\""
+				+ packageName
+				+ "\" namespace=\"/\"><action name=\"in4\"></action></package>"
+				+ "<package name=\"fourthpackage\"></package>";
+		IDocument document = new Document(content);
+
+		IRegion packageNameRegion = strutsXmlParser.getPackageNameRegion(
+				document, packageName);
+		Assert.assertNotNull(packageNameRegion);
+		Assert.assertEquals(content.indexOf(packageName),
+				packageNameRegion.getOffset());
+		Assert.assertEquals(packageName.length(), packageNameRegion.getLength());
+	}
+
+	@Test
+	public void testGetPackageNameRegionNotExisting() throws Exception {
+		final String packageName = "notexisting";
+		final String content = "<package name=\"firstpackage\" namespace=\"/\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package name=\"secondpackage\"><action name=\"in3\"></action></package>"
+				+ "<package name=\"thirdpackage\" namespace=\"/\"><action name=\"in4\"></action></package>"
+				+ "<package name=\"fourthpackage\"></package>";
+		IDocument document = new Document(content);
+
+		IRegion packageNameRegion = strutsXmlParser.getPackageNameRegion(
+				document, packageName);
+		Assert.assertNull(packageNameRegion);
+	}
+
+	// getPackageNamespaces
+	@Test
+	public void testGetPackageNamespaces() throws Exception {
+		final String namespace = "/3";
+		final String content = "<package name=\"firstpackage\" namespace=\"/1\"><action name=\"in1\"></action><action name=\"in2\"></action></package>"
+				+ "<package name=\"secondpackage\"><action name=\"in3\"></action></package>"
+				+ "<package name=\"thirdpackage\" namespace=\""
+				+ namespace
+				+ "\"><action name=\"in4\"></action></package>"
+				+ "<package name=\"fourthpackage\" namespace=\"/4\"></package>";
+		IDocument document = new Document(content);
+
+		Set<String> packageNamespaces = strutsXmlParser
+				.getPackageNamespaces(document);
+		Assert.assertNotNull(packageNamespaces);
+		Assert.assertEquals(3, packageNamespaces.size());
+		Assert.assertTrue(packageNamespaces.contains(namespace));
+	}
+
+	// getConstantNameRegions
+	@Test
+	public void testGetConstantNameRegions() throws Exception {
+		final String one = "one";
+		final String content = "<constant name='"
+				+ one
+				+ "' value='' /><constant name='two' value='' /><constant name='three' value='' />";
+		IDocument document = new Document(content);
+
+		List<ElementRegion> constantNameRegions = strutsXmlParser
+				.getConstantNameRegions(document);
+
+		Assert.assertNotNull(constantNameRegions);
+		Assert.assertEquals(3, constantNameRegions.size());
+		Assert.assertNotNull(constantNameRegions.get(0));
+		Assert.assertEquals(StrutsXmlConstants.NAME_ATTR, constantNameRegions
+				.get(0).getName());
+		Assert.assertEquals(one, constantNameRegions.get(0).getValue());
+	}
+
+	// is2_5
+	@Test
+	public void testIs2_5NoDoctype() throws Exception {
+		final String content = "<struts></struts>";
+		IDocument document = new Document(content);
+
+		boolean result = strutsXmlParser.is2_5(document);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testIs2_5False() throws Exception {
+		final String content = "<!DOCTYPE struts PUBLIC	\"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN\"	\"http://struts.apache.org/dtds/struts-2.3.dtd\"><struts></struts>";
+		IDocument document = new Document(content);
+
+		boolean result = strutsXmlParser.is2_5(document);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testIs2_5True() throws Exception {
+		final String content = "<!DOCTYPE struts PUBLIC	\"-//Apache Software Foundation//DTD Struts Configuration 2.5//EN\"	\"http://struts.apache.org/dtds/struts-2.5.dtd\"><struts></struts>";
+		IDocument document = new Document(content);
+
+		boolean result = strutsXmlParser.is2_5(document);
+		Assert.assertTrue(result);
+	}
 }
