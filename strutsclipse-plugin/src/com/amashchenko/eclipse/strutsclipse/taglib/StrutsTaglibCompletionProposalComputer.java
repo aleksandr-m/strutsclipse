@@ -28,7 +28,6 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
-import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
@@ -106,8 +105,7 @@ public class StrutsTaglibCompletionProposalComputer extends
 			namespaces.add(namespace);
 		}
 
-		List<IDocument> documents = findDocuments(currentDocument,
-				StrutsXmlConstants.STRUTS_FILE_NAME, "xml");
+		List<IDocument> documents = findStrutsDocuments(currentDocument);
 		for (IDocument document : documents) {
 			names.addAll(strutsXmlParser.getActionNames(document, namespaces));
 		}
@@ -119,8 +117,7 @@ public class StrutsTaglibCompletionProposalComputer extends
 			final IDocument currentDocument) {
 		Set<String> namespaces = new HashSet<String>();
 
-		List<IDocument> documents = findDocuments(currentDocument,
-				StrutsXmlConstants.STRUTS_FILE_NAME, "xml");
+		List<IDocument> documents = findStrutsDocuments(currentDocument);
 		for (IDocument document : documents) {
 			namespaces.addAll(strutsXmlParser.getPackageNamespaces(document));
 		}

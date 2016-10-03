@@ -267,8 +267,7 @@ public class StrutsXmlCompletionProposalComputer extends
 	private Set<String> findTilesDefinitionNames(final IDocument currentDocument) {
 		final Set<String> names = new HashSet<String>();
 
-		List<IDocument> documents = findDocuments(currentDocument,
-				StrutsXmlConstants.TILES_RESULT, "xml");
+		List<IDocument> documents = findTilesDocuments(currentDocument);
 		for (IDocument document : documents) {
 			names.addAll(tilesXmlParser.getDefinitionNames(document));
 		}
