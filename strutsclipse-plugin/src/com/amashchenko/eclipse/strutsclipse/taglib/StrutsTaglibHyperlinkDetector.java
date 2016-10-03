@@ -73,6 +73,8 @@ public class StrutsTaglibHyperlinkDetector extends
 			case URL_ACTION:
 			case FORM_ACTION:
 			case LINK_ACTION:
+			case ACTION_NAME:
+			case SUBMIT_ACTION:
 				linksList.addAll(createActionLinks(document, elementValue,
 						elementRegion, tagRegion.getAttrValue(
 								StrutsTaglibConstants.NAMESPACE_ATTR, null)));

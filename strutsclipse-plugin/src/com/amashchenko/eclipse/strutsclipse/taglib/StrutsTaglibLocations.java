@@ -29,4 +29,12 @@ public interface StrutsTaglibLocations {
 			+ StrutsTaglibConstants.NAMESPACE_ATTR;
 	String LINK_NAMESPACE = StrutsTaglibConstants.LINK_TAG
 			+ StrutsTaglibConstants.NAMESPACE_ATTR;
+
+	String ACTION_NAME = StrutsTaglibConstants.ACTION_TAG
+			+ StrutsTaglibConstants.NAME_ATTR;
+	String ACTION_NAMESPACE = StrutsTaglibConstants.ACTION_TAG
+			+ StrutsTaglibConstants.NAMESPACE_ATTR;
+
+	String SUBMIT_ACTION = StrutsTaglibConstants.SUBMIT_TAG
+			+ StrutsTaglibConstants.ACTION_ATTR;
 }

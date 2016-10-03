@@ -72,6 +72,8 @@ public class StrutsTaglibCompletionProposalComputer extends
 			case URL_ACTION:
 			case FORM_ACTION:
 			case LINK_ACTION:
+			case ACTION_NAME:
+			case SUBMIT_ACTION:
 				proposalsData = proposalDataFromSet(findStrutsActionNames(
 						context.getDocument(), tagRegion.getAttrValue(
 								StrutsTaglibConstants.NAMESPACE_ATTR, null)));
@@ -79,6 +81,7 @@ public class StrutsTaglibCompletionProposalComputer extends
 			case URL_NAMESPACE:
 			case FORM_NAMESPACE:
 			case LINK_NAMESPACE:
+			case ACTION_NAMESPACE:
 				proposalsData = proposalDataFromSet(findStrutsPackagesNamespaces(context
 						.getDocument()));
 				break;

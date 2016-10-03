@@ -19,7 +19,10 @@ public class StrutsTaglibConstants {
 	public static final String URL_TAG = "s:url";
 	public static final String FORM_TAG = "s:form";
 	public static final String LINK_TAG = "s:a";
+	public static final String ACTION_TAG = "s:action";
+	public static final String SUBMIT_TAG = "s:submit";
 
 	public static final String ACTION_ATTR = "action";
 	public static final String NAMESPACE_ATTR = "namespace";
+	public static final String NAME_ATTR = "name";
 }
