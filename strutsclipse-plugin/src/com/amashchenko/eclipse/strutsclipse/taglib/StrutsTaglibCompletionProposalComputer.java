@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -36,9 +37,13 @@ public class StrutsTaglibCompletionProposalComputer extends
 	private final StrutsTaglibParser strutsTaglibParser;
 	private final StrutsXmlParser strutsXmlParser;
 
+	private final CompletionProposalComparator proposalComparator;
+
 	public StrutsTaglibCompletionProposalComputer() {
 		strutsTaglibParser = new StrutsTaglibParser();
 		strutsXmlParser = new StrutsXmlParser();
+		proposalComparator = new CompletionProposalComparator();
+		proposalComparator.setOrderAlphabetically(true);
 	}
 
 	@Override
@@ -83,7 +88,7 @@ public class StrutsTaglibCompletionProposalComputer extends
 		if (proposals == null && proposalsData != null) {
 			proposals = createAttrCompletionProposals(proposalsData,
 					elementValuePrefix, proposalRegion, null, elementValue,
-					null);
+					proposalComparator);
 		}
 		if (proposals == null) {
 			proposals = new ArrayList<ICompletionProposal>();
