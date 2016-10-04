@@ -18,25 +18,18 @@ package com.amashchenko.eclipse.strutsclipse.taglib;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.eclipse.ui.editors.text.TextFileDocumentProvider;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
-import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
+import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
@@ -99,54 +92,22 @@ public class StrutsTaglibHyperlinkDetector extends
 			namespaces.add(namespace);
 		}
 
-		try {
-			final IDocumentProvider provider = new TextFileDocumentProvider();
-			final IJavaProject javaProject = ProjectUtil
-					.getCurrentJavaProject(document);
-			if (javaProject != null && javaProject.exists()) {
-				final IProject project = javaProject.getProject();
-				final String outputFolder = javaProject.getOutputLocation()
-						.makeRelativeTo(project.getFullPath()).segment(0);
-				project.accept(new IResourceVisitor() {
-					@Override
-					public boolean visit(IResource resource)
-							throws CoreException {
-						// don't visit output folder
-						if (resource.getType() == IResource.FOLDER
-								&& resource.getProjectRelativePath().segment(0)
-										.equals(outputFolder)) {
-							return false;
-						}
-						if (resource.isAccessible()
-								&& resource.getType() == IResource.FILE
-								&& "xml".equalsIgnoreCase(resource
-										.getFileExtension())
-								&& resource
-										.getName()
-										.toLowerCase(Locale.ROOT)
-										.contains(
-												StrutsXmlConstants.STRUTS_FILE_NAME)) {
-							provider.connect(resource);
-							IDocument document = provider.getDocument(resource);
-							provider.disconnect(resource);
-
-							IRegion region = strutsXmlParser.getActionRegion(
-									document, namespaces, elementValue);
-							if (region != null) {
-								IFile file = project.getFile(resource
-										.getProjectRelativePath());
-								if (file.exists()) {
-									links.add(new FileHyperlink(elementRegion,
-											file, region));
-								}
-							}
-						}
-						return true;
+		IProject project = ProjectUtil.getCurrentProject(document);
+		if (project != null && project.exists()) {
+			// find struts resources
+			List<ResourceDocument> resources = ProjectUtil
+					.findStrutsResources(document);
+			for (ResourceDocument rd : resources) {
+				IRegion region = strutsXmlParser.getActionRegion(
+						rd.getDocument(), namespaces, elementValue);
+				if (region != null) {
+					IFile file = project.getFile(rd.getResource()
+							.getProjectRelativePath());
+					if (file.exists()) {
+						links.add(new FileHyperlink(elementRegion, file, region));
 					}
-				});
+				}
 			}
-		} catch (CoreException e) {
-			e.printStackTrace();
 		}
 
 		return links;

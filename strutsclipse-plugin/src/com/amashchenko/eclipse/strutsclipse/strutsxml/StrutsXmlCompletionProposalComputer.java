@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IDocument;
@@ -35,6 +36,7 @@ import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalCompute
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
 import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.java.ActionMethodProposalComparator;
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
 import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
@@ -267,9 +269,14 @@ public class StrutsXmlCompletionProposalComputer extends
 	private Set<String> findTilesDefinitionNames(final IDocument currentDocument) {
 		final Set<String> names = new HashSet<String>();
 
-		List<IDocument> documents = findTilesDocuments(currentDocument);
-		for (IDocument document : documents) {
-			names.addAll(tilesXmlParser.getDefinitionNames(document));
+		IProject project = ProjectUtil.getCurrentProject(currentDocument);
+		if (project != null && project.exists()) {
+			// find tiles resources
+			List<ResourceDocument> resources = ProjectUtil
+					.findTilesResources(currentDocument);
+			for (ResourceDocument rd : resources) {
+				names.addAll(tilesXmlParser.getDefinitionNames(rd.getDocument()));
+			}
 		}
 
 		return names;

@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IDocument;
@@ -29,6 +30,8 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
@@ -113,9 +116,15 @@ public class StrutsTaglibCompletionProposalComputer extends
 			namespaces.add(namespace);
 		}
 
-		List<IDocument> documents = findStrutsDocuments(currentDocument);
-		for (IDocument document : documents) {
-			names.addAll(strutsXmlParser.getActionNames(document, namespaces));
+		IProject project = ProjectUtil.getCurrentProject(currentDocument);
+		if (project != null && project.exists()) {
+			// find struts resources
+			List<ResourceDocument> resources = ProjectUtil
+					.findStrutsResources(currentDocument);
+			for (ResourceDocument rd : resources) {
+				names.addAll(strutsXmlParser.getActionNames(rd.getDocument(),
+						namespaces));
+			}
 		}
 
 		return names;
@@ -125,9 +134,15 @@ public class StrutsTaglibCompletionProposalComputer extends
 			final IDocument currentDocument) {
 		Set<String> namespaces = new HashSet<String>();
 
-		List<IDocument> documents = findStrutsDocuments(currentDocument);
-		for (IDocument document : documents) {
-			namespaces.addAll(strutsXmlParser.getPackageNamespaces(document));
+		IProject project = ProjectUtil.getCurrentProject(currentDocument);
+		if (project != null && project.exists()) {
+			// find struts resources
+			List<ResourceDocument> resources = ProjectUtil
+					.findStrutsResources(currentDocument);
+			for (ResourceDocument rd : resources) {
+				namespaces.addAll(strutsXmlParser.getPackageNamespaces(rd
+						.getDocument()));
+			}
 		}
 
 		return namespaces;

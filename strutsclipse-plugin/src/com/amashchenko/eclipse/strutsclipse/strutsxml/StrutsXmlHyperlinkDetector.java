@@ -18,21 +18,16 @@ package com.amashchenko.eclipse.strutsclipse.strutsxml;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
@@ -49,9 +44,7 @@ import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.texteditor.IDocumentProvider;
 import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
@@ -60,6 +53,7 @@ import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
 import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
@@ -240,56 +234,23 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 				}
 			}
 		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
-			try {
-				final IDocumentProvider provider = new TextFileDocumentProvider();
-				final IJavaProject javaProject = ProjectUtil
-						.getCurrentJavaProject(document);
-				if (javaProject != null && javaProject.exists()) {
-					final IProject project = javaProject.getProject();
-					final String outputFolder = javaProject.getOutputLocation()
-							.makeRelativeTo(project.getFullPath()).segment(0);
-					project.accept(new IResourceVisitor() {
-						@Override
-						public boolean visit(IResource resource)
-								throws CoreException {
-							// don't visit output folder
-							if (resource.getType() == IResource.FOLDER
-									&& resource.getProjectRelativePath()
-											.segment(0).equals(outputFolder)) {
-								return false;
-							}
-							if (resource.isAccessible()
-									&& resource.getType() == IResource.FILE
-									&& "xml".equalsIgnoreCase(resource
-											.getFileExtension())
-									&& resource
-											.getName()
-											.toLowerCase(Locale.ROOT)
-											.contains(
-													StrutsXmlConstants.TILES_RESULT)) {
-								provider.connect(resource);
-								IDocument document = provider
-										.getDocument(resource);
-								provider.disconnect(resource);
-
-								IRegion region = tilesXmlParser
-										.getDefinitionRegion(document,
-												elementValue);
-								if (region != null) {
-									IFile file = project.getFile(resource
-											.getProjectRelativePath());
-									if (file.exists()) {
-										links.add(new FileHyperlink(
-												elementRegion, file, region));
-									}
-								}
-							}
-							return true;
+			IProject project = ProjectUtil.getCurrentProject(document);
+			if (project != null && project.exists()) {
+				// find tiles resources
+				List<ResourceDocument> resources = ProjectUtil
+						.findTilesResources(document);
+				for (ResourceDocument rd : resources) {
+					IRegion region = tilesXmlParser.getDefinitionRegion(
+							rd.getDocument(), elementValue);
+					if (region != null) {
+						IFile file = project.getFile(rd.getResource()
+								.getProjectRelativePath());
+						if (file.exists()) {
+							links.add(new FileHyperlink(elementRegion, file,
+									region));
 						}
-					});
+					}
 				}
-			} catch (CoreException e) {
-				e.printStackTrace();
 			}
 		}
 		return links;
