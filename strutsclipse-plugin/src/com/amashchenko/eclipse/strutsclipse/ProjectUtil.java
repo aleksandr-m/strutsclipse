@@ -218,8 +218,8 @@ public class ProjectUtil {
 						}
 						if (resource.isAccessible()
 								&& resource.getType() == IResource.FILE
-								&& resource.getFileExtension()
-										.equalsIgnoreCase(fileExtension)) {
+								&& fileExtension.equalsIgnoreCase(resource
+										.getFileExtension())) {
 							boolean addToList = false;
 							if (contentType == null) {
 								addToList = resource.getName()

@@ -142,6 +142,7 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 									throws CoreException {
 								if (resource.isAccessible()
 										&& resource.getType() == IResource.FILE
+										&& resource.getFileExtension() != null
 										&& extensions.contains(resource
 												.getFileExtension()
 												.toLowerCase(Locale.ROOT))) {
