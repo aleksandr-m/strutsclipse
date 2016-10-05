@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+* Added support for Struts tags in JSP
+* Contents assist and hyperlinks for `default-action-ref` tag `name` attribute
+* Support Struts 2.5 feature to have multiple values in the `result` tag `name` attribute
+
 ## 1.1.0
 
 * Content assist for `interceptor-ref` tag `name` attribute
