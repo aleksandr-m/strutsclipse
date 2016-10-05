@@ -2,11 +2,11 @@
 <?compositeArtifactRepository version='1.0.0'?>
 <repository name='StrutsClipse repository' type='org.eclipse.equinox.internal.p2.artifact.repository.CompositeArtifactRepository' version='1.0.0'>
     <properties size='1'>
-        <property name='p2.timestamp' value='1461354838180'/>
+        <property name='p2.timestamp' value='1475690340980'/>
     </properties>
     <children size='3'>
-        <child location='1.0.8'/>
         <child location='1.0.9'/>
         <child location='1.1.0'/>
+        <child location='1.2.0'/>
     </children>
 </repository>

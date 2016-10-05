@@ -63,15 +63,22 @@
                     </ol>
 
                     <h4 id="manual-installation" class="pad-top-sm">Manual Installation</h4>
-                        <p>
-                            Download 
-                            <a href="https://aleksandr-m.github.io/strutsclipse/update/1.1.0/features/com.amashchenko.eclipse.strutsclipse.feature_1.1.0.201604221937.jar">feature</a>
-                            and <a href="https://aleksandr-m.github.io/strutsclipse/update/1.1.0/plugins/com.amashchenko.eclipse.strutsclipse.plugin_1.1.0.201604221937.jar">plugin</a>
-                            jars and put them in Eclipse <code>features</code> and <code>plugins</code> folders respectively.
-                        </p>
+                    <p>
+                        Download 
+                        <a href="https://aleksandr-m.github.io/strutsclipse/update/1.2.0/features/com.amashchenko.eclipse.strutsclipse.feature_1.2.0.201610051747.jar">feature</a>
+                        and <a href="https://aleksandr-m.github.io/strutsclipse/update/1.2.0/plugins/com.amashchenko.eclipse.strutsclipse.plugin_1.2.0.201610051747.jar">plugin</a>
+                        jars and put them in Eclipse <code>features</code> and <code>plugins</code> folders respectively.
+                    </p>
+                    <h5>For Apache Tiles support</h5>
+                    <p>
+                        Download additional
+                        <a href="https://aleksandr-m.github.io/strutsclipse/update/1.2.0/features/com.amashchenko.eclipse.strutsclipse.tiles.feature_1.2.0.201610051747.jar">feature</a>
+                        and <a href="https://aleksandr-m.github.io/strutsclipse/update/1.2.0/plugins/com.amashchenko.eclipse.strutsclipse.tiles_1.2.0.201610051747.jar">plugin</a>
+                        jars and put them in Eclipse <code>features</code> and <code>plugins</code> folders respectively.
+                    </p>
 
                     <h3 id="overview" class="pad-top">Overview</h3>
-                    
+
                     <p>StrutsClipse provides Eclipse IDE integration for developing <a href="http://struts.apache.org/" target="_blank">Apache Struts2</a> based applications.</p>
 
                     <h4 id="struts-xml">Struts XML</h4>
@@ -89,6 +96,9 @@
                                 <li><a href="#result-type">Result type content assist</a></li>
                                 <li><a href="#result-name">Result name content assist</a></li>
                                 <li><a href="#result-body">Result body content assist</a></li>
+                                <li>Interceptor-ref content assist</li>
+                                <li>Default-interceptor-ref content assist</li>
+                                <li>Default-action-ref content assist</li>
                             </ul>
                         </li>
                         <li>
@@ -97,6 +107,7 @@
                                 <li><a href="#package-extends-hyperlink">Package extends hyperlink</a></li>
                                 <li><a href="#action-method-hyperlink">Action method hyperlink</a></li>
                                 <li><a href="#result-body-hyperlink">Result body hyperlink</a></li>
+                                <li>Default-action-ref hyperlink</li>
                             </ul>
                         </li>
                         <li>
@@ -112,6 +123,34 @@
                             <a href="#quick-outline">Quick Outline</a>
                             <ul>
                                 <li><a href="#quick-outline-improved">Improved Quick Outline</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                    <h4 id="struts-tags">Struts Tags</h4>
+                    <ul>
+                        <li>
+                            Content assist
+                            <ul>
+                                <li>Form tag action attribute content assist</li>
+                                <li>Form tag namespace attribute content assist</li>
+                                <li>Url tag action attribute content assist</li>
+                                <li>Url tag namespace attribute content assist</li>
+                                <li>Link tag action attribute content assist</li>
+                                <li>Link tag namespace attribute content assist</li>
+                                <li>Action tag name attribute content assist</li>
+                                <li>Action tag namespace attribute content assist</li>
+                                <li>Submit tag action attribute content assist</li>                                
+                            </ul>
+                        </li>
+                        <li>
+                            Hyperlinks
+                            <ul>
+                                <li>Form tag action attribute hyperlink</li>
+                                <li>Url tag action attribute hyperlink</li>
+                                <li>Link tag action attribute hyperlink</li>
+                                <li>Action tag name attribute hyperlink</li>
+                                <li>Submit tag action attribute hyperlink</li>
                             </ul>
                         </li>
                     </ul>
@@ -249,6 +288,7 @@
                                 <a href="#overview">Overview</a>
                                 <ul class="nav-sub nav-stacked">
                                     <li><a href="#struts-xml">Struts XML</a></li>
+                                    <li><a href="#struts-tags">Struts Tags</a></li>
                                     <li><a href="#tiles-xml">Tiles XML</a></li>
                                 </ul>
                             </li>
