@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+* Avoid potential NPE on traversing project resources
+
 ## 1.2.0
 
 * Added support for Struts tags in JSP
