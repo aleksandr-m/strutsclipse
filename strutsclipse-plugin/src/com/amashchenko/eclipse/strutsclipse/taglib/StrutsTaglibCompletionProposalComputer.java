@@ -108,12 +108,8 @@ public class StrutsTaglibCompletionProposalComputer extends
 		Set<String> names = new HashSet<String>();
 
 		Set<String> namespaces = new HashSet<String>();
-		String namespace = namespaceParamValue;
-		if (namespace == null) {
-			namespaces.add("");
-			namespaces.add("/");
-		} else {
-			namespaces.add(namespace);
+		if (namespaceParamValue != null) {
+			namespaces.add(namespaceParamValue);
 		}
 
 		IProject project = ProjectUtil.getCurrentProject(currentDocument);
@@ -121,9 +117,17 @@ public class StrutsTaglibCompletionProposalComputer extends
 			// find struts resources
 			List<ResourceDocument> resources = ProjectUtil
 					.findStrutsResources(currentDocument);
-			for (ResourceDocument rd : resources) {
-				names.addAll(strutsXmlParser.getActionNames(rd.getDocument(),
-						namespaces));
+
+			if (namespaceParamValue == null) {
+				for (ResourceDocument rd : resources) {
+					names.addAll(strutsXmlParser.getActionNames(rd
+							.getDocument()));
+				}
+			} else {
+				for (ResourceDocument rd : resources) {
+					names.addAll(strutsXmlParser.getActionNames(
+							rd.getDocument(), namespaces));
+				}
 			}
 		}
 

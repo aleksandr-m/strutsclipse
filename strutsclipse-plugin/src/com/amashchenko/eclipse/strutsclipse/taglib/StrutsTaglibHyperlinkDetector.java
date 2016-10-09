@@ -84,12 +84,8 @@ public class StrutsTaglibHyperlinkDetector extends
 		final List<IHyperlink> links = new ArrayList<IHyperlink>();
 
 		final Set<String> namespaces = new HashSet<String>();
-		String namespace = namespaceParamValue;
-		if (namespace == null) {
-			namespaces.add("");
-			namespaces.add("/");
-		} else {
-			namespaces.add(namespace);
+		if (namespaceParamValue != null) {
+			namespaces.add(namespaceParamValue);
 		}
 
 		IProject project = ProjectUtil.getCurrentProject(document);
@@ -97,14 +93,33 @@ public class StrutsTaglibHyperlinkDetector extends
 			// find struts resources
 			List<ResourceDocument> resources = ProjectUtil
 					.findStrutsResources(document);
-			for (ResourceDocument rd : resources) {
-				IRegion region = strutsXmlParser.getActionRegion(
-						rd.getDocument(), namespaces, elementValue);
-				if (region != null) {
-					IFile file = project.getFile(rd.getResource()
-							.getProjectRelativePath());
-					if (file.exists()) {
-						links.add(new FileHyperlink(elementRegion, file, region));
+
+			if (namespaceParamValue == null) {
+				for (ResourceDocument rd : resources) {
+					List<IRegion> regions = strutsXmlParser.getActionRegions(
+							rd.getDocument(), elementValue);
+					if (regions != null) {
+						for (IRegion region : regions) {
+							IFile file = project.getFile(rd.getResource()
+									.getProjectRelativePath());
+							if (file.exists()) {
+								links.add(new FileHyperlink(elementRegion,
+										file, region));
+							}
+						}
+					}
+				}
+			} else {
+				for (ResourceDocument rd : resources) {
+					IRegion region = strutsXmlParser.getActionRegion(
+							rd.getDocument(), namespaces, elementValue);
+					if (region != null) {
+						IFile file = project.getFile(rd.getResource()
+								.getProjectRelativePath());
+						if (file.exists()) {
+							links.add(new FileHyperlink(elementRegion, file,
+									region));
+						}
 					}
 				}
 			}

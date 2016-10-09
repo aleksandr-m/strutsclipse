@@ -82,6 +82,11 @@ public class StrutsXmlParser extends AbstractXmlParser {
 		}
 	}
 
+	public Set<String> getActionNames(final IDocument document) {
+		return getAttrsValues(document, StrutsXmlConstants.ACTION_TAG,
+				StrutsXmlConstants.NAME_ATTR);
+	}
+
 	public Set<String> getActionNames(final IDocument document,
 			final Set<String> packageNamespaces) {
 		Map<String, TagGroup> actionRegions = getNamespacedActionTagRegions(document);
@@ -125,6 +130,30 @@ public class StrutsXmlParser extends AbstractXmlParser {
 		}
 
 		return null;
+	}
+
+	public List<IRegion> getActionRegions(final IDocument document,
+			final String actionName) {
+		List<IRegion> regions = new ArrayList<IRegion>();
+
+		Map<String, TagGroup> actionRegions = getNamespacedActionTagRegions(document);
+
+		if (actionRegions != null) {
+			for (TagGroup tagGroup : actionRegions.values()) {
+				for (TagRegion tr : tagGroup.getTagRegions()) {
+					if (tr.getAttrs() != null) {
+						ElementRegion nameAttr = tr.getAttrs().get(
+								StrutsXmlConstants.NAME_ATTR);
+						if (nameAttr != null
+								&& actionName.equals(nameAttr.getValue())) {
+							regions.add(nameAttr.getValueRegion());
+						}
+					}
+				}
+			}
+		}
+
+		return regions;
 	}
 
 	public Set<String> getPackageNames(final IDocument document) {
