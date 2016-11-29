@@ -28,6 +28,7 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class TilesXmlCompletionProposalComputer extends
@@ -105,7 +106,7 @@ public class TilesXmlCompletionProposalComputer extends
 	}
 
 	private String[][] computeFileProposals(final IDocument document) {
-		Set<String> set = findJspHtmlFilesPaths(document);
+		Set<String> set = ProjectUtil.findJspHtmlFilesPaths(document);
 		return proposalDataFromSet(set);
 	}
 

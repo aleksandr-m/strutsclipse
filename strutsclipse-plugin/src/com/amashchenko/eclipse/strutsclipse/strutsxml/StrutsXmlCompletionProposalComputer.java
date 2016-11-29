@@ -253,11 +253,11 @@ public class StrutsXmlCompletionProposalComputer extends
 		// that
 		if (typeAttrValue == null
 				|| StrutsXmlConstants.DISPATCHER_RESULT.equals(typeAttrValue)) {
-			set = findJspHtmlFilesPaths(document);
+			set = ProjectUtil.findJspHtmlFilesPaths(document);
 		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
 			set = findTilesDefinitionNames(document);
 		} else if (StrutsXmlConstants.FREEMARKER_RESULT.equals(typeAttrValue)) {
-			set = findFreeMarkerFilesPaths(document);
+			set = ProjectUtil.findFreeMarkerFilesPaths(document);
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
 				.equals(typeAttrValue)) {
 			set = findRedirectActionNames(document, offset, namespaceParamValue);

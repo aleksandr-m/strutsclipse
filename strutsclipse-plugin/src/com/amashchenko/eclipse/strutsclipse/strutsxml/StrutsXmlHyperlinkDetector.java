@@ -184,13 +184,17 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 			if (project != null && project.exists()) {
 				IVirtualComponent rootComponent = ComponentCore
 						.createComponent(project);
-				final IVirtualFolder rootFolder = rootComponent.getRootFolder();
-				IPath path = rootFolder.getProjectRelativePath().append(
-						elementValue);
+				if (rootComponent != null) {
+					IVirtualFolder rootFolder = rootComponent.getRootFolder();
+					if (rootFolder != null && rootFolder.exists()) {
+						IPath path = rootFolder.getProjectRelativePath()
+								.append(elementValue);
 
-				IFile file = project.getFile(path);
-				if (file.exists()) {
-					links.add(new FileHyperlink(elementRegion, file));
+						IFile file = project.getFile(path);
+						if (file.exists()) {
+							links.add(new FileHyperlink(elementRegion, file));
+						}
+					}
 				}
 			}
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
@@ -298,7 +302,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 	private List<IHyperlink> createPackageExtendsJarLinks(
 			final IDocument document, final String elementValue,
 			final IRegion elementRegion) {
-		final List<IHyperlink> links = new ArrayList<IHyperlink>();
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
 
 		List<JarEntryStorage> jarStorages = ProjectUtil
 				.findJarEntryStrutsResources(document);

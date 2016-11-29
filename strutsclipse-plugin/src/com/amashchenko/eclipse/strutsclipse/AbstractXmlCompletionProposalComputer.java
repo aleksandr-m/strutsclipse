@@ -16,37 +16,21 @@
 package com.amashchenko.eclipse.strutsclipse;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IResourceVisitor;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
-import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.wst.common.componentcore.ComponentCore;
-import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
-import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 
 public abstract class AbstractXmlCompletionProposalComputer implements
 		ICompletionProposalComputer {
-	private static final List<String> JSP_HTML_FILE_EXTENSIONS = Arrays
-			.asList(new String[] { "jsp", "html", "htm" });
-	private static final List<String> FREEMARKER_FILE_EXTENSIONS = Arrays
-			.asList(new String[] { "ftl" });
-
 	protected List<ICompletionProposal> createAttrCompletionProposals(
 			String[][] proposalsData, String prefix, IRegion region,
 			String valueSeparator, String attrvalue,
@@ -114,55 +98,5 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 			}
 		}
 		return proposals;
-	}
-
-	protected Set<String> findJspHtmlFilesPaths(final IDocument currentDocument) {
-		return findFilesPaths(currentDocument, JSP_HTML_FILE_EXTENSIONS);
-	}
-
-	protected Set<String> findFreeMarkerFilesPaths(
-			final IDocument currentDocument) {
-		return findFilesPaths(currentDocument, FREEMARKER_FILE_EXTENSIONS);
-	}
-
-	private Set<String> findFilesPaths(final IDocument currentDocument,
-			final List<String> extensions) {
-		final Set<String> paths = new HashSet<String>();
-		try {
-			IProject project = ProjectUtil.getCurrentProject(currentDocument);
-			if (project != null && project.exists()) {
-				IVirtualComponent rootComponent = ComponentCore
-						.createComponent(project);
-				final IVirtualFolder rootFolder = rootComponent.getRootFolder();
-
-				rootFolder.getUnderlyingResource().accept(
-						new IResourceVisitor() {
-							@Override
-							public boolean visit(IResource resource)
-									throws CoreException {
-								if (resource.isAccessible()
-										&& resource.getType() == IResource.FILE
-										&& resource.getFileExtension() != null
-										&& extensions.contains(resource
-												.getFileExtension()
-												.toLowerCase(Locale.ROOT))) {
-									IPath path = resource
-											.getProjectRelativePath()
-											.makeRelativeTo(
-													rootFolder
-															.getProjectRelativePath())
-											.makeAbsolute();
-
-									paths.add(path.toString());
-								}
-								return true;
-							}
-						});
-			}
-		} catch (CoreException e) {
-			e.printStackTrace();
-		}
-
-		return paths;
 	}
 }

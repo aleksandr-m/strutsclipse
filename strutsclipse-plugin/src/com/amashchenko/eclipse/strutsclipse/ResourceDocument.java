@@ -22,9 +22,13 @@ public class ResourceDocument {
 	private final IResource resource;
 	private final IDocument document;
 
-	public ResourceDocument(IResource resource, IDocument document) {
+	private final String relativePath;
+
+	public ResourceDocument(IResource resource, IDocument document,
+			String relativePath) {
 		this.resource = resource;
 		this.document = document;
+		this.relativePath = relativePath;
 	}
 
 	public IDocument getDocument() {
@@ -33,5 +37,9 @@ public class ResourceDocument {
 
 	public IResource getResource() {
 		return resource;
+	}
+
+	public String getRelativePath() {
+		return relativePath;
 	}
 }
