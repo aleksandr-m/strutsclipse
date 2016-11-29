@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IDocument;
@@ -96,6 +97,10 @@ public class StrutsXmlCompletionProposalComputer extends
 				break;
 			case CONSTANT_NAME:
 				proposalsData = StrutsXmlConstants.DEFAULT_CONSTANTS;
+				break;
+			case INCLUDE_FILE:
+				proposalsData = computeIncludeFileProposals(context
+						.getDocument());
 				break;
 			case INTERCEPTOR_REF_NAME:
 			case DEFAULT_INTERCEPTOR_REF_NAME:
@@ -280,6 +285,25 @@ public class StrutsXmlCompletionProposalComputer extends
 		}
 
 		return names;
+	}
+
+	private String[][] computeIncludeFileProposals(
+			final IDocument currentDocument) {
+		IPath currentPath = ProjectUtil.getCurrentDocumentPath(currentDocument);
+
+		Set<String> paths = new HashSet<String>();
+		List<ResourceDocument> resources = ProjectUtil
+				.findStrutsResources(currentDocument);
+
+		if (resources != null) {
+			for (ResourceDocument r : resources) {
+				if (!r.getResource().getFullPath().equals(currentPath)) {
+					paths.add(r.getRelativePath());
+				}
+			}
+		}
+
+		return proposalDataFromSet(paths);
 	}
 
 	private Set<String> findRedirectActionNames(final IDocument document,

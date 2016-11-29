@@ -22,6 +22,8 @@ public interface StrutsXmlLocations {
 			+ StrutsXmlConstants.CLASS_ATTR;
 	String BEAN_SCOPE = StrutsXmlConstants.BEAN_TAG
 			+ StrutsXmlConstants.SCOPE_ATTR;
+	String INCLUDE_FILE = StrutsXmlConstants.INCLUDE_TAG
+			+ StrutsXmlConstants.FILE_ATTR;
 	String PACKAGE_EXTENDS = StrutsXmlConstants.PACKAGE_TAG
 			+ StrutsXmlConstants.EXTENDS_ATTR;
 	String INTERCEPTOR_REF_NAME = StrutsXmlConstants.INTERCEPTOR_REF_TAG

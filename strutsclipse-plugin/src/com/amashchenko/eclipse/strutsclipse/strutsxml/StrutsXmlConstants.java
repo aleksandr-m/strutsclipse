@@ -18,6 +18,7 @@ package com.amashchenko.eclipse.strutsclipse.strutsxml;
 public class StrutsXmlConstants {
 	public static final String CONSTANT_TAG = "constant";
 	public static final String BEAN_TAG = "bean";
+	public static final String INCLUDE_TAG = "include";
 	public static final String PACKAGE_TAG = "package";
 	public static final String INTERCEPTOR_TAG = "interceptor";
 	public static final String INTERCEPTOR_STACK_TAG = "interceptor-stack";
@@ -36,6 +37,7 @@ public class StrutsXmlConstants {
 	public static final String EXTENDS_ATTR = "extends";
 	public static final String NAMESPACE_ATTR = "namespace";
 	public static final String SCOPE_ATTR = "scope";
+	public static final String FILE_ATTR = "file";
 
 	public static final String DISPATCHER_RESULT = "dispatcher";
 	public static final String REDIRECT_ACTION_RESULT = "redirectAction";

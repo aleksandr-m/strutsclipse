@@ -33,7 +33,8 @@ import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlParser extends AbstractXmlParser {
 	private static final String[] TAGS = { StrutsXmlConstants.BEAN_TAG,
-			StrutsXmlConstants.CONSTANT_TAG, StrutsXmlConstants.PACKAGE_TAG,
+			StrutsXmlConstants.CONSTANT_TAG, StrutsXmlConstants.INCLUDE_TAG,
+			StrutsXmlConstants.PACKAGE_TAG,
 			StrutsXmlConstants.INTERCEPTOR_REF_TAG,
 			StrutsXmlConstants.DEFAULT_INTERCEPTOR_REF_TAG,
 			StrutsXmlConstants.DEFAULT_ACTION_REF_TAG,
@@ -43,7 +44,8 @@ public class StrutsXmlParser extends AbstractXmlParser {
 	private static final String[] ATTRS = { StrutsXmlConstants.EXTENDS_ATTR,
 			StrutsXmlConstants.NAMESPACE_ATTR, StrutsXmlConstants.NAME_ATTR,
 			StrutsXmlConstants.TYPE_ATTR, StrutsXmlConstants.METHOD_ATTR,
-			StrutsXmlConstants.CLASS_ATTR, StrutsXmlConstants.SCOPE_ATTR };
+			StrutsXmlConstants.CLASS_ATTR, StrutsXmlConstants.SCOPE_ATTR,
+			StrutsXmlConstants.FILE_ATTR };
 
 	public TagRegion getTagRegion(final IDocument document, final int offset) {
 		return getTagRegion(document, offset, TAGS, ATTRS);
