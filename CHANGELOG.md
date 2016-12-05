@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.2
+
+* Improve hyperlinks for `package` tag `extends` attribute to search for package names in other Struts configuration files
+* Improve package name finding for content assist in `package` tag `extends` attribute
+* Improve action name finding for content assist in Struts JSP tags
+
 ## 1.2.1
 
 * Avoid potential NPE on traversing project resources
