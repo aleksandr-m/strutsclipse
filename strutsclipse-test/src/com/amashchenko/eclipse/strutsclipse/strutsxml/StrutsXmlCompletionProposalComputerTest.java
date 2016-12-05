@@ -26,8 +26,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.amashchenko.eclipse.strutsclipse.mock.MockTextViewer;
-import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlCompletionProposalComputer;
-import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 
 public class StrutsXmlCompletionProposalComputerTest {
 	private StrutsXmlCompletionProposalComputer computer = new StrutsXmlCompletionProposalComputer();
@@ -131,108 +129,6 @@ public class StrutsXmlCompletionProposalComputerTest {
 		Assert.assertEquals(1, proposals.size());
 		Assert.assertEquals(StrutsXmlConstants.REDIRECT_ACTION_RESULT,
 				proposals.get(0).getDisplayString());
-	}
-
-	@Test
-	public void testPackageTag() throws Exception {
-		final String attrValue = "tiles-d";
-		final String content = "<package extends=\"" + attrValue
-				+ "\"></package>";
-		IDocument document = new Document(content);
-
-		final int invocationOffset = content.lastIndexOf("\"");
-
-		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
-				new MockTextViewer(document), invocationOffset);
-
-		List<ICompletionProposal> proposals = computer
-				.computeCompletionProposals(context, null);
-
-		Assert.assertNotNull(proposals);
-		Assert.assertFalse(proposals.isEmpty());
-
-		Assert.assertEquals(1, proposals.size());
-
-		for (ICompletionProposal p : proposals) {
-			Assert.assertTrue(p.getDisplayString().startsWith(attrValue));
-		}
-	}
-
-	@Test
-	public void testPackageTag2() throws Exception {
-		final String attrValue = "tiles-default, struts-default, json-default";
-		final String content = "<package extends=\"" + attrValue
-				+ "\"></package>";
-		IDocument document = new Document(content);
-
-		final int invocationOffset = content
-				.indexOf("efault, struts-default, json-default");
-
-		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
-				new MockTextViewer(document), invocationOffset);
-
-		List<ICompletionProposal> proposals = computer
-				.computeCompletionProposals(context, null);
-
-		Assert.assertNotNull(proposals);
-		Assert.assertFalse(proposals.isEmpty());
-
-		Assert.assertEquals(1, proposals.size());
-
-		for (ICompletionProposal p : proposals) {
-			Assert.assertTrue(p.getDisplayString().startsWith("tiles-default"));
-		}
-	}
-
-	@Test
-	public void testPackageTag3() throws Exception {
-		final String attrValue = "tiles-default, struts-default, json-default";
-		final String content = "<package extends=\"" + attrValue
-				+ "\"></package>";
-		IDocument document = new Document(content);
-
-		final int invocationOffset = content
-				.indexOf("ts-default, json-default");
-
-		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
-				new MockTextViewer(document), invocationOffset);
-
-		List<ICompletionProposal> proposals = computer
-				.computeCompletionProposals(context, null);
-
-		Assert.assertNotNull(proposals);
-		Assert.assertFalse(proposals.isEmpty());
-
-		Assert.assertEquals(3, proposals.size());
-
-		for (ICompletionProposal p : proposals) {
-			Assert.assertTrue(p.getDisplayString().startsWith("stru"));
-		}
-	}
-
-	@Test
-	public void testPackageTag4() throws Exception {
-		final String attrValue = "tiles-default, struts-default, json-default";
-		final String content = "<package extends=\"" + attrValue
-				+ "\"></package>";
-		IDocument document = new Document(content);
-
-		final int invocationOffset = content.indexOf("son-default");
-
-		CompletionProposalInvocationContext context = new CompletionProposalInvocationContext(
-				new MockTextViewer(document), invocationOffset);
-
-		List<ICompletionProposal> proposals = computer
-				.computeCompletionProposals(context, null);
-
-		Assert.assertNotNull(proposals);
-		Assert.assertFalse(proposals.isEmpty());
-
-		Assert.assertEquals(2, proposals.size());
-
-		for (ICompletionProposal p : proposals) {
-			Assert.assertTrue(p.getDisplayString().startsWith("j"));
-		}
 	}
 
 	// result body redirectAction proposals

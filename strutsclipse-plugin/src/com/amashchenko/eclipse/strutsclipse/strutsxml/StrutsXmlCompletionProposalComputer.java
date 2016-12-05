@@ -91,6 +91,7 @@ public class StrutsXmlCompletionProposalComputer extends
 								StrutsXmlConstants.NAME_ATTR, null));
 				// extends attribute can have multiple values separated by ,
 				multiValueSeparator = StrutsXmlConstants.MULTI_VALUE_SEPARATOR;
+				sortProposals = true;
 				break;
 			case BEAN_SCOPE:
 				proposalsData = StrutsXmlConstants.DEFAULT_BEAN_SCOPES;
@@ -227,7 +228,26 @@ public class StrutsXmlCompletionProposalComputer extends
 
 	private String[][] computePackageExtendsProposals(final IDocument document,
 			final String currentPackageName) {
+		// current document
 		Set<String> packageNames = strutsXmlParser.getPackageNames(document);
+
+		// other struts files
+		IPath currentPath = ProjectUtil.getCurrentDocumentPath(document);
+		List<ResourceDocument> resources = ProjectUtil
+				.findStrutsResources(document);
+		for (ResourceDocument rd : resources) {
+			if (!rd.getResource().getFullPath().equals(currentPath)) {
+				packageNames.addAll(strutsXmlParser.getPackageNames(rd
+						.getDocument()));
+			}
+		}
+
+		List<JarEntryStorage> jarStorages = ProjectUtil
+				.findJarEntryStrutsResources(document);
+		for (JarEntryStorage jarStorage : jarStorages) {
+			packageNames.addAll(strutsXmlParser.getPackageNames(jarStorage
+					.toDocument()));
+		}
 
 		// remove current package name
 		if (currentPackageName != null
@@ -235,19 +255,7 @@ public class StrutsXmlCompletionProposalComputer extends
 			packageNames.remove(currentPackageName);
 		}
 
-		final int defaultsLength = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES.length;
-
-		String[][] proposals = new String[defaultsLength + packageNames.size()][2];
-
-		for (int i = 0; i < defaultsLength; i++) {
-			proposals[i][0] = StrutsXmlConstants.DEFAULT_PACKAGE_NAMES[i][0];
-		}
-
-		int indx = defaultsLength;
-		for (String p : packageNames) {
-			proposals[indx++][0] = p;
-		}
-		return proposals;
+		return proposalDataFromSet(packageNames);
 	}
 
 	private String[][] computeResultBodyProposals(final IDocument document,
