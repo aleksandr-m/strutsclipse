@@ -404,7 +404,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 
 		@Override
 		public String getHyperlinkText() {
-			return null;
+			return fStorage == null ? null : fStorage.getFullPath().toString();
 		}
 
 		@Override
