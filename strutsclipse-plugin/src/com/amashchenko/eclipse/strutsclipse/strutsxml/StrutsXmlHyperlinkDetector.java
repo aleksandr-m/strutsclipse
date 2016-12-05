@@ -99,10 +99,16 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 						parsedValue.getValue(), parsedValue.getValueRegion());
 
 				if (localLink == null) {
-					// find in jars
-					linksList.addAll(createPackageExtendsJarLinks(document,
-							parsedValue.getValue(),
+					// find in other struts files
+					linksList.addAll(createPackageExtendsResourcesLink(
+							document, parsedValue.getValue(),
 							parsedValue.getValueRegion()));
+					if (linksList.isEmpty()) {
+						// find in jars
+						linksList.addAll(createPackageExtendsJarLinks(document,
+								parsedValue.getValue(),
+								parsedValue.getValueRegion()));
+					}
 				} else {
 					linksList.add(localLink);
 				}
@@ -297,6 +303,34 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		}
 
 		return link;
+	}
+
+	private List<IHyperlink> createPackageExtendsResourcesLink(
+			final IDocument document, final String elementValue,
+			final IRegion elementRegion) {
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
+
+		IProject project = ProjectUtil.getCurrentProject(document);
+		IPath currentPath = ProjectUtil.getCurrentDocumentPath(document);
+
+		List<ResourceDocument> resources = ProjectUtil
+				.findStrutsResources(document);
+		for (ResourceDocument rd : resources) {
+			if (!rd.getResource().getFullPath().equals(currentPath)) {
+				IRegion nameRegion = strutsXmlParser.getPackageNameRegion(
+						rd.getDocument(), elementValue);
+				if (nameRegion != null) {
+					IFile file = project.getFile(rd.getResource()
+							.getProjectRelativePath());
+					if (file.exists()) {
+						links.add(new FileHyperlink(elementRegion, file,
+								nameRegion));
+					}
+				}
+			}
+		}
+
+		return links;
 	}
 
 	private List<IHyperlink> createPackageExtendsJarLinks(
