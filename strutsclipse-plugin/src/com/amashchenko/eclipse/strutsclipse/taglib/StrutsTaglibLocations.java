@@ -37,4 +37,7 @@ public interface StrutsTaglibLocations {
 
 	String SUBMIT_ACTION = StrutsTaglibConstants.SUBMIT_TAG
 			+ StrutsTaglibConstants.ACTION_ATTR;
+
+	String INCLUDE_VALUE = StrutsTaglibConstants.INCLUDE_TAG
+			+ StrutsTaglibConstants.VALUE_ATTR;
 }

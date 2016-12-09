@@ -21,15 +21,15 @@ import com.amashchenko.eclipse.strutsclipse.xmlparser.AbstractXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsTaglibParser extends AbstractXmlParser {
-	// action tag must be before a tag
+	// action tag must be before link (a) tag
 	private static final String[] TAGS = { StrutsTaglibConstants.URL_TAG,
 			StrutsTaglibConstants.FORM_TAG, StrutsTaglibConstants.ACTION_TAG,
 			StrutsTaglibConstants.LINK_TAG, StrutsTaglibConstants.SUBMIT_TAG,
-			CLOSE_TAG_TOKEN };
+			StrutsTaglibConstants.INCLUDE_TAG, CLOSE_TAG_TOKEN };
 
 	private static final String[] ATTRS = { StrutsTaglibConstants.ACTION_ATTR,
 			StrutsTaglibConstants.NAMESPACE_ATTR,
-			StrutsTaglibConstants.NAME_ATTR };
+			StrutsTaglibConstants.NAME_ATTR, StrutsTaglibConstants.VALUE_ATTR };
 
 	public TagRegion getTagRegion(final IDocument document, final int offset) {
 		return getTagRegion(document, offset, TAGS, ATTRS);

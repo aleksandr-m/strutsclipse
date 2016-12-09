@@ -88,6 +88,10 @@ public class StrutsTaglibCompletionProposalComputer extends
 				proposalsData = proposalDataFromSet(findStrutsPackagesNamespaces(context
 						.getDocument()));
 				break;
+			case INCLUDE_VALUE:
+				proposalsData = proposalDataFromSet(ProjectUtil
+						.findJspHtmlFilesPaths(context.getDocument()));
+				break;
 			}
 		}
 
