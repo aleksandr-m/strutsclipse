@@ -180,7 +180,7 @@ public class ProjectUtil {
 
 	/**
 	 * Searches project for files with given file extension and content type. If
-	 * given content type isn't known by the platform search will check if
+	 * given content type isn't known by the platform, search will check if
 	 * resource name contains given file name.
 	 * 
 	 * @param currentDocument
@@ -194,15 +194,15 @@ public class ProjectUtil {
 	 *            <code>fileName</code> parameter will be used.
 	 * @param fileName
 	 *            File name search criteria.
-	 * @param makeAbsolute
-	 *            Whether to make resource path absolute.
+	 * @param retrieveDocument
+	 *            Whether to get document from the resource.
 	 * @return List of the resources meeting the search criteria, or empty list
 	 *         if no resources are found.
 	 */
 	private static List<ResourceDocument> findResources(
 			final IDocument currentDocument, final String folderName,
 			final List<String> fileExtensions, final String contentTypeId,
-			final String fileName, final boolean makeAbsolute) {
+			final String fileName, final boolean retrieveDocument) {
 		final List<ResourceDocument> result = new ArrayList<ResourceDocument>();
 
 		IContentTypeManager contentTypeManager = Platform
@@ -265,21 +265,26 @@ public class ProjectUtil {
 														.getProjectRelativePath()
 														.makeRelativeTo(
 																res.getProjectRelativePath());
-												if (makeAbsolute) {
+
+												if (retrieveDocument) {
+													try {
+														provider.connect(resource);
+														IDocument document = provider
+																.getDocument(resource);
+														provider.disconnect(resource);
+
+														result.add(new ResourceDocument(
+																resource,
+																document,
+																path.toString()));
+													} catch (CoreException e) {
+														e.printStackTrace();
+													}
+												} else {
 													path = path.makeAbsolute();
-												}
-
-												try {
-													provider.connect(resource);
-													IDocument document = provider
-															.getDocument(resource);
-													provider.disconnect(resource);
-
 													result.add(new ResourceDocument(
-															resource, document,
+															resource, null,
 															path.toString()));
-												} catch (CoreException e) {
-													e.printStackTrace();
 												}
 											}
 										}
@@ -302,20 +307,20 @@ public class ProjectUtil {
 			final IDocument currentDocument) {
 		return findResources(currentDocument, null, XML_FILE_EXTENSIONS,
 				TILES_XML_CONTENT_TYPE_ID, StrutsXmlConstants.TILES_RESULT,
-				false);
+				true);
 	}
 
 	public static List<ResourceDocument> findStrutsResources(
 			final IDocument currentDocument) {
 		return findResources(currentDocument, WEB_INF_CLASSES_FOLDER_PATH,
 				XML_FILE_EXTENSIONS, STRUTS_XML_CONTENT_TYPE_ID,
-				StrutsXmlConstants.STRUTS_FILE_NAME, false);
+				StrutsXmlConstants.STRUTS_FILE_NAME, true);
 	}
 
 	public static Set<String> findJspHtmlFilesPaths(
 			final IDocument currentDocument) {
 		List<ResourceDocument> resources = findResources(currentDocument, null,
-				JSP_HTML_FILE_EXTENSIONS, null, null, true);
+				JSP_HTML_FILE_EXTENSIONS, null, null, false);
 
 		Set<String> paths = new HashSet<String>();
 		if (resources != null) {
@@ -329,7 +334,7 @@ public class ProjectUtil {
 	public static Set<String> findFreeMarkerFilesPaths(
 			final IDocument currentDocument) {
 		List<ResourceDocument> resources = findResources(currentDocument, null,
-				FREEMARKER_FILE_EXTENSIONS, null, null, true);
+				FREEMARKER_FILE_EXTENSIONS, null, null, false);
 
 		Set<String> paths = new HashSet<String>();
 		if (resources != null) {
