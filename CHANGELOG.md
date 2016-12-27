@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.3
+
+* Add content assist for JSP `include` tag `value` attribute
+* Improve finding project resources
+
 ## 1.2.2
 
 * Improve hyperlinks for `package` tag `extends` attribute to search for package names in other Struts configuration files
