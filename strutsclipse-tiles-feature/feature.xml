@@ -2,7 +2,7 @@
 <feature
       id="com.amashchenko.eclipse.strutsclipse.tiles.feature"
       label="StrutsClipse Tiles"
-      version="1.2.3.qualifier"
+      version="1.2.4.qualifier"
       provider-name="Aleksandr Mashchenko"
       plugin="com.amashchenko.eclipse.strutsclipse.tiles">
 
@@ -236,7 +236,7 @@ limitations under the License.
    </url>
 
    <requires>
-      <import feature="com.amashchenko.eclipse.strutsclipse.feature" version="1.2.3.qualifier"/>
+      <import feature="com.amashchenko.eclipse.strutsclipse.feature" version="1.2.4.qualifier"/>
    </requires>
 
    <plugin
