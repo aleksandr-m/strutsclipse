@@ -233,7 +233,7 @@ limitations under the License.
    </license>
 
    <url>
-      <update label="StrutsClipse repository" url="https://github.com/aleksandr-m/strutsclipse/raw/master/update/"/>
+      <update label="StrutsClipse repository" url="https://aleksandr-m.github.io/strutsclipse/update/"/>
    </url>
 
    <plugin
