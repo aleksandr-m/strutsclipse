@@ -51,8 +51,6 @@ public class StrutsXmlConstants {
 	public static final String STRUTS_PLUGIN_FILE_NAME = "struts-plugin.xml";
 	public static final String STRUTS_FILE_NAME = "struts.xml";
 
-	public static final String STRUTS_DTD_2_5 = "struts-2.5.dtd";
-
 	public static final String MULTI_VALUE_SEPARATOR = ",";
 
 	public static final String[][] DEFAULT_METHODS = { { "execute", null },

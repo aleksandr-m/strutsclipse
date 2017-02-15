@@ -152,7 +152,7 @@ public class StrutsXmlCompletionProposalComputer extends
 				break;
 			case RESULT_NAME:
 				proposalsData = StrutsXmlConstants.DEFAULT_RESULT_NAMES;
-				if (strutsXmlParser.is2_5(context.getDocument())) {
+				if (strutsXmlParser.atLeast2_5(context.getDocument())) {
 					// from 2.5 result name attribute can have multiple values
 					// separated by ,
 					multiValueSeparator = StrutsXmlConstants.MULTI_VALUE_SEPARATOR;

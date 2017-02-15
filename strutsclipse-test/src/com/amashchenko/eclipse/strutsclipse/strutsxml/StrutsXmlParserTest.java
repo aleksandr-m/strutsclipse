@@ -883,31 +883,49 @@ public class StrutsXmlParserTest {
 		Assert.assertEquals(one, constantNameRegions.get(0).getValue());
 	}
 
-	// is2_5
+	// atLeast2_5
 	@Test
-	public void testIs2_5NoDoctype() throws Exception {
+	public void testAtLeast2_5NoDoctype() throws Exception {
 		final String content = "<struts></struts>";
 		IDocument document = new Document(content);
 
-		boolean result = strutsXmlParser.is2_5(document);
+		boolean result = strutsXmlParser.atLeast2_5(document);
 		Assert.assertFalse(result);
 	}
 
 	@Test
-	public void testIs2_5False() throws Exception {
+	public void testAtLeast2_5False() throws Exception {
 		final String content = "<!DOCTYPE struts PUBLIC	\"-//Apache Software Foundation//DTD Struts Configuration 2.3//EN\"	\"http://struts.apache.org/dtds/struts-2.3.dtd\"><struts></struts>";
 		IDocument document = new Document(content);
 
-		boolean result = strutsXmlParser.is2_5(document);
+		boolean result = strutsXmlParser.atLeast2_5(document);
 		Assert.assertFalse(result);
 	}
 
 	@Test
-	public void testIs2_5True() throws Exception {
+	public void testAtLeast2_5True() throws Exception {
 		final String content = "<!DOCTYPE struts PUBLIC	\"-//Apache Software Foundation//DTD Struts Configuration 2.5//EN\"	\"http://struts.apache.org/dtds/struts-2.5.dtd\"><struts></struts>";
 		IDocument document = new Document(content);
 
-		boolean result = strutsXmlParser.is2_5(document);
+		boolean result = strutsXmlParser.atLeast2_5(document);
 		Assert.assertTrue(result);
+	}
+
+	@Test
+	public void testAtLeast2_53_0() throws Exception {
+		final String content = "<!DOCTYPE struts PUBLIC	\"-//Apache Software Foundation//DTD Struts Configuration 3.0//EN\"	\"http://struts.apache.org/dtds/struts-3.0.dtd\"><struts></struts>";
+		IDocument document = new Document(content);
+
+		boolean result = strutsXmlParser.atLeast2_5(document);
+		Assert.assertTrue(result);
+	}
+
+	@Test
+	public void testAtLeast2_5zzz() throws Exception {
+		final String content = "<!DOCTYPE struts PUBLIC	\"-//Apache Software Foundation//DTD Struts Configuration zzz//EN\"	\"http://struts.apache.org/dtds/struts-zzz.dtd\"><struts></struts>";
+		IDocument document = new Document(content);
+
+		boolean result = strutsXmlParser.atLeast2_5(document);
+		Assert.assertFalse(result);
 	}
 }

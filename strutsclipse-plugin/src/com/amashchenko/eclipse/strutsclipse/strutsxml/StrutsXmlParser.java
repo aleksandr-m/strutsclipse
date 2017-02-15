@@ -286,11 +286,28 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				StrutsXmlConstants.NAME_ATTR);
 	}
 
-	public boolean is2_5(final IDocument document) {
+	public boolean atLeast2_5(final IDocument document) {
+		boolean result = false;
 		ElementRegion doctypeRegion = getDoctype(document);
-		return doctypeRegion != null
-				&& doctypeRegion.getValue() != null
-				&& doctypeRegion.getValue().contains(
-						StrutsXmlConstants.STRUTS_DTD_2_5);
+		if (doctypeRegion != null) {
+			String doctype = doctypeRegion.getValue();
+			if (doctype != null) {
+				int startIndex = doctype.lastIndexOf("/struts-");
+				int endIndex = doctype.lastIndexOf(".dtd");
+				if (startIndex >= 0 && endIndex >= 0) {
+					doctype = doctype.substring(startIndex + 8, endIndex);
+					float version = 0;
+					try {
+						version = Float.parseFloat(doctype);
+					} catch (NumberFormatException e) {
+					}
+					if (version >= 2.5) {
+						result = true;
+					}
+				}
+			}
+
+		}
+		return result;
 	}
 }
