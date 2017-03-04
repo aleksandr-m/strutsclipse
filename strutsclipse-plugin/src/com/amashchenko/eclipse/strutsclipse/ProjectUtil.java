@@ -55,12 +55,15 @@ public class ProjectUtil {
 	private ProjectUtil() {
 	}
 
-	private static final List<String> JSP_HTML_FILE_EXTENSIONS = Arrays
-			.asList(new String[] { "jsp", "html", "htm" });
+	private static final List<String> JSP_HTML_FILE_EXTENSIONS = Arrays.asList(
+			"jsp", "html", "htm");
 	private static final List<String> FREEMARKER_FILE_EXTENSIONS = Arrays
-			.asList(new String[] { "ftl" });
+			.asList("ftl");
 	private static final List<String> XML_FILE_EXTENSIONS = Arrays
-			.asList(new String[] { "xml" });
+			.asList("xml");
+	private static final String PROPERTIES_FILE_EXTENSION = "properties";
+	private static final List<String> PROPERTIES_FILE_EXTENSIONS = Arrays
+			.asList(PROPERTIES_FILE_EXTENSION);
 	private static final String STRUTS_XML_CONTENT_TYPE_ID = "com.amashchenko.eclipse.strutsclipse.strutsxml";
 	private static final String TILES_XML_CONTENT_TYPE_ID = "com.amashchenko.eclipse.strutsclipse.tilesxml";
 	private static final String WEB_INF_CLASSES_FOLDER_PATH = "/WEB-INF/classes";
@@ -145,39 +148,6 @@ public class ProjectUtil {
 		return result;
 	}
 
-	public static List<JarEntryStorage> findJarEntryStrutsResources(
-			final IDocument document) {
-		List<JarEntryStorage> results = new ArrayList<JarEntryStorage>();
-		try {
-			IJavaProject javaProject = getCurrentJavaProject(document);
-
-			if (javaProject != null && javaProject.exists()) {
-				IPackageFragmentRoot[] roots = javaProject
-						.getPackageFragmentRoots();
-				for (IPackageFragmentRoot root : roots) {
-					if (root.isArchive()) {
-						Object[] nonJavaResources = root.getNonJavaResources();
-						for (Object nonJavaRes : nonJavaResources) {
-							if (nonJavaRes instanceof IJarEntryResource) {
-								IJarEntryResource jarEntry = (IJarEntryResource) nonJavaRes;
-								if (jarEntry.isFile()
-										&& (StrutsXmlConstants.STRUTS_DEFAULT_FILE_NAME
-												.equals(jarEntry.getName()) || StrutsXmlConstants.STRUTS_PLUGIN_FILE_NAME
-												.equals(jarEntry.getName()))) {
-									results.add(new JarEntryStorage(root
-											.getPath(), jarEntry));
-								}
-							}
-						}
-					}
-				}
-			}
-		} catch (JavaModelException e) {
-			e.printStackTrace();
-		}
-		return results;
-	}
-
 	/**
 	 * Searches project for files with given file extension and content type. If
 	 * given content type isn't known by the platform, search will check if
@@ -189,11 +159,9 @@ public class ProjectUtil {
 	 *            Name of the folder to search in.
 	 * @param fileExtensions
 	 *            File extensions search criteria.
-	 * @param contentTypeId
-	 *            Content type identifier, if the platform doesn't know it then
-	 *            <code>fileName</code> parameter will be used.
-	 * @param fileName
-	 *            File name search criteria.
+	 * @param resourcePredicate
+	 *            Determines whether to include resource into result list or
+	 *            not.
 	 * @param retrieveDocument
 	 *            Whether to get document from the resource.
 	 * @return List of the resources meeting the search criteria, or empty list
@@ -201,14 +169,10 @@ public class ProjectUtil {
 	 */
 	private static List<ResourceDocument> findResources(
 			final IDocument currentDocument, final String folderName,
-			final List<String> fileExtensions, final String contentTypeId,
-			final String fileName, final boolean retrieveDocument) {
+			final List<String> fileExtensions,
+			final ResourcePredicate resourcePredicate,
+			final boolean retrieveDocument) {
 		final List<ResourceDocument> result = new ArrayList<ResourceDocument>();
-
-		IContentTypeManager contentTypeManager = Platform
-				.getContentTypeManager();
-		final IContentType contentType = contentTypeManager
-				.getContentType(contentTypeId);
 
 		try {
 			final IProject project = getCurrentProject(currentDocument);
@@ -240,25 +204,9 @@ public class ProjectUtil {
 																.getFileExtension()
 																.toLowerCase(
 																		Locale.ROOT))) {
-											boolean addToList = false;
-											if (contentTypeId == null) {
-												addToList = true;
-											} else if (contentType != null) {
-												IFile file = project.getFile(resource
-														.getProjectRelativePath());
-												IContentDescription descrp = file
-														.getContentDescription();
-												addToList = descrp
-														.getContentType()
-														.isKindOf(contentType);
-											} else if (fileName != null
-													&& resource
-															.getName()
-															.toLowerCase(
-																	Locale.ROOT)
-															.contains(fileName)) {
-												addToList = true;
-											}
+											boolean addToList = resourcePredicate == null ? true
+													: resourcePredicate.test(
+															project, resource);
 
 											if (addToList) {
 												IPath path = resource
@@ -306,21 +254,30 @@ public class ProjectUtil {
 	public static List<ResourceDocument> findTilesResources(
 			final IDocument currentDocument) {
 		return findResources(currentDocument, null, XML_FILE_EXTENSIONS,
-				TILES_XML_CONTENT_TYPE_ID, StrutsXmlConstants.TILES_RESULT,
-				true);
+				new ContentTypeFileNamePredicate(
+						StrutsXmlConstants.TILES_RESULT,
+						TILES_XML_CONTENT_TYPE_ID), true);
 	}
 
 	public static List<ResourceDocument> findStrutsResources(
 			final IDocument currentDocument) {
 		return findResources(currentDocument, WEB_INF_CLASSES_FOLDER_PATH,
-				XML_FILE_EXTENSIONS, STRUTS_XML_CONTENT_TYPE_ID,
-				StrutsXmlConstants.STRUTS_FILE_NAME, true);
+				XML_FILE_EXTENSIONS, new ContentTypeFileNamePredicate(
+						StrutsXmlConstants.STRUTS_FILE_NAME,
+						STRUTS_XML_CONTENT_TYPE_ID), true);
+	}
+
+	public static List<ResourceDocument> findPropertiesResources(
+			final IDocument currentDocument, final Set<String> bundleNames) {
+		return findResources(currentDocument, WEB_INF_CLASSES_FOLDER_PATH,
+				PROPERTIES_FILE_EXTENSIONS, new ResourceBundlesPredicate(
+						bundleNames), true);
 	}
 
 	public static Set<String> findJspHtmlFilesPaths(
 			final IDocument currentDocument) {
 		List<ResourceDocument> resources = findResources(currentDocument, null,
-				JSP_HTML_FILE_EXTENSIONS, null, null, false);
+				JSP_HTML_FILE_EXTENSIONS, null, false);
 
 		Set<String> paths = new HashSet<String>();
 		if (resources != null) {
@@ -334,7 +291,7 @@ public class ProjectUtil {
 	public static Set<String> findFreeMarkerFilesPaths(
 			final IDocument currentDocument) {
 		List<ResourceDocument> resources = findResources(currentDocument, null,
-				FREEMARKER_FILE_EXTENSIONS, null, null, false);
+				FREEMARKER_FILE_EXTENSIONS, null, false);
 
 		Set<String> paths = new HashSet<String>();
 		if (resources != null) {
@@ -343,5 +300,166 @@ public class ProjectUtil {
 			}
 		}
 		return paths;
+	}
+
+	private static List<JarEntryStorage> findJarEntries(
+			final IDocument document, JarEntryPredicate jarEntryPredicate) {
+		List<JarEntryStorage> results = new ArrayList<JarEntryStorage>();
+		try {
+			IJavaProject javaProject = getCurrentJavaProject(document);
+
+			if (javaProject != null && javaProject.exists()) {
+				IPackageFragmentRoot[] roots = javaProject
+						.getPackageFragmentRoots();
+				for (IPackageFragmentRoot root : roots) {
+					if (root.isArchive()) {
+						// from root
+						collectNonJavaResources(root.getNonJavaResources(),
+								root.getPath(), results, jarEntryPredicate);
+					}
+				}
+			}
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		return results;
+	}
+
+	private static void collectNonJavaResources(Object[] nonJavaResources,
+			IPath rootPath, List<JarEntryStorage> list,
+			JarEntryPredicate jarEntryPredicate) {
+		for (Object nonJavaRes : nonJavaResources) {
+			if (nonJavaRes instanceof IJarEntryResource) {
+				IJarEntryResource jarEntry = (IJarEntryResource) nonJavaRes;
+
+				boolean addToList = jarEntryPredicate == null ? true
+						: jarEntryPredicate.test(jarEntry);
+
+				if (addToList) {
+					list.add(new JarEntryStorage(rootPath.append(jarEntry
+							.getFullPath()), jarEntry));
+				}
+			}
+		}
+	}
+
+	public static List<JarEntryStorage> findJarEntryStrutsResources(
+			final IDocument document) {
+		return findJarEntries(document, new StrutsResourceJarPredicate());
+	}
+
+	public static List<JarEntryStorage> findJarEntryPropertyResources(
+			final IDocument document, final Set<String> bundleNames) {
+		return findJarEntries(document, new ResourceBundlesJarPredicate(
+				bundleNames));
+	}
+
+	private interface ResourcePredicate {
+		boolean test(IProject project, IResource resource) throws CoreException;
+	}
+
+	private static class ContentTypeFileNamePredicate implements
+			ResourcePredicate {
+		private final String fileName;
+		private final IContentType contentType;
+
+		private ContentTypeFileNamePredicate(String fileName,
+				String contentTypeId) {
+			this.fileName = fileName;
+			IContentTypeManager contentTypeManager = Platform
+					.getContentTypeManager();
+			this.contentType = contentTypeManager.getContentType(contentTypeId);
+		}
+
+		// If the platform doesn't know content type identifier then
+		// <code>fileName</code> will be used.
+		@Override
+		public boolean test(IProject project, IResource resource)
+				throws CoreException {
+			boolean check = false;
+			if (contentType != null) {
+				IFile file = project.getFile(resource.getProjectRelativePath());
+				IContentDescription descrp = file.getContentDescription();
+				check = descrp.getContentType().isKindOf(contentType);
+			} else if (fileName != null
+					&& resource.getName().toLowerCase(Locale.ROOT)
+							.contains(fileName)) {
+				check = true;
+			}
+			return check;
+		}
+	}
+
+	private static class ResourceBundlesPredicate implements ResourcePredicate {
+		private final Set<String> bundleNames;
+
+		private ResourceBundlesPredicate(Set<String> bundleNames) {
+			this.bundleNames = bundleNames;
+		}
+
+		private boolean compare(Set<String> names, String name) {
+			if (names != null && name != null) {
+				for (String n : names) {
+					if (name.startsWith(n + "_")
+							|| name.equals(n + "." + PROPERTIES_FILE_EXTENSION)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public boolean test(IProject project, IResource resource)
+				throws CoreException {
+			return resource.getFileExtension()
+					.equals(PROPERTIES_FILE_EXTENSION)
+					&& compare(bundleNames, resource.getName());
+		}
+	}
+
+	private interface JarEntryPredicate {
+		boolean test(IJarEntryResource jarEntryResource);
+	}
+
+	private static class StrutsResourceJarPredicate implements
+			JarEntryPredicate {
+		@Override
+		public boolean test(IJarEntryResource jarEntryResource) {
+			return jarEntryResource.isFile()
+					&& (StrutsXmlConstants.STRUTS_DEFAULT_FILE_NAME
+							.equals(jarEntryResource.getName()) || StrutsXmlConstants.STRUTS_PLUGIN_FILE_NAME
+							.equals(jarEntryResource.getName()));
+		}
+	}
+
+	private static class ResourceBundlesJarPredicate implements
+			JarEntryPredicate {
+		private final Set<String> bundleNames;
+
+		private ResourceBundlesJarPredicate(Set<String> bundleNames) {
+			this.bundleNames = bundleNames;
+		}
+
+		private boolean compare(Set<String> names, String name) {
+			if (names != null && name != null) {
+				for (String n : names) {
+					if (name.startsWith(n + "_")
+							|| name.equals(n + "." + PROPERTIES_FILE_EXTENSION)) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public boolean test(IJarEntryResource jarEntryResource) {
+			return jarEntryResource.isFile()
+					&& jarEntryResource.getName() != null
+					&& jarEntryResource.getName().endsWith(
+							PROPERTIES_FILE_EXTENSION)
+					&& compare(bundleNames, jarEntryResource.getName());
+		}
 	}
 }
