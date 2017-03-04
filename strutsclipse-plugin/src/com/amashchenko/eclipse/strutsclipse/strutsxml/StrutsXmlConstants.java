@@ -53,6 +53,8 @@ public class StrutsXmlConstants {
 
 	public static final String MULTI_VALUE_SEPARATOR = ",";
 
+	public static final String CONSTANT_CUSTOM_RESOURCES = "struts.custom.i18n.resources";
+
 	public static final String[][] DEFAULT_METHODS = { { "execute", null },
 			{ "input", null } };
 	public static final String[][] DEFAULT_RESULT_NAMES = {
@@ -112,7 +114,7 @@ public class StrutsXmlConstants {
 			{ "struts.i18n.encoding",
 					"The encoding to use for localization messages." },
 			{ "struts.locale", "The default locale for the Struts application." },
-			{ "struts.custom.i18n.resources",
+			{ CONSTANT_CUSTOM_RESOURCES,
 					"Location of additional localization properties files to load." },
 			{
 					"struts.action.excludePattern",

@@ -16,6 +16,7 @@
 package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -309,5 +310,42 @@ public class StrutsXmlParser extends AbstractXmlParser {
 
 		}
 		return result;
+	}
+
+	public Map<String, String> getConstantsMap(final IDocument document) {
+		IDocumentPartitioner partitioner = null;
+		try {
+			Map<String, String> constants = new HashMap<String, String>();
+
+			final String[] tags = new String[] {
+					StrutsXmlConstants.CONSTANT_TAG, COMMENT_TOKEN };
+
+			// create tag partitioner
+			partitioner = createTagPartitioner(document, tags);
+			// get tags regions
+			ITypedRegion[] tagRegions = partitioner.computePartitioning(0,
+					document.getLength());
+
+			for (ITypedRegion tagRegion : tagRegions) {
+				if (!IDocument.DEFAULT_CONTENT_TYPE.equals(tagRegion.getType())
+						&& !COMMENT_TOKEN.equals(tagRegion.getType())) {
+					List<ElementRegion> attrRegions = parseTag(document,
+							tagRegion, new String[] {
+									StrutsXmlConstants.NAME_ATTR,
+									StrutsXmlConstants.VALUE_ATTR });
+					TagRegion t = new TagRegion(tagRegion.getType(), null,
+							null, attrRegions);
+					constants
+							.put(t.getAttrValue(StrutsXmlConstants.NAME_ATTR,
+									null), t.getAttrValue(
+									StrutsXmlConstants.VALUE_ATTR, null));
+				}
+			}
+			return constants;
+		} finally {
+			if (partitioner != null) {
+				partitioner.disconnect();
+			}
+		}
 	}
 }

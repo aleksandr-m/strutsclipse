@@ -40,4 +40,7 @@ public interface StrutsTaglibLocations {
 
 	String INCLUDE_VALUE = StrutsTaglibConstants.INCLUDE_TAG
 			+ StrutsTaglibConstants.VALUE_ATTR;
+
+	String TEXT_NAME = StrutsTaglibConstants.TEXT_TAG
+			+ StrutsTaglibConstants.NAME_ATTR;
 }

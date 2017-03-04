@@ -15,9 +15,15 @@
  */
 package com.amashchenko.eclipse.strutsclipse.taglib;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.PropertyResourceBundle;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -30,8 +36,11 @@ import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
+import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
@@ -91,6 +100,22 @@ public class StrutsTaglibCompletionProposalComputer extends
 			case INCLUDE_VALUE:
 				proposalsData = proposalDataFromSet(ProjectUtil
 						.findJspHtmlFilesPaths(context.getDocument()));
+				break;
+			case TEXT_NAME:
+				Set<String> bundleNames = new HashSet<String>();
+
+				List<ResourceDocument> strutsResources = ProjectUtil
+						.findStrutsResources(context.getDocument());
+				for (ResourceDocument rd : strutsResources) {
+					Map<String, String> constants = strutsXmlParser
+							.getConstantsMap(rd.getDocument());
+					bundleNames.addAll(ParseUtil.delimitedStringToSet(constants
+							.get(StrutsXmlConstants.CONSTANT_CUSTOM_RESOURCES),
+							StrutsXmlConstants.MULTI_VALUE_SEPARATOR));
+				}
+
+				proposalsData = proposalDataFromMap(findPropertiesKeys(
+						context.getDocument(), bundleNames));
 				break;
 			}
 		}
@@ -154,6 +179,53 @@ public class StrutsTaglibCompletionProposalComputer extends
 		}
 
 		return namespaces;
+	}
+
+	private Map<String, String> findPropertiesKeys(IDocument currentDocument,
+			Set<String> bundleNames) {
+		Map<String, String> map = new HashMap<String, String>();
+
+		// local
+		List<ResourceDocument> resources = ProjectUtil.findPropertiesResources(
+				currentDocument, bundleNames);
+		for (ResourceDocument rd : resources) {
+			try {
+				ResourceBundle bundle = new PropertyResourceBundle(
+						new StringReader(rd.getDocument().get()));
+				fillMap(map, rd.getRelativePath(), bundle);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		// jars
+		List<JarEntryStorage> jarStorages = ProjectUtil
+				.findJarEntryPropertyResources(currentDocument, bundleNames);
+		for (JarEntryStorage jarStorage : jarStorages) {
+			try {
+				ResourceBundle bundle = new PropertyResourceBundle(
+						jarStorage.getContents());
+				fillMap(map, jarStorage.getFullPath().toString(), bundle);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+		return map;
+	}
+
+	private void fillMap(Map<String, String> map, String path,
+			ResourceBundle bundle) {
+		if (bundle != null) {
+			Set<String> keys = bundle.keySet();
+			for (String k : keys) {
+				if (!map.containsKey(k)) {
+					map.put(k, "");
+				}
+				map.put(k, map.get(k) + path + ":<br/>" + bundle.getString(k)
+						+ "<br/><br/>");
+			}
+		}
 	}
 
 	@Override

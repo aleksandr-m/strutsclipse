@@ -19,6 +19,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
@@ -95,6 +97,19 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 			for (String[] p : list) {
 				proposals[indx][0] = p[0];
 				proposals[indx++][1] = p[1];
+			}
+		}
+		return proposals;
+	}
+
+	protected String[][] proposalDataFromMap(Map<String, String> map) {
+		String[][] proposals = null;
+		if (map != null && !map.isEmpty()) {
+			proposals = new String[map.size()][2];
+			int indx = 0;
+			for (Entry<String, String> entr : map.entrySet()) {
+				proposals[indx][0] = entr.getKey();
+				proposals[indx++][1] = entr.getValue();
 			}
 		}
 		return proposals;

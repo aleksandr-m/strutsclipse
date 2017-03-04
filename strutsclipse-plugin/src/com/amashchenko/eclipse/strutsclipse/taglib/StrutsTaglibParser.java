@@ -25,7 +25,8 @@ public class StrutsTaglibParser extends AbstractXmlParser {
 	private static final String[] TAGS = { StrutsTaglibConstants.URL_TAG,
 			StrutsTaglibConstants.FORM_TAG, StrutsTaglibConstants.ACTION_TAG,
 			StrutsTaglibConstants.LINK_TAG, StrutsTaglibConstants.SUBMIT_TAG,
-			StrutsTaglibConstants.INCLUDE_TAG, CLOSE_TAG_TOKEN };
+			StrutsTaglibConstants.INCLUDE_TAG, StrutsTaglibConstants.TEXT_TAG,
+			CLOSE_TAG_TOKEN };
 
 	private static final String[] ATTRS = { StrutsTaglibConstants.ACTION_ATTR,
 			StrutsTaglibConstants.NAMESPACE_ATTR,

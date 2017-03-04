@@ -22,6 +22,7 @@ public class StrutsTaglibConstants {
 	public static final String ACTION_TAG = "s:action";
 	public static final String SUBMIT_TAG = "s:submit";
 	public static final String INCLUDE_TAG = "s:include";
+	public static final String TEXT_TAG = "s:text";
 
 	public static final String ACTION_ATTR = "action";
 	public static final String NAMESPACE_ATTR = "namespace";
