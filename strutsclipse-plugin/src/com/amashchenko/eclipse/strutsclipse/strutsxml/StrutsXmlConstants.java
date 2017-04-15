@@ -27,6 +27,7 @@ public class StrutsXmlConstants {
 	public static final String DEFAULT_ACTION_REF_TAG = "default-action-ref";
 	public static final String ACTION_TAG = "action";
 	public static final String RESULT_TAG = "result";
+	public static final String RESULT_TYPE_TAG = "result-type";
 	public static final String PARAM_TAG = "param";
 
 	public static final String METHOD_ATTR = "method";

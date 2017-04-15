@@ -18,6 +18,8 @@ package com.amashchenko.eclipse.strutsclipse.strutsxml;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.FileBuffers;
@@ -56,6 +58,8 @@ import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.PackageData;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
@@ -112,6 +116,15 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 				} else {
 					linksList.add(localLink);
 				}
+				break;
+			case INTERCEPTOR_REF_NAME:
+			case DEFAULT_INTERCEPTOR_REF_NAME:
+				linksList.addAll(createResultTypeOrInterceptorRefLinks(false,
+						document, elementValue, elementRegion));
+				break;
+			case RESULT_TYPE:
+				linksList.addAll(createResultTypeOrInterceptorRefLinks(true,
+						document, elementValue, elementRegion));
 				break;
 			case DEFAULT_ACTION_REF_NAME:
 				// same as for the result location, but with concrete namespace
@@ -350,6 +363,113 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		}
 
 		return links;
+	}
+
+	private List<IHyperlink> createResultTypeOrInterceptorRefLinks(
+			boolean fetchResultTypes, final IDocument document,
+			final String elementValue, final IRegion elementRegion) {
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
+
+		List<PackageData> files = new ArrayList<PackageData>();
+		// local
+		List<ResourceDocument> documents = ProjectUtil
+				.findStrutsResources(document);
+		for (ResourceDocument rd : documents) {
+			files.add(new PackageData(rd.getDocument()));
+		}
+		// jars
+		List<JarEntryStorage> jarStorages = ProjectUtil
+				.findJarEntryStrutsResources(document);
+		for (JarEntryStorage js : jarStorages) {
+			files.add(new PackageData(js));
+		}
+
+		List<PackageData> packages = new ArrayList<PackageData>();
+		for (PackageData pd : files) {
+			Map<String, TagGroup> map;
+			if (fetchResultTypes) {
+				map = strutsXmlParser.getPackageResultTypesTagRegions(pd
+						.getDocument() == null ? pd.getJarEntryStorage()
+						.toDocument() : pd.getDocument());
+			} else {
+				map = strutsXmlParser.getPackageInterceptorsTagRegions(pd
+						.getDocument() == null ? pd.getJarEntryStorage()
+						.toDocument() : pd.getDocument());
+			}
+
+			for (Entry<String, TagGroup> entr : map.entrySet()) {
+				PackageData p = new PackageData(pd);
+				p.setName(entr.getKey());
+
+				String extendsValue = entr.getValue().getParentTagRegion()
+						.getAttrValue(StrutsXmlConstants.EXTENDS_ATTR, null);
+				Set<String> extending = ParseUtil.delimitedStringToSet(
+						extendsValue, StrutsXmlConstants.MULTI_VALUE_SEPARATOR);
+				p.setExtending(extending);
+
+				p.setTagRegions(entr.getValue().getTagRegions());
+
+				packages.add(p);
+			}
+		}
+
+		TagRegion parentPackage = strutsXmlParser.getParentTagRegion(document,
+				elementRegion.getOffset(), StrutsXmlConstants.PACKAGE_TAG);
+		if (parentPackage != null) {
+			List<PackageData> results = new ArrayList<PackageData>();
+
+			collectPackageData(packages, parentPackage.getAttrValue(
+					StrutsXmlConstants.NAME_ATTR, ""), elementValue,
+					new ArrayList<PackageData>(), results);
+
+			for (PackageData result : results) {
+				if (result.getDocument() == null) {
+					links.add(new StorageHyperlink(elementRegion, result
+							.getJarEntryStorage(), result.getRegion()
+							.getValueRegion()));
+				} else {
+					ITextFileBuffer textFileBuffer = FileBuffers
+							.getTextFileBufferManager().getTextFileBuffer(
+									result.getDocument());
+					if (textFileBuffer != null) {
+						IFile file = ResourcesPlugin.getWorkspace().getRoot()
+								.getFile(textFileBuffer.getLocation());
+						if (file.exists()) {
+							links.add(new FileHyperlink(elementRegion, file,
+									result.getRegion().getValueRegion()));
+						}
+					}
+				}
+			}
+		}
+
+		return links;
+	}
+
+	private void collectPackageData(List<PackageData> packages,
+			String packageName, String tagName, List<PackageData> scaned,
+			List<PackageData> results) {
+		for (PackageData pd : packages) {
+			if (packageName.equals(pd.getName()) && !scaned.contains(pd)) {
+				if (pd.getTagRegions() != null) {
+					for (TagRegion tr : pd.getTagRegions()) {
+						if (tagName.equals(tr.getAttrValue(
+								StrutsXmlConstants.NAME_ATTR, null))) {
+							ElementRegion region = tr.getAttrs().get(
+									StrutsXmlConstants.NAME_ATTR);
+							pd.setRegion(region);
+							results.add(pd);
+						}
+					}
+				}
+
+				scaned.add(pd);
+
+				for (String ext : pd.getExtending()) {
+					collectPackageData(packages, ext, tagName, scaned, results);
+				}
+			}
+		}
 	}
 
 	private static class JavaElementHyperlink implements IHyperlink {

@@ -287,6 +287,16 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				StrutsXmlConstants.NAME_ATTR);
 	}
 
+	public Map<String, TagGroup> getPackageResultTypesTagRegions(
+			final IDocument document) {
+		return getGroupedTagRegions(document, StrutsXmlConstants.PACKAGE_TAG,
+				new String[] { StrutsXmlConstants.NAME_ATTR,
+						StrutsXmlConstants.EXTENDS_ATTR },
+				new String[] { StrutsXmlConstants.RESULT_TYPE_TAG },
+				new String[] { StrutsXmlConstants.NAME_ATTR },
+				StrutsXmlConstants.NAME_ATTR);
+	}
+
 	public boolean atLeast2_5(final IDocument document) {
 		boolean result = false;
 		ElementRegion doctypeRegion = getDoctype(document);
