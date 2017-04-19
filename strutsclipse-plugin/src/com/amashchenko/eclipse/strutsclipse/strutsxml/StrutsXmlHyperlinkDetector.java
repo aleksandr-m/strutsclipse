@@ -255,21 +255,17 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 				}
 			}
 		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
-			IProject project = ProjectUtil.getCurrentProject(document);
-			if (project != null && project.exists()) {
-				// find tiles resources
-				List<ResourceDocument> resources = ProjectUtil
-						.findTilesResources(document);
-				for (ResourceDocument rd : resources) {
-					IRegion region = tilesXmlParser.getDefinitionRegion(
-							rd.getDocument(), elementValue);
-					if (region != null) {
-						IFile file = project.getFile(rd.getResource()
-								.getProjectRelativePath());
-						if (file.exists()) {
-							links.add(new FileHyperlink(elementRegion, file,
-									region));
-						}
+			// find tiles resources
+			List<ResourceDocument> resources = ProjectUtil
+					.findTilesResources(document);
+			for (ResourceDocument rd : resources) {
+				IRegion region = tilesXmlParser.getDefinitionRegion(
+						rd.getDocument(), elementValue);
+				if (region != null) {
+					if (rd.getResource().getType() == IResource.FILE
+							&& rd.getResource().exists()) {
+						links.add(new FileHyperlink(elementRegion, (IFile) rd
+								.getResource(), region));
 					}
 				}
 			}
@@ -321,7 +317,6 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 			final IRegion elementRegion) {
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
 
-		IProject project = ProjectUtil.getCurrentProject(document);
 		IPath currentPath = ProjectUtil.getCurrentDocumentPath(document);
 
 		List<ResourceDocument> resources = ProjectUtil
@@ -331,11 +326,10 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 				IRegion nameRegion = strutsXmlParser.getPackageNameRegion(
 						rd.getDocument(), elementValue);
 				if (nameRegion != null) {
-					IFile file = project.getFile(rd.getResource()
-							.getProjectRelativePath());
-					if (file.exists()) {
-						links.add(new FileHyperlink(elementRegion, file,
-								nameRegion));
+					if (rd.getResource().getType() == IResource.FILE
+							&& rd.getResource().exists()) {
+						links.add(new FileHyperlink(elementRegion, (IFile) rd
+								.getResource(), nameRegion));
 					}
 				}
 			}

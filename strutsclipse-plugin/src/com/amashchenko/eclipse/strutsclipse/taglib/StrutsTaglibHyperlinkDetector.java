@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -88,38 +89,33 @@ public class StrutsTaglibHyperlinkDetector extends
 			namespaces.add(namespaceParamValue);
 		}
 
-		IProject project = ProjectUtil.getCurrentProject(document);
-		if (project != null && project.exists()) {
-			// find struts resources
-			List<ResourceDocument> resources = ProjectUtil
-					.findStrutsResources(document);
+		// find struts resources
+		List<ResourceDocument> resources = ProjectUtil
+				.findStrutsResources(document);
 
-			if (namespaceParamValue == null) {
-				for (ResourceDocument rd : resources) {
-					List<IRegion> regions = strutsXmlParser.getActionRegions(
-							rd.getDocument(), elementValue);
-					if (regions != null) {
-						for (IRegion region : regions) {
-							IFile file = project.getFile(rd.getResource()
-									.getProjectRelativePath());
-							if (file.exists()) {
-								links.add(new FileHyperlink(elementRegion,
-										file, region));
-							}
+		if (namespaceParamValue == null) {
+			for (ResourceDocument rd : resources) {
+				List<IRegion> regions = strutsXmlParser.getActionRegions(
+						rd.getDocument(), elementValue);
+				if (regions != null) {
+					for (IRegion region : regions) {
+						if (rd.getResource().getType() == IResource.FILE
+								&& rd.getResource().exists()) {
+							links.add(new FileHyperlink(elementRegion,
+									(IFile) rd.getResource(), region));
 						}
 					}
 				}
-			} else {
-				for (ResourceDocument rd : resources) {
-					IRegion region = strutsXmlParser.getActionRegion(
-							rd.getDocument(), namespaces, elementValue);
-					if (region != null) {
-						IFile file = project.getFile(rd.getResource()
-								.getProjectRelativePath());
-						if (file.exists()) {
-							links.add(new FileHyperlink(elementRegion, file,
-									region));
-						}
+			}
+		} else {
+			for (ResourceDocument rd : resources) {
+				IRegion region = strutsXmlParser.getActionRegion(
+						rd.getDocument(), namespaces, elementValue);
+				if (region != null) {
+					if (rd.getResource().getType() == IResource.FILE
+							&& rd.getResource().exists()) {
+						links.add(new FileHyperlink(elementRegion, (IFile) rd
+								.getResource(), region));
 					}
 				}
 			}
