@@ -18,14 +18,13 @@ package com.amashchenko.eclipse.strutsclipse.strutsxml;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.filebuffers.FileBuffers;
 import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
@@ -59,7 +58,6 @@ import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.PackageData;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
@@ -370,52 +368,12 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 			final String elementValue, final IRegion elementRegion) {
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
 
-		List<PackageData> files = new ArrayList<PackageData>();
-		// local
-		List<ResourceDocument> documents = ProjectUtil
-				.findStrutsResources(document);
-		for (ResourceDocument rd : documents) {
-			files.add(new PackageData(rd.getDocument()));
-		}
-		// jars
-		List<JarEntryStorage> jarStorages = ProjectUtil
-				.findJarEntryStrutsResources(document);
-		for (JarEntryStorage js : jarStorages) {
-			files.add(new PackageData(js));
-		}
-
-		List<PackageData> packages = new ArrayList<PackageData>();
-		for (PackageData pd : files) {
-			Map<String, TagGroup> map;
-			if (fetchResultTypes) {
-				map = strutsXmlParser.getPackageResultTypesTagRegions(pd
-						.getDocument() == null ? pd.getJarEntryStorage()
-						.toDocument() : pd.getDocument());
-			} else {
-				map = strutsXmlParser.getPackageInterceptorsTagRegions(pd
-						.getDocument() == null ? pd.getJarEntryStorage()
-						.toDocument() : pd.getDocument());
-			}
-
-			for (Entry<String, TagGroup> entr : map.entrySet()) {
-				PackageData p = new PackageData(pd);
-				p.setName(entr.getKey());
-
-				String extendsValue = entr.getValue().getParentTagRegion()
-						.getAttrValue(StrutsXmlConstants.EXTENDS_ATTR, null);
-				Set<String> extending = ParseUtil.delimitedStringToSet(
-						extendsValue, StrutsXmlConstants.MULTI_VALUE_SEPARATOR);
-				p.setExtending(extending);
-
-				p.setTagRegions(entr.getValue().getTagRegions());
-
-				packages.add(p);
-			}
-		}
-
 		TagRegion parentPackage = strutsXmlParser.getParentTagRegion(document,
 				elementRegion.getOffset(), StrutsXmlConstants.PACKAGE_TAG);
 		if (parentPackage != null) {
+			List<PackageData> packages = strutsXmlParser
+					.getAllStrutsPackagesData(document, fetchResultTypes);
+
 			List<PackageData> results = new ArrayList<PackageData>();
 
 			collectPackageData(packages, parentPackage.getAttrValue(
@@ -423,21 +381,15 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 					new ArrayList<PackageData>(), results);
 
 			for (PackageData result : results) {
-				if (result.getDocument() == null) {
+				if (result.getResourceDocument() == null) {
 					links.add(new StorageHyperlink(elementRegion, result
 							.getJarEntryStorage(), result.getRegion()
 							.getValueRegion()));
 				} else {
-					ITextFileBuffer textFileBuffer = FileBuffers
-							.getTextFileBufferManager().getTextFileBuffer(
-									result.getDocument());
-					if (textFileBuffer != null) {
-						IFile file = ResourcesPlugin.getWorkspace().getRoot()
-								.getFile(textFileBuffer.getLocation());
-						if (file.exists()) {
-							links.add(new FileHyperlink(elementRegion, file,
-									result.getRegion().getValueRegion()));
-						}
+					IResource res = result.getResourceDocument().getResource();
+					if (res.getType() == IResource.FILE && res.exists()) {
+						links.add(new FileHyperlink(elementRegion, (IFile) res,
+								result.getRegion().getValueRegion()));
 					}
 				}
 			}
