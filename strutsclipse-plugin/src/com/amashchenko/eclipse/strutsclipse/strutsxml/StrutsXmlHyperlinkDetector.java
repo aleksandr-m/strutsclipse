@@ -20,13 +20,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IStorage;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
@@ -244,14 +241,9 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 			IRegion region = strutsXmlParser.getActionRegion(document,
 					namespaces, elementValue);
 			if (region != null) {
-				ITextFileBuffer textFileBuffer = FileBuffers
-						.getTextFileBufferManager().getTextFileBuffer(document);
-				if (textFileBuffer != null) {
-					IFile file = ResourcesPlugin.getWorkspace().getRoot()
-							.getFile(textFileBuffer.getLocation());
-					if (file.exists()) {
-						links.add(new FileHyperlink(elementRegion, file, region));
-					}
+				IFile file = ProjectUtil.getCurrentDocumentFile(document);
+				if (file.exists()) {
+					links.add(new FileHyperlink(elementRegion, file, region));
 				}
 			}
 		} else if (StrutsXmlConstants.TILES_RESULT.equals(typeAttrValue)) {
@@ -297,15 +289,9 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		IRegion packageNameRegion = strutsXmlParser.getPackageNameRegion(
 				document, elementValue);
 		if (packageNameRegion != null) {
-			ITextFileBuffer textFileBuffer = FileBuffers
-					.getTextFileBufferManager().getTextFileBuffer(document);
-			if (textFileBuffer != null) {
-				IFile file = ResourcesPlugin.getWorkspace().getRoot()
-						.getFile(textFileBuffer.getLocation());
-				if (file.exists()) {
-					link = new FileHyperlink(elementRegion, file,
-							packageNameRegion);
-				}
+			IFile file = ProjectUtil.getCurrentDocumentFile(document);
+			if (file.exists()) {
+				link = new FileHyperlink(elementRegion, file, packageNameRegion);
 			}
 		}
 

@@ -79,6 +79,11 @@ public class ProjectUtil {
 		return path;
 	}
 
+	public static IFile getCurrentDocumentFile(IDocument document) {
+		return ResourcesPlugin.getWorkspace().getRoot()
+				.getFile(getCurrentDocumentPath(document));
+	}
+
 	public static IProject getCurrentProject(IDocument document) {
 		IPath basePath = getCurrentDocumentPath(document);
 		if (basePath != null && !basePath.isEmpty()) {

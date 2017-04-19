@@ -18,16 +18,14 @@ package com.amashchenko.eclipse.strutsclipse.tilesxml;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.filebuffers.FileBuffers;
-import org.eclipse.core.filebuffers.ITextFileBuffer;
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class TilesXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
@@ -76,14 +74,9 @@ public class TilesXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		IRegion region = tilesXmlParser.getDefinitionRegion(document,
 				elementValue);
 		if (region != null) {
-			ITextFileBuffer textFileBuffer = FileBuffers
-					.getTextFileBufferManager().getTextFileBuffer(document);
-			if (textFileBuffer != null) {
-				IFile file = ResourcesPlugin.getWorkspace().getRoot()
-						.getFile(textFileBuffer.getLocation());
-				if (file.exists()) {
-					links.add(new FileHyperlink(elementRegion, file, region));
-				}
+			IFile file = ProjectUtil.getCurrentDocumentFile(document);
+			if (file.exists()) {
+				links.add(new FileHyperlink(elementRegion, file, region));
 			}
 		}
 
