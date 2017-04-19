@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.jface.text.IDocument;
@@ -27,8 +28,13 @@ import org.eclipse.jface.text.IDocumentPartitioner;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITypedRegion;
 
+import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
+import com.amashchenko.eclipse.strutsclipse.ParseUtil;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.AbstractXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.PackageData;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
@@ -357,5 +363,59 @@ public class StrutsXmlParser extends AbstractXmlParser {
 				partitioner.disconnect();
 			}
 		}
+	}
+
+	/**
+	 * Gets all struts xml-s from the project including ones in the jar-s,
+	 * parses them and returns list of package data.
+	 * 
+	 * @param document
+	 *            Current project document.
+	 * @param fetchResultTypes
+	 *            Whether to fetch result-type or interceptor and
+	 *            interceptor-stack tags.
+	 * @return List of package data.
+	 */
+	public List<PackageData> getAllStrutsPackagesData(final IDocument document,
+			boolean fetchResultTypes) {
+		List<PackageData> files = new ArrayList<PackageData>();
+		// local
+		List<ResourceDocument> documents = ProjectUtil
+				.findStrutsResources(document);
+		for (ResourceDocument rd : documents) {
+			files.add(new PackageData(rd));
+		}
+		// jars
+		List<JarEntryStorage> jarStorages = ProjectUtil
+				.findJarEntryStrutsResources(document);
+		for (JarEntryStorage js : jarStorages) {
+			files.add(new PackageData(js));
+		}
+
+		List<PackageData> packages = new ArrayList<PackageData>();
+		for (PackageData pd : files) {
+			Map<String, TagGroup> map;
+			if (fetchResultTypes) {
+				map = getPackageResultTypesTagRegions(pd.getDocument());
+			} else {
+				map = getPackageInterceptorsTagRegions(pd.getDocument());
+			}
+
+			for (Entry<String, TagGroup> entr : map.entrySet()) {
+				PackageData p = new PackageData(pd);
+				p.setName(entr.getKey());
+
+				String extendsValue = entr.getValue().getParentTagRegion()
+						.getAttrValue(StrutsXmlConstants.EXTENDS_ATTR, null);
+				Set<String> extending = ParseUtil.delimitedStringToSet(
+						extendsValue, StrutsXmlConstants.MULTI_VALUE_SEPARATOR);
+				p.setExtending(extending);
+
+				p.setTagRegions(entr.getValue().getTagRegions());
+
+				packages.add(p);
+			}
+		}
+		return packages;
 	}
 }

@@ -21,9 +21,10 @@ import java.util.Set;
 import org.eclipse.jface.text.IDocument;
 
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
+import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 
 public class PackageData {
-	private final IDocument document;
+	private final ResourceDocument resourceDocument;
 	private final JarEntryStorage jarEntryStorage;
 
 	private String name;
@@ -32,23 +33,28 @@ public class PackageData {
 
 	private ElementRegion region;
 
-	public PackageData(IDocument document) {
-		this.document = document;
+	public PackageData(ResourceDocument resourceDocument) {
+		this.resourceDocument = resourceDocument;
 		this.jarEntryStorage = null;
 	}
 
 	public PackageData(JarEntryStorage jarEntryStorage) {
-		this.document = null;
+		this.resourceDocument = null;
 		this.jarEntryStorage = jarEntryStorage;
 	}
 
 	public PackageData(PackageData packageData) {
-		this.document = packageData.getDocument();
-		this.jarEntryStorage = packageData.getJarEntryStorage();
+		this.resourceDocument = packageData.resourceDocument;
+		this.jarEntryStorage = packageData.jarEntryStorage;
 	}
 
 	public IDocument getDocument() {
-		return document;
+		return resourceDocument == null ? jarEntryStorage.toDocument()
+				: resourceDocument.getDocument();
+	}
+
+	public ResourceDocument getResourceDocument() {
+		return resourceDocument;
 	}
 
 	public JarEntryStorage getJarEntryStorage() {

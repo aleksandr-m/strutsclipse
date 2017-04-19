@@ -17,10 +17,8 @@ package com.amashchenko.eclipse.strutsclipse.strutsxml;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
@@ -35,13 +33,12 @@ import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
-import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.java.ActionMethodProposalComparator;
 import com.amashchenko.eclipse.strutsclipse.java.JavaClassCompletion;
 import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
-import com.amashchenko.eclipse.strutsclipse.xmlparser.TagGroup;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.PackageData;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlCompletionProposalComputer extends
@@ -349,38 +346,23 @@ public class StrutsXmlCompletionProposalComputer extends
 		TagRegion packageTagRegion = strutsXmlParser.getParentTagRegion(
 				document, offset, StrutsXmlConstants.PACKAGE_TAG);
 		if (packageTagRegion != null) {
-			String packageExtends = packageTagRegion.getAttrValue(
-					StrutsXmlConstants.EXTENDS_ATTR, null);
+			List<PackageData> packages = strutsXmlParser
+					.getAllStrutsPackagesData(document, false);
 
-			// local interceptors
-			Map<String, TagGroup> interceptorsMap = strutsXmlParser
-					.getPackageInterceptorsTagRegions(document);
-
-			if (packageExtends != null) {
-				// external interceptors
-				interceptorsMap.putAll(createInterceptorsMapFromJars(document));
-			}
-
-			String packageName = packageTagRegion.getAttrValue(
-					StrutsXmlConstants.NAME_ATTR, null);
-
-			collectInterceptorsNames(interceptorsMap, packageName,
-					new HashSet<String>(), results);
+			collectInterceptorsNames(packages, packageTagRegion.getAttrValue(
+					StrutsXmlConstants.NAME_ATTR, ""),
+					new ArrayList<PackageData>(), results);
 		}
 
 		return proposalDataFromList(results);
 	}
 
-	private void collectInterceptorsNames(Map<String, TagGroup> map,
-			String packageName, Set<String> scanedPackages,
-			List<String[]> results) {
-		if (map.containsKey(packageName)
-				&& !scanedPackages.contains(packageName)) {
-			TagGroup tagGroup = map.get(packageName);
-			if (tagGroup != null) {
-				List<TagRegion> tagRegions = tagGroup.getTagRegions();
-				if (tagRegions != null) {
-					for (TagRegion tr : tagRegions) {
+	private void collectInterceptorsNames(List<PackageData> packages,
+			String packageName, List<PackageData> scaned, List<String[]> results) {
+		for (PackageData pd : packages) {
+			if (packageName.equals(pd.getName()) && !scaned.contains(pd)) {
+				if (pd.getTagRegions() != null) {
+					for (TagRegion tr : pd.getTagRegions()) {
 						String val = tr.getAttrValue(
 								StrutsXmlConstants.NAME_ATTR, null);
 						if (val != null) {
@@ -392,39 +374,13 @@ public class StrutsXmlCompletionProposalComputer extends
 					}
 				}
 
-				scanedPackages.add(packageName);
+				scaned.add(pd);
 
-				TagRegion parentTagRegion = tagGroup.getParentTagRegion();
-				if (parentTagRegion != null) {
-					String extendsValue = parentTagRegion.getAttrValue(
-							StrutsXmlConstants.EXTENDS_ATTR, null);
-
-					if (extendsValue != null) {
-						Set<String> extendsSet = ParseUtil
-								.delimitedStringToSet(
-										extendsValue,
-										StrutsXmlConstants.MULTI_VALUE_SEPARATOR);
-
-						for (String extnd : extendsSet) {
-							collectInterceptorsNames(map, extnd,
-									scanedPackages, results);
-						}
-					}
+				for (String ext : pd.getExtending()) {
+					collectInterceptorsNames(packages, ext, scaned, results);
 				}
 			}
 		}
-	}
-
-	private Map<String, TagGroup> createInterceptorsMapFromJars(
-			final IDocument document) {
-		Map<String, TagGroup> jarsInterceptorsMap = new HashMap<String, TagGroup>();
-		List<JarEntryStorage> jarStorages = ProjectUtil
-				.findJarEntryStrutsResources(document);
-		for (JarEntryStorage jarStorage : jarStorages) {
-			jarsInterceptorsMap.putAll(strutsXmlParser
-					.getPackageInterceptorsTagRegions(jarStorage.toDocument()));
-		}
-		return jarsInterceptorsMap;
 	}
 
 	@Override
