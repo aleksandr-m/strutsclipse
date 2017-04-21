@@ -52,7 +52,8 @@
 
         <proposalCategory
             id="com.amashchenko.eclipse.strutsclipse.strutstaglibcompletionProposal"
-            name="Struts Taglib Proposals">
+            name="Struts Taglib Proposals"
+            icon="icons/taglib.gif">
         </proposalCategory>
 
         <proposalComputer
