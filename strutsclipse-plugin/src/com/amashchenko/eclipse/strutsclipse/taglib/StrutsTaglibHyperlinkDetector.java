@@ -18,10 +18,10 @@ package com.amashchenko.eclipse.strutsclipse.taglib;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
@@ -29,8 +29,12 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
+import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
+import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+import com.amashchenko.eclipse.strutsclipse.PropertiesParser;
 import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
+import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
@@ -38,10 +42,12 @@ public class StrutsTaglibHyperlinkDetector extends
 		AbstractStrutsHyperlinkDetector implements StrutsTaglibLocations {
 	private final StrutsTaglibParser strutsTaglibParser;
 	private final StrutsXmlParser strutsXmlParser;
+	private final PropertiesParser propertiesParser;
 
 	public StrutsTaglibHyperlinkDetector() {
 		strutsTaglibParser = new StrutsTaglibParser();
 		strutsXmlParser = new StrutsXmlParser();
+		propertiesParser = new PropertiesParser();
 	}
 
 	@Override
@@ -72,6 +78,10 @@ public class StrutsTaglibHyperlinkDetector extends
 				linksList.addAll(createActionLinks(document, elementValue,
 						elementRegion, tagRegion.getAttrValue(
 								StrutsTaglibConstants.NAMESPACE_ATTR, null)));
+				break;
+			case TEXT_NAME:
+				linksList.addAll(createPropertiesKeysLinks(document,
+						elementValue, elementRegion));
 				break;
 			}
 		}
@@ -118,6 +128,54 @@ public class StrutsTaglibHyperlinkDetector extends
 								.getResource(), region));
 					}
 				}
+			}
+		}
+
+		return links;
+	}
+
+	private List<IHyperlink> createPropertiesKeysLinks(
+			final IDocument document, final String elementValue,
+			final IRegion elementRegion) {
+		final List<IHyperlink> links = new ArrayList<IHyperlink>();
+
+		// get bundle names
+		Set<String> bundleNames = new HashSet<String>();
+		List<ResourceDocument> strutsResources = ProjectUtil
+				.findStrutsResources(document);
+		for (ResourceDocument rd : strutsResources) {
+			Map<String, String> constants = strutsXmlParser.getConstantsMap(rd
+					.getDocument());
+			bundleNames
+					.addAll(ParseUtil.delimitedStringToSet(constants
+							.get(StrutsXmlConstants.CONSTANT_CUSTOM_RESOURCES),
+							StrutsXmlConstants.MULTI_VALUE_SEPARATOR));
+		}
+
+		// local
+		List<ResourceDocument> resources = ProjectUtil.findPropertiesResources(
+				document, bundleNames);
+		for (ResourceDocument rd : resources) {
+			IRegion keyRegion = propertiesParser.getKeyRegion(rd.getDocument(),
+					elementValue);
+			if (keyRegion != null) {
+				if (rd.getResource().getType() == IResource.FILE
+						&& rd.getResource().exists()) {
+					links.add(new FileHyperlink(elementRegion, (IFile) rd
+							.getResource(), keyRegion));
+				}
+			}
+		}
+
+		// jars
+		List<JarEntryStorage> jarStorages = ProjectUtil
+				.findJarEntryPropertyResources(document, bundleNames);
+		for (JarEntryStorage jarStorage : jarStorages) {
+			IRegion keyRegion = propertiesParser.getKeyRegion(
+					jarStorage.toDocument(), elementValue);
+			if (keyRegion != null) {
+				links.add(new StorageHyperlink(elementRegion, jarStorage,
+						keyRegion));
 			}
 		}
 

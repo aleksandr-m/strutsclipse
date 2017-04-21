@@ -23,26 +23,17 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.ui.JavaUI;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IPersistableElement;
-import org.eclipse.ui.IStorageEditorInput;
-import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.ide.IDE;
 import org.eclipse.wst.common.componentcore.ComponentCore;
 import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
@@ -435,103 +426,6 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 			} catch (PartInitException e) {
 			} catch (JavaModelException e) {
 			}
-		}
-	}
-
-	private static class StorageHyperlink implements IHyperlink {
-		private final IStorage fStorage;
-		private final IRegion fRegion;
-		private final IRegion fHighlightRange;
-
-		private StorageHyperlink(IRegion region, IStorage storage, IRegion range) {
-			fRegion = region;
-			fStorage = storage;
-			fHighlightRange = range;
-		}
-
-		@Override
-		public IRegion getHyperlinkRegion() {
-			return fRegion;
-		}
-
-		@Override
-		public String getHyperlinkText() {
-			return fStorage == null ? null : fStorage.getFullPath().toString();
-		}
-
-		@Override
-		public String getTypeLabel() {
-			return null;
-		}
-
-		@Override
-		public void open() {
-			try {
-				IWorkbenchPage page = PlatformUI.getWorkbench()
-						.getActiveWorkbenchWindow().getActivePage();
-
-				IEditorDescriptor editorDescriptor = IDE
-						.getEditorDescriptor(fStorage.getName());
-
-				IEditorPart editor = page.openEditor(new StorageEditorInput(
-						fStorage), editorDescriptor.getId());
-
-				selectAndReveal(editor, fHighlightRange);
-			} catch (PartInitException e) {
-			}
-		}
-	}
-
-	private static class StorageEditorInput implements IStorageEditorInput {
-		private final IStorage fStorage;
-
-		private StorageEditorInput(IStorage storage) {
-			fStorage = storage;
-		}
-
-		@Override
-		public boolean exists() {
-			return fStorage != null;
-		}
-
-		@Override
-		public ImageDescriptor getImageDescriptor() {
-			return null;
-		}
-
-		@Override
-		public String getName() {
-			return fStorage.getName();
-		}
-
-		@Override
-		public IPersistableElement getPersistable() {
-			return null;
-		}
-
-		@Override
-		public IStorage getStorage() {
-			return fStorage;
-		}
-
-		@Override
-		public String getToolTipText() {
-			return fStorage.getFullPath() != null ? fStorage.getFullPath()
-					.toString() : fStorage.getName();
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (obj instanceof StorageEditorInput) {
-				return fStorage.equals(((StorageEditorInput) obj).fStorage);
-			}
-			return super.equals(obj);
-		}
-
-		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@Override
-		public Object getAdapter(Class adapter) {
-			return null;
 		}
 	}
 }
