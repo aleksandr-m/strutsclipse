@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.3.0
+
+* Added content assist for JSP `text` tag `name` attribute
+* Added hyperlinks for JSP `text` tag `name` attribute
+* Added hyperlinks for `interceptor-ref` tag `name` attribute
+* Added hyperlinks for `default-interceptor-ref` tag `name` attribute
+* Added hyperlinks for `result` tag `type` attribute
+* Added icon for taglib proposals
+* Various improvements
+
 ## 1.2.3
 
 * Add content assist for JSP `include` tag `value` attribute
