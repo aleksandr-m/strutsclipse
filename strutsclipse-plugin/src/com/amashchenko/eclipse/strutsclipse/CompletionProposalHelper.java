@@ -56,13 +56,21 @@ public class CompletionProposalHelper {
 				}
 			}
 
+			// if first contains '/' assume all proposals are paths
+			boolean pathLike = proposalsData[0][0].contains("/");
+
 			String prefixLowCase = parsedValue.getName().toLowerCase(
 					Locale.ROOT);
+			if (pathLike && !prefixLowCase.isEmpty()
+					&& prefixLowCase.charAt(0) != '/') {
+				prefixLowCase = "/" + prefixLowCase;
+			}
 
 			for (String[] proposal : proposalsData) {
 				String propLowCase = proposal[0].toLowerCase(Locale.ROOT);
 				if (!excludes.contains(proposal[0])
-						&& (propLowCase.startsWith(prefixLowCase))) {
+						&& (propLowCase.startsWith(prefixLowCase) || (pathLike && propLowCase
+								.contains(prefixLowCase)))) {
 					list.add(new CompletionProposal(proposal[0], parsedValue
 							.getValueRegion().getOffset(), parsedValue
 							.getValueRegion().getLength(),

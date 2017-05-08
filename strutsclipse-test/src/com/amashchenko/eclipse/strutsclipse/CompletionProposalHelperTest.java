@@ -109,6 +109,52 @@ public class CompletionProposalHelperTest {
 		Assert.assertEquals(data[2][0], results.get(0).getDisplayString());
 	}
 
+	@Test
+	public void testPathLikeWithSlash() throws Exception {
+		final String[][] data = { { "/some/path/file", null } };
+		List<ICompletionProposal> results = CompletionProposalHelper
+				.createAttrCompletionProposals(data, "/path", new Region(0, 5),
+						null, "/path", null);
+		Assert.assertNotNull(results);
+		Assert.assertFalse(results.isEmpty());
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(data[0][0], results.get(0).getDisplayString());
+	}
+
+	@Test
+	public void testPathLikeWithoutSlash() throws Exception {
+		final String[][] data = { { "/some/path/file", null } };
+		List<ICompletionProposal> results = CompletionProposalHelper
+				.createAttrCompletionProposals(data, "path", new Region(0, 5),
+						null, "path", null);
+		Assert.assertNotNull(results);
+		Assert.assertFalse(results.isEmpty());
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(data[0][0], results.get(0).getDisplayString());
+	}
+
+	@Test
+	public void testPathLikeEmpty() throws Exception {
+		final String[][] data = { { "/some/path/file", null } };
+		List<ICompletionProposal> results = CompletionProposalHelper
+				.createAttrCompletionProposals(data, "", new Region(0, 0),
+						null, "", null);
+		Assert.assertNotNull(results);
+		Assert.assertFalse(results.isEmpty());
+		Assert.assertEquals(1, results.size());
+		Assert.assertEquals(data[0][0], results.get(0).getDisplayString());
+	}
+
+	@Test
+	public void testPathLikeNotMatch() throws Exception {
+		final String[][] data = { { "/some/path/file", null } };
+		List<ICompletionProposal> results = CompletionProposalHelper
+				.createAttrCompletionProposals(data, "not_in_list", new Region(
+						0, 11), null, "not_in_list", null);
+		Assert.assertNotNull(results);
+		Assert.assertTrue(results.isEmpty());
+	}
+
 	// proposalDataFromSet
 	@Test
 	public void testProposalDataFromSet() throws Exception {
