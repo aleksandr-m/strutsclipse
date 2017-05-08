@@ -27,13 +27,14 @@ import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
-import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 
-public abstract class AbstractXmlCompletionProposalComputer implements
-		ICompletionProposalComputer {
-	protected List<ICompletionProposal> createAttrCompletionProposals(
+public class CompletionProposalHelper {
+	public CompletionProposalHelper() {
+	}
+
+	public static List<ICompletionProposal> createAttrCompletionProposals(
 			String[][] proposalsData, String prefix, IRegion region,
 			String valueSeparator, String attrvalue,
 			CompletionProposalComparator proposalComparator) {
@@ -55,13 +56,13 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 				}
 			}
 
-			final String prefixLowCase = parsedValue.getName().toLowerCase(
+			String prefixLowCase = parsedValue.getName().toLowerCase(
 					Locale.ROOT);
 
 			for (String[] proposal : proposalsData) {
-				if (proposal[0].toLowerCase(Locale.ROOT).startsWith(
-						prefixLowCase)
-						&& !excludes.contains(proposal[0])) {
+				String propLowCase = proposal[0].toLowerCase(Locale.ROOT);
+				if (!excludes.contains(proposal[0])
+						&& (propLowCase.startsWith(prefixLowCase))) {
 					list.add(new CompletionProposal(proposal[0], parsedValue
 							.getValueRegion().getOffset(), parsedValue
 							.getValueRegion().getLength(),
@@ -77,7 +78,7 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 		return list;
 	}
 
-	protected String[][] proposalDataFromSet(Set<String> set) {
+	public static String[][] proposalDataFromSet(Set<String> set) {
 		String[][] proposals = null;
 		if (set != null && !set.isEmpty()) {
 			proposals = new String[set.size()][2];
@@ -89,7 +90,7 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 		return proposals;
 	}
 
-	protected String[][] proposalDataFromList(List<String[]> list) {
+	public static String[][] proposalDataFromList(List<String[]> list) {
 		String[][] proposals = null;
 		if (list != null && !list.isEmpty()) {
 			proposals = new String[list.size()][2];
@@ -102,7 +103,7 @@ public abstract class AbstractXmlCompletionProposalComputer implements
 		return proposals;
 	}
 
-	protected String[][] proposalDataFromMap(Map<String, String> map) {
+	public static String[][] proposalDataFromMap(Map<String, String> map) {
 		String[][] proposals = null;
 		if (map != null && !map.isEmpty()) {
 			proposals = new String[map.size()][2];

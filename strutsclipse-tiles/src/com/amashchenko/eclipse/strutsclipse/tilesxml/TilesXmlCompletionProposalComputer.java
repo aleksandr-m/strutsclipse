@@ -26,13 +26,14 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
+import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
-import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.CompletionProposalHelper;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
-public class TilesXmlCompletionProposalComputer extends
-		AbstractXmlCompletionProposalComputer implements TilesXmlLocations {
+public class TilesXmlCompletionProposalComputer implements
+		ICompletionProposalComputer, TilesXmlLocations {
 	private final TilesXmlParser tilesXmlParser;
 
 	private final CompletionProposalComparator proposalComparator;
@@ -80,9 +81,9 @@ public class TilesXmlCompletionProposalComputer extends
 		}
 
 		if (proposals == null && proposalsData != null) {
-			proposals = createAttrCompletionProposals(proposalsData,
-					elementValuePrefix, proposalRegion, multiValueSeparator,
-					elementValue, proposalComparator);
+			proposals = CompletionProposalHelper.createAttrCompletionProposals(
+					proposalsData, elementValuePrefix, proposalRegion,
+					multiValueSeparator, elementValue, proposalComparator);
 		}
 		if (proposals == null) {
 			proposals = new ArrayList<ICompletionProposal>();
@@ -102,12 +103,12 @@ public class TilesXmlCompletionProposalComputer extends
 			definitonNames.remove(currentDefinitionName);
 		}
 
-		return proposalDataFromSet(definitonNames);
+		return CompletionProposalHelper.proposalDataFromSet(definitonNames);
 	}
 
 	private String[][] computeFileProposals(final IDocument document) {
 		Set<String> set = ProjectUtil.findJspHtmlFilesPaths(document);
-		return proposalDataFromSet(set);
+		return CompletionProposalHelper.proposalDataFromSet(set);
 	}
 
 	@Override

@@ -34,8 +34,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
+import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
-import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.CompletionProposalHelper;
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
 import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
@@ -44,8 +45,8 @@ import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
-public class StrutsTaglibCompletionProposalComputer extends
-		AbstractXmlCompletionProposalComputer implements StrutsTaglibLocations {
+public class StrutsTaglibCompletionProposalComputer implements
+		ICompletionProposalComputer, StrutsTaglibLocations {
 	private final StrutsTaglibParser strutsTaglibParser;
 	private final StrutsXmlParser strutsXmlParser;
 
@@ -86,20 +87,23 @@ public class StrutsTaglibCompletionProposalComputer extends
 			case LINK_ACTION:
 			case ACTION_NAME:
 			case SUBMIT_ACTION:
-				proposalsData = proposalDataFromSet(findStrutsActionNames(
-						context.getDocument(), tagRegion.getAttrValue(
+				proposalsData = CompletionProposalHelper
+						.proposalDataFromSet(findStrutsActionNames(context
+								.getDocument(), tagRegion.getAttrValue(
 								StrutsTaglibConstants.NAMESPACE_ATTR, null)));
 				break;
 			case URL_NAMESPACE:
 			case FORM_NAMESPACE:
 			case LINK_NAMESPACE:
 			case ACTION_NAMESPACE:
-				proposalsData = proposalDataFromSet(findStrutsPackagesNamespaces(context
-						.getDocument()));
+				proposalsData = CompletionProposalHelper
+						.proposalDataFromSet(findStrutsPackagesNamespaces(context
+								.getDocument()));
 				break;
 			case INCLUDE_VALUE:
-				proposalsData = proposalDataFromSet(ProjectUtil
-						.findJspHtmlFilesPaths(context.getDocument()));
+				proposalsData = CompletionProposalHelper
+						.proposalDataFromSet(ProjectUtil
+								.findJspHtmlFilesPaths(context.getDocument()));
 				break;
 			case TEXT_NAME:
 				Set<String> bundleNames = new HashSet<String>();
@@ -114,16 +118,17 @@ public class StrutsTaglibCompletionProposalComputer extends
 							StrutsXmlConstants.MULTI_VALUE_SEPARATOR));
 				}
 
-				proposalsData = proposalDataFromMap(findPropertiesKeys(
-						context.getDocument(), bundleNames));
+				proposalsData = CompletionProposalHelper
+						.proposalDataFromMap(findPropertiesKeys(
+								context.getDocument(), bundleNames));
 				break;
 			}
 		}
 
 		if (proposals == null && proposalsData != null) {
-			proposals = createAttrCompletionProposals(proposalsData,
-					elementValuePrefix, proposalRegion, null, elementValue,
-					proposalComparator);
+			proposals = CompletionProposalHelper.createAttrCompletionProposals(
+					proposalsData, elementValuePrefix, proposalRegion, null,
+					elementValue, proposalComparator);
 		}
 		if (proposals == null) {
 			proposals = new ArrayList<ICompletionProposal>();

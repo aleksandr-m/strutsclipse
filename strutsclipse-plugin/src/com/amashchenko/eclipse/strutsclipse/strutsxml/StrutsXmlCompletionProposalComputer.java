@@ -30,8 +30,9 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
+import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
-import com.amashchenko.eclipse.strutsclipse.AbstractXmlCompletionProposalComputer;
+import com.amashchenko.eclipse.strutsclipse.CompletionProposalHelper;
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
@@ -41,8 +42,8 @@ import com.amashchenko.eclipse.strutsclipse.tilesxml.TilesXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.PackageData;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
-public class StrutsXmlCompletionProposalComputer extends
-		AbstractXmlCompletionProposalComputer implements StrutsXmlLocations {
+public class StrutsXmlCompletionProposalComputer implements
+		ICompletionProposalComputer, StrutsXmlLocations {
 	private final StrutsXmlParser strutsXmlParser;
 	private final TilesXmlParser tilesXmlParser;
 
@@ -115,9 +116,10 @@ public class StrutsXmlCompletionProposalComputer extends
 				if (packageTagRegion != null) {
 					String namespace = packageTagRegion.getAttrValue(
 							StrutsXmlConstants.NAMESPACE_ATTR, "");
-					proposalsData = proposalDataFromSet(findRedirectActionNames(
-							context.getDocument(),
-							context.getInvocationOffset(), namespace));
+					proposalsData = CompletionProposalHelper
+							.proposalDataFromSet(findRedirectActionNames(
+									context.getDocument(),
+									context.getInvocationOffset(), namespace));
 					sortProposals = true;
 				}
 				break;
@@ -187,7 +189,8 @@ public class StrutsXmlCompletionProposalComputer extends
 							Set<String> packageNames = strutsXmlParser
 									.getPackageNamespaces(context.getDocument());
 							packageNames.remove("");
-							proposalsData = proposalDataFromSet(packageNames);
+							proposalsData = CompletionProposalHelper
+									.proposalDataFromSet(packageNames);
 						} else {
 							boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
 									.equals(nameAttrValue) && !redirectAction)
@@ -212,9 +215,10 @@ public class StrutsXmlCompletionProposalComputer extends
 		}
 
 		if (proposals == null && proposalsData != null) {
-			proposals = createAttrCompletionProposals(proposalsData,
-					elementValuePrefix, proposalRegion, multiValueSeparator,
-					elementValue, sortProposals ? proposalComparator : null);
+			proposals = CompletionProposalHelper.createAttrCompletionProposals(
+					proposalsData, elementValuePrefix, proposalRegion,
+					multiValueSeparator, elementValue,
+					sortProposals ? proposalComparator : null);
 		}
 		if (proposals == null) {
 			proposals = new ArrayList<ICompletionProposal>();
@@ -252,7 +256,7 @@ public class StrutsXmlCompletionProposalComputer extends
 			packageNames.remove(currentPackageName);
 		}
 
-		return proposalDataFromSet(packageNames);
+		return CompletionProposalHelper.proposalDataFromSet(packageNames);
 	}
 
 	private String[][] computeResultBodyProposals(final IDocument document,
@@ -273,7 +277,7 @@ public class StrutsXmlCompletionProposalComputer extends
 			set = findRedirectActionNames(document, offset, namespaceParamValue);
 		}
 
-		return proposalDataFromSet(set);
+		return CompletionProposalHelper.proposalDataFromSet(set);
 	}
 
 	private Set<String> findTilesDefinitionNames(final IDocument currentDocument) {
@@ -308,7 +312,7 @@ public class StrutsXmlCompletionProposalComputer extends
 			}
 		}
 
-		return proposalDataFromSet(paths);
+		return CompletionProposalHelper.proposalDataFromSet(paths);
 	}
 
 	private Set<String> findRedirectActionNames(final IDocument document,
@@ -354,7 +358,7 @@ public class StrutsXmlCompletionProposalComputer extends
 					new ArrayList<PackageData>(), results);
 		}
 
-		return proposalDataFromList(results);
+		return CompletionProposalHelper.proposalDataFromList(results);
 	}
 
 	private void collectInterceptorsNames(List<PackageData> packages,
