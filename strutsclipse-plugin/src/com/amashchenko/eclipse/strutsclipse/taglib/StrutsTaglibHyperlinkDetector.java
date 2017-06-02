@@ -86,6 +86,15 @@ public class StrutsTaglibHyperlinkDetector extends
 			}
 		}
 
+		// getText
+		final TagRegion getTextRegion = strutsTaglibParser.getGetTextRegion(
+				document, region.getOffset());
+		if (getTextRegion != null && getTextRegion.getCurrentElement() != null) {
+			linksList.addAll(createPropertiesKeysLinks(document, getTextRegion
+					.getCurrentElement().getValue(), getTextRegion
+					.getCurrentElement().getValueRegion()));
+		}
+
 		return linksListToArray(linksList);
 	}
 
