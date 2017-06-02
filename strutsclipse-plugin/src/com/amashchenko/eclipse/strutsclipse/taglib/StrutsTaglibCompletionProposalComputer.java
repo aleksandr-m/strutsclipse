@@ -63,6 +63,7 @@ public class StrutsTaglibCompletionProposalComputer implements
 	public List<ICompletionProposal> computeCompletionProposals(
 			CompletionProposalInvocationContext context,
 			IProgressMonitor monitor) {
+
 		final TagRegion tagRegion = strutsTaglibParser.getTagRegion(
 				context.getDocument(), context.getInvocationOffset());
 
@@ -106,23 +107,20 @@ public class StrutsTaglibCompletionProposalComputer implements
 								.findJspHtmlFilesPaths(context.getDocument()));
 				break;
 			case TEXT_NAME:
-				Set<String> bundleNames = new HashSet<String>();
-
-				List<ResourceDocument> strutsResources = ProjectUtil
-						.findStrutsResources(context.getDocument());
-				for (ResourceDocument rd : strutsResources) {
-					Map<String, String> constants = strutsXmlParser
-							.getConstantsMap(rd.getDocument());
-					bundleNames.addAll(ParseUtil.delimitedStringToSet(constants
-							.get(StrutsXmlConstants.CONSTANT_CUSTOM_RESOURCES),
-							StrutsXmlConstants.MULTI_VALUE_SEPARATOR));
-				}
-
-				proposalsData = CompletionProposalHelper
-						.proposalDataFromMap(findPropertiesKeys(
-								context.getDocument(), bundleNames));
+				proposalsData = computeTextNameProposals(context.getDocument());
 				break;
 			}
+		}
+
+		// getText
+		final TagRegion getTextRegion = strutsTaglibParser.getGetTextRegion(
+				context.getDocument(), context.getInvocationOffset());
+		if (getTextRegion != null && getTextRegion.getCurrentElement() != null) {
+			proposalRegion = getTextRegion.getCurrentElement().getValueRegion();
+			elementValuePrefix = getTextRegion.getCurrentElementValuePrefix();
+			elementValue = getTextRegion.getCurrentElement().getValue();
+
+			proposalsData = computeTextNameProposals(context.getDocument());
 		}
 
 		if (proposals == null && proposalsData != null) {
@@ -184,6 +182,22 @@ public class StrutsTaglibCompletionProposalComputer implements
 		}
 
 		return namespaces;
+	}
+
+	private String[][] computeTextNameProposals(final IDocument document) {
+		Set<String> bundleNames = new HashSet<String>();
+		List<ResourceDocument> strutsResources = ProjectUtil
+				.findStrutsResources(document);
+		for (ResourceDocument rd : strutsResources) {
+			Map<String, String> constants = strutsXmlParser.getConstantsMap(rd
+					.getDocument());
+			bundleNames
+					.addAll(ParseUtil.delimitedStringToSet(constants
+							.get(StrutsXmlConstants.CONSTANT_CUSTOM_RESOURCES),
+							StrutsXmlConstants.MULTI_VALUE_SEPARATOR));
+		}
+		return CompletionProposalHelper.proposalDataFromMap(findPropertiesKeys(
+				document, bundleNames));
 	}
 
 	private Map<String, String> findPropertiesKeys(IDocument currentDocument,
