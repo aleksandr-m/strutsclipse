@@ -15,9 +15,18 @@
  */
 package com.amashchenko.eclipse.strutsclipse.taglib;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IDocumentPartitioner;
+import org.eclipse.jface.text.ITypedRegion;
+import org.eclipse.jface.text.rules.FastPartitioner;
+import org.eclipse.jface.text.rules.IPredicateRule;
+import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
+import org.eclipse.jface.text.rules.SingleLineRule;
+import org.eclipse.jface.text.rules.Token;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.AbstractXmlParser;
+import com.amashchenko.eclipse.strutsclipse.xmlparser.ElementRegion;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsTaglibParser extends AbstractXmlParser {
@@ -32,7 +41,70 @@ public class StrutsTaglibParser extends AbstractXmlParser {
 			StrutsTaglibConstants.NAMESPACE_ATTR,
 			StrutsTaglibConstants.NAME_ATTR, StrutsTaglibConstants.VALUE_ATTR };
 
+	private static final String GET_TEXT_TOKEN = "getText_token";
+	private static final String GET_TEXT_ESCAPED_TOKEN = "getText_escaped_token";
+
 	public TagRegion getTagRegion(final IDocument document, final int offset) {
 		return getTagRegion(document, offset, TAGS, ATTRS);
+	}
+
+	public TagRegion getGetTextRegion(final IDocument document, final int offset) {
+		IDocumentPartitioner partitioner = null;
+		try {
+			TagRegion result = null;
+
+			IPredicateRule[] rules = new IPredicateRule[3];
+			rules[0] = new SingleLineRule("getText('", "')", new Token(
+					GET_TEXT_TOKEN));
+			rules[1] = new SingleLineRule("getText(\"", "\")", new Token(
+					GET_TEXT_TOKEN));
+			rules[2] = new SingleLineRule("getText(\\\"", "\\\")", new Token(
+					GET_TEXT_ESCAPED_TOKEN));
+
+			RuleBasedPartitionScanner scanner = new RuleBasedPartitionScanner();
+			scanner.setPredicateRules(rules);
+			partitioner = new FastPartitioner(scanner, new String[] {
+					GET_TEXT_TOKEN, GET_TEXT_ESCAPED_TOKEN });
+			partitioner.connect(document);
+
+			ITypedRegion tagRegion = partitioner.getPartition(offset);
+
+			final int textOffset;
+			final int textLength;
+			if (GET_TEXT_ESCAPED_TOKEN.equals(tagRegion.getType())) {
+				textOffset = tagRegion.getOffset() + 10;
+				textLength = tagRegion.getLength() - 13;
+			} else {
+				textOffset = tagRegion.getOffset() + 9;
+				textLength = tagRegion.getLength() - 11;
+			}
+
+			// getText and inside quotes
+			if ((GET_TEXT_TOKEN.equals(tagRegion.getType()) || GET_TEXT_ESCAPED_TOKEN
+					.equals(tagRegion.getType()))
+					&& offset >= textOffset
+					&& offset < tagRegion.getOffset() + tagRegion.getLength()
+							- 1) {
+				final int prefixOffset = offset - textOffset;
+				try {
+					String value = document.get(textOffset, textLength);
+					String prefix = "";
+					if (!value.isEmpty() && prefixOffset > 0
+							&& prefixOffset < value.length()) {
+						prefix = value.substring(0, prefixOffset);
+					}
+
+					result = new TagRegion("", new ElementRegion("", value,
+							textOffset), prefix, null);
+				} catch (BadLocationException e) {
+					e.printStackTrace();
+				}
+			}
+			return result;
+		} finally {
+			if (partitioner != null) {
+				partitioner.disconnect();
+			}
+		}
 	}
 }
