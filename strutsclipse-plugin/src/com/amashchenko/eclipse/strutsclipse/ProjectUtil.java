@@ -67,6 +67,7 @@ public class ProjectUtil {
 	private static final String STRUTS_XML_CONTENT_TYPE_ID = "com.amashchenko.eclipse.strutsclipse.strutsxml";
 	private static final String TILES_XML_CONTENT_TYPE_ID = "com.amashchenko.eclipse.strutsclipse.tilesxml";
 	private static final String WEB_INF_CLASSES_FOLDER_PATH = "/WEB-INF/classes";
+	private static final String TEMPLATE_FOLDER_NAME = "template";
 
 	public static IPath getCurrentDocumentPath(IDocument document) {
 		IPath path = null;
@@ -305,6 +306,51 @@ public class ProjectUtil {
 			}
 		}
 		return paths;
+	}
+
+	public static Set<String> findTemplateFoldersNames(
+			final IDocument currentDocument) {
+		final Set<String> result = new HashSet<String>();
+
+		try {
+			final IProject project = getCurrentProject(currentDocument);
+			if (project != null && project.exists()) {
+				IVirtualComponent rootComponent = ComponentCore
+						.createComponent(project);
+
+				if (rootComponent != null) {
+					IVirtualFolder folder = rootComponent.getRootFolder();
+					folder = folder.getFolder(WEB_INF_CLASSES_FOLDER_PATH + "/"
+							+ TEMPLATE_FOLDER_NAME);
+
+					if (folder != null && folder.exists()) {
+						IResource[] resources = folder.getUnderlyingResources();
+						if (resources != null) {
+							for (final IResource res : resources) {
+								res.accept(new IResourceVisitor() {
+									@Override
+									public boolean visit(IResource resource)
+											throws CoreException {
+										if (resource.isAccessible()
+												&& resource.getType() == IResource.FOLDER
+												&& !TEMPLATE_FOLDER_NAME
+														.equals(resource
+																.getName())) {
+											result.add(resource.getName());
+										}
+										return true;
+									}
+								}, IResource.DEPTH_ONE, IResource.NONE);
+							}
+						}
+					}
+				}
+			}
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+
+		return result;
 	}
 
 	private static List<JarEntryStorage> findJarEntries(

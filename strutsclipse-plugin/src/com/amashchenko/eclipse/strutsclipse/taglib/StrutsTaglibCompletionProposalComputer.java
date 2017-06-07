@@ -79,8 +79,14 @@ public class StrutsTaglibCompletionProposalComputer implements
 			elementValuePrefix = tagRegion.getCurrentElementValuePrefix();
 			elementValue = tagRegion.getCurrentElement().getValue();
 
-			final String key = tagRegion.getName()
-					+ tagRegion.getCurrentElement().getName();
+			final String key;
+			if (StrutsTaglibConstants.THEME_ATTR.equals(tagRegion
+					.getCurrentElement().getName())) {
+				key = StrutsTaglibConstants.THEME_ATTR;
+			} else {
+				key = tagRegion.getName()
+						+ tagRegion.getCurrentElement().getName();
+			}
 
 			switch (key) {
 			case URL_ACTION:
@@ -108,6 +114,22 @@ public class StrutsTaglibCompletionProposalComputer implements
 				break;
 			case TEXT_NAME:
 				proposalsData = computeTextNameProposals(context.getDocument());
+				break;
+			case StrutsTaglibConstants.THEME_ATTR:
+				List<String[]> list = new ArrayList<String[]>();
+				Set<String> templates = ProjectUtil
+						.findTemplateFoldersNames(context.getDocument());
+				for (String t : templates) {
+					list.add(new String[] { t, null });
+				}
+				for (String[] t : StrutsTaglibConstants.DEFAULT_THEMES) {
+					if (!templates.contains(t[0])) {
+						list.add(t);
+					}
+				}
+
+				proposalsData = CompletionProposalHelper
+						.proposalDataFromList(list);
 				break;
 			}
 		}

@@ -35,11 +35,12 @@ public class StrutsTaglibParser extends AbstractXmlParser {
 			StrutsTaglibConstants.FORM_TAG, StrutsTaglibConstants.ACTION_TAG,
 			StrutsTaglibConstants.LINK_TAG, StrutsTaglibConstants.SUBMIT_TAG,
 			StrutsTaglibConstants.INCLUDE_TAG, StrutsTaglibConstants.TEXT_TAG,
-			CLOSE_TAG_TOKEN };
+			StrutsTaglibConstants.TAGLIB_PREFIX, CLOSE_TAG_TOKEN };
 
 	private static final String[] ATTRS = { StrutsTaglibConstants.ACTION_ATTR,
 			StrutsTaglibConstants.NAMESPACE_ATTR,
-			StrutsTaglibConstants.NAME_ATTR, StrutsTaglibConstants.VALUE_ATTR };
+			StrutsTaglibConstants.NAME_ATTR, StrutsTaglibConstants.VALUE_ATTR,
+			StrutsTaglibConstants.THEME_ATTR };
 
 	private static final String GET_TEXT_TOKEN = "getText_token";
 	private static final String GET_TEXT_ESCAPED_TOKEN = "getText_escaped_token";
