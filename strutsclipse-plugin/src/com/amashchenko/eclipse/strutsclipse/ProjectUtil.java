@@ -154,6 +154,26 @@ public class ProjectUtil {
 		return result;
 	}
 
+	public static IFile findFile(final IDocument document, String name,
+			final boolean inClassesFolder) {
+		IFile result = null;
+		IProject project = getCurrentProject(document);
+		if (project != null && project.exists()) {
+			IVirtualComponent rootComponent = ComponentCore
+					.createComponent(project);
+			if (rootComponent != null) {
+				IVirtualFolder folder = rootComponent.getRootFolder();
+				if (folder != null && folder.exists()) {
+					if (inClassesFolder) {
+						name = WEB_INF_CLASSES_FOLDER_PATH + "/" + name;
+					}
+					result = folder.getFile(name).getUnderlyingFile();
+				}
+			}
+		}
+		return result;
+	}
+
 	/**
 	 * Searches project for files with given file extension and content type. If
 	 * given content type isn't known by the platform, search will check if

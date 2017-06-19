@@ -18,10 +18,10 @@ package com.amashchenko.eclipse.strutsclipse.strutsxml;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJavaElement;
@@ -34,9 +34,6 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
 import org.eclipse.ui.PartInitException;
-import org.eclipse.wst.common.componentcore.ComponentCore;
-import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
-import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
@@ -50,6 +47,8 @@ import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		implements StrutsXmlLocations {
+	private static final String DEFAULT_VALIDATE_METHOD_LINK_TEXT = "ActionSupport#validate";
+
 	private final StrutsXmlParser strutsXmlParser;
 	private final TilesXmlParser tilesXmlParser;
 
@@ -127,6 +126,15 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 							namespace));
 				}
 				break;
+			case ACTION_NAME:
+				final String classAttrVal = tagRegion.getAttrValue(
+						StrutsXmlConstants.CLASS_ATTR, null);
+				final String methodAttrValue = tagRegion.getAttrValue(
+						StrutsXmlConstants.METHOD_ATTR, null);
+
+				linksList.addAll(createValidationLinks(document, elementRegion,
+						classAttrVal, methodAttrValue));
+				break;
 			case ACTION_METHOD:
 				final String classAttrValue = tagRegion.getAttrValue(
 						StrutsXmlConstants.CLASS_ATTR, null);
@@ -185,22 +193,9 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		if (typeAttrValue == null
 				|| StrutsXmlConstants.DISPATCHER_RESULT.equals(typeAttrValue)
 				|| StrutsXmlConstants.FREEMARKER_RESULT.equals(typeAttrValue)) {
-			IProject project = ProjectUtil.getCurrentProject(document);
-			if (project != null && project.exists()) {
-				IVirtualComponent rootComponent = ComponentCore
-						.createComponent(project);
-				if (rootComponent != null) {
-					IVirtualFolder rootFolder = rootComponent.getRootFolder();
-					if (rootFolder != null && rootFolder.exists()) {
-						IPath path = rootFolder.getProjectRelativePath()
-								.append(elementValue);
-
-						IFile file = project.getFile(path);
-						if (file.exists()) {
-							links.add(new FileHyperlink(elementRegion, file));
-						}
-					}
-				}
+			IFile file = ProjectUtil.findFile(document, elementValue, false);
+			if (file != null && file.exists()) {
+				links.add(new FileHyperlink(elementRegion, file));
 			}
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
 				.equals(typeAttrValue)) {
@@ -395,6 +390,54 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		}
 	}
 
+	private List<IHyperlink> createValidationLinks(final IDocument document,
+			final IRegion elementRegion, final String classAttrValue,
+			final String methodAttrValue) {
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
+
+		if (classAttrValue != null) {
+			final String actionClass = classAttrValue.replace('.', '/');
+
+			String name = actionClass
+					+ StrutsXmlConstants.VALIDATION_XML_FILE_SUFFIX;
+			IFile xmlClassValidationFile = ProjectUtil.findFile(document, name,
+					true);
+			if (xmlClassValidationFile != null
+					&& xmlClassValidationFile.exists()) {
+				links.add(new FileHyperlink(elementRegion,
+						xmlClassValidationFile));
+			}
+
+			IHyperlink validateMethodLink = createClassMethodLink(document,
+					StrutsXmlConstants.VALIDATION_METHOD_NAME, elementRegion,
+					classAttrValue);
+			if (validateMethodLink != null
+					&& !DEFAULT_VALIDATE_METHOD_LINK_TEXT
+							.equals(validateMethodLink.getHyperlinkText())) {
+				links.add(validateMethodLink);
+			}
+
+			if (methodAttrValue != null) {
+				String name2 = actionClass + "-" + methodAttrValue
+						+ StrutsXmlConstants.VALIDATION_XML_FILE_SUFFIX;
+				IFile xmlValidationFile = ProjectUtil.findFile(document, name2,
+						true);
+				if (xmlValidationFile != null && xmlValidationFile.exists()) {
+					links.add(new FileHyperlink(elementRegion,
+							xmlValidationFile));
+				}
+
+				final String methodName = StrutsXmlConstants.VALIDATION_METHOD_NAME
+						+ methodAttrValue.substring(0, 1).toUpperCase(
+								Locale.ROOT) + methodAttrValue.substring(1);
+				links.add(createClassMethodLink(document, methodName,
+						elementRegion, classAttrValue));
+			}
+		}
+
+		return links;
+	}
+
 	private static class JavaElementHyperlink implements IHyperlink {
 		private final IJavaElement fElement;
 		private final IRegion fRegion;
@@ -411,7 +454,16 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 
 		@Override
 		public String getHyperlinkText() {
-			return null;
+			String name = null;
+			if (fElement != null) {
+				if (fElement.getParent() == null) {
+					name = fElement.getElementName();
+				} else {
+					name = fElement.getParent().getElementName() + "#"
+							+ fElement.getElementName();
+				}
+			}
+			return name;
 		}
 
 		@Override

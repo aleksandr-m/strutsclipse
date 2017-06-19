@@ -54,6 +54,9 @@ public class StrutsXmlConstants {
 
 	public static final String MULTI_VALUE_SEPARATOR = ",";
 
+	public static final String VALIDATION_XML_FILE_SUFFIX = "-validation.xml";
+	public static final String VALIDATION_METHOD_NAME = "validate";
+
 	public static final String CONSTANT_CUSTOM_RESOURCES = "struts.custom.i18n.resources";
 
 	public static final String[][] DEFAULT_METHODS = { { "execute", null },
