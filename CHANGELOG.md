@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0
+
+* Added content assist for `getText` in JSP
+* Added hyperlinks for `getText` in JSP
+* Added content assist for `theme` attribute in JSP
+* Added ability to jump to the action's validation XML files or `validate` methods in actions classes
+* Improved path matching in completion proposals
+
 ## 1.3.0
 
 * Added content assist for JSP `text` tag `name` attribute
