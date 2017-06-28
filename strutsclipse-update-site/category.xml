@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <feature url="features/com.amashchenko.eclipse.strutsclipse.feature_1.4.0.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.feature" version="1.4.0.qualifier">
+   <feature url="features/com.amashchenko.eclipse.strutsclipse.feature_1.4.1.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.feature" version="1.4.1.qualifier">
       <category name="com.amashchenko.eclipse.strutsclipse"/>
    </feature>
-   <feature url="features/com.amashchenko.eclipse.strutsclipse.tiles.feature_1.4.0.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.tiles.feature" version="1.4.0.qualifier">
+   <feature url="features/com.amashchenko.eclipse.strutsclipse.tiles.feature_1.4.1.qualifier.jar" id="com.amashchenko.eclipse.strutsclipse.tiles.feature" version="1.4.1.qualifier">
       <category name="com.amashchenko.eclipse.strutsclipse"/>
    </feature>
    <category-def name="com.amashchenko.eclipse.strutsclipse" label="StrutsClipse">
