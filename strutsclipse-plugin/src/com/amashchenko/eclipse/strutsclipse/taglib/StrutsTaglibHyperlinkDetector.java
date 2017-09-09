@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
@@ -34,6 +35,7 @@ import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.PropertiesParser;
 import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
+import com.amashchenko.eclipse.strutsclipse.java.AnnotationParser;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
@@ -43,11 +45,13 @@ public class StrutsTaglibHyperlinkDetector extends
 	private final StrutsTaglibParser strutsTaglibParser;
 	private final StrutsXmlParser strutsXmlParser;
 	private final PropertiesParser propertiesParser;
+	private final AnnotationParser annotationParser;
 
 	public StrutsTaglibHyperlinkDetector() {
 		strutsTaglibParser = new StrutsTaglibParser();
 		strutsXmlParser = new StrutsXmlParser();
 		propertiesParser = new PropertiesParser();
+		annotationParser = new AnnotationParser();
 	}
 
 	@Override
@@ -78,6 +82,9 @@ public class StrutsTaglibHyperlinkDetector extends
 				linksList.addAll(createActionLinks(document, elementValue,
 						elementRegion, tagRegion.getAttrValue(
 								StrutsTaglibConstants.NAMESPACE_ATTR, null)));
+
+				linksList.addAll(createAnnotationActionLinks(document,
+						elementValue, elementRegion));
 				break;
 			case TEXT_NAME:
 				linksList.addAll(createPropertiesKeysLinks(document,
@@ -140,6 +147,20 @@ public class StrutsTaglibHyperlinkDetector extends
 			}
 		}
 
+		return links;
+	}
+
+	private List<IHyperlink> createAnnotationActionLinks(
+			final IDocument document, final String elementValue,
+			final IRegion elementRegion) {
+		List<IHyperlink> links = new ArrayList<IHyperlink>();
+		List<IJavaElement> elements = annotationParser
+				.findAnnotationsActionElements(document, elementValue);
+		for (IJavaElement element : elements) {
+			if (element != null) {
+				links.add(new JavaElementHyperlink(elementRegion, element));
+			}
+		}
 		return links;
 	}
 

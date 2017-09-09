@@ -41,6 +41,7 @@ import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
 import com.amashchenko.eclipse.strutsclipse.ParseUtil;
 import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
 import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
+import com.amashchenko.eclipse.strutsclipse.java.AnnotationParser;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlParser;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
@@ -49,12 +50,14 @@ public class StrutsTaglibCompletionProposalComputer implements
 		ICompletionProposalComputer, StrutsTaglibLocations {
 	private final StrutsTaglibParser strutsTaglibParser;
 	private final StrutsXmlParser strutsXmlParser;
+	private final AnnotationParser annotationParser;
 
 	private final CompletionProposalComparator proposalComparator;
 
 	public StrutsTaglibCompletionProposalComputer() {
 		strutsTaglibParser = new StrutsTaglibParser();
 		strutsXmlParser = new StrutsXmlParser();
+		annotationParser = new AnnotationParser();
 		proposalComparator = new CompletionProposalComparator();
 		proposalComparator.setOrderAlphabetically(true);
 	}
@@ -94,10 +97,18 @@ public class StrutsTaglibCompletionProposalComputer implements
 			case LINK_ACTION:
 			case ACTION_NAME:
 			case SUBMIT_ACTION:
+				String namespaceValue = tagRegion.getAttrValue(
+						StrutsTaglibConstants.NAMESPACE_ATTR, null);
+				// in struts xml files
+				Set<String> names = findStrutsActionNames(
+						context.getDocument(), namespaceValue);
+
+				// in annotations
+				names.addAll(annotationParser
+						.findAnnotationsActionNames(context.getDocument()));
+
 				proposalsData = CompletionProposalHelper
-						.proposalDataFromSet(findStrutsActionNames(context
-								.getDocument(), tagRegion.getAttrValue(
-								StrutsTaglibConstants.NAMESPACE_ATTR, null)));
+						.proposalDataFromSet(names);
 				break;
 			case URL_NAMESPACE:
 			case FORM_NAMESPACE:

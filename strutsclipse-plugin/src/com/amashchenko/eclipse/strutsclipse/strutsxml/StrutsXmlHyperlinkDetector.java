@@ -24,16 +24,12 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
-import org.eclipse.ui.PartInitException;
 
 import com.amashchenko.eclipse.strutsclipse.AbstractStrutsHyperlinkDetector;
 import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
@@ -436,48 +432,5 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 		}
 
 		return links;
-	}
-
-	private static class JavaElementHyperlink implements IHyperlink {
-		private final IJavaElement fElement;
-		private final IRegion fRegion;
-
-		private JavaElementHyperlink(IRegion region, IJavaElement element) {
-			fRegion = region;
-			fElement = element;
-		}
-
-		@Override
-		public IRegion getHyperlinkRegion() {
-			return fRegion;
-		}
-
-		@Override
-		public String getHyperlinkText() {
-			String name = null;
-			if (fElement != null) {
-				if (fElement.getParent() == null) {
-					name = fElement.getElementName();
-				} else {
-					name = fElement.getParent().getElementName() + "#"
-							+ fElement.getElementName();
-				}
-			}
-			return name;
-		}
-
-		@Override
-		public String getTypeLabel() {
-			return null;
-		}
-
-		@Override
-		public void open() {
-			try {
-				JavaUI.openInEditor(fElement);
-			} catch (PartInitException e) {
-			} catch (JavaModelException e) {
-			}
-		}
 	}
 }

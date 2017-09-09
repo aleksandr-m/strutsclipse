@@ -20,6 +20,9 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IStorage;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
@@ -119,6 +122,49 @@ public abstract class AbstractStrutsHyperlinkDetector extends
 
 				selectAndReveal(editor, fHighlightRange);
 			} catch (PartInitException e) {
+			}
+		}
+	}
+
+	public static class JavaElementHyperlink implements IHyperlink {
+		private final IJavaElement fElement;
+		private final IRegion fRegion;
+
+		public JavaElementHyperlink(IRegion region, IJavaElement element) {
+			fRegion = region;
+			fElement = element;
+		}
+
+		@Override
+		public IRegion getHyperlinkRegion() {
+			return fRegion;
+		}
+
+		@Override
+		public String getHyperlinkText() {
+			String name = null;
+			if (fElement != null) {
+				if (fElement.getParent() == null) {
+					name = fElement.getElementName();
+				} else {
+					name = fElement.getParent().getElementName() + "#"
+							+ fElement.getElementName();
+				}
+			}
+			return name;
+		}
+
+		@Override
+		public String getTypeLabel() {
+			return null;
+		}
+
+		@Override
+		public void open() {
+			try {
+				JavaUI.openInEditor(fElement);
+			} catch (PartInitException e) {
+			} catch (JavaModelException e) {
 			}
 		}
 	}
