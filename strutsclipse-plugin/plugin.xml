@@ -33,6 +33,19 @@
                 <parameter name="element" value="struts/http://struts.apache.org/dtds/struts-2.5.dtd"/>
             </describer>
         </content-type>
+
+        <content-type
+            id="com.amashchenko.eclipse.strutsclipse.strutsvalidatorsxml"
+            name="Struts Validators XML"
+            base-type="org.eclipse.core.runtime.xml"
+            file-extensions="xml"
+            priority="high">
+            <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
+                <parameter name="element" value="validators/http://struts.apache.org/dtds/xwork-validator-1.0.dtd"/>
+                <parameter name="element" value="validators/http://struts.apache.org/dtds/xwork-validator-1.0.2.dtd"/>
+                <parameter name="element" value="validators/http://struts.apache.org/dtds/xwork-validator-1.0.3.dtd"/>
+            </describer>
+        </content-type>
     </extension>
 
     <extension point="org.eclipse.wst.sse.ui.completionProposal">
@@ -47,6 +60,20 @@
             class="com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlCompletionProposalComputer"
             id="com.amashchenko.eclipse.strutsclipse.strutsxmlproposalComputer">
             <contentType id="com.amashchenko.eclipse.strutsclipse.strutsxml"/>
+        </proposalComputer>
+
+
+        <proposalCategory
+            id="com.amashchenko.eclipse.strutsclipse.strutsvalidatorsxmlcompletionProposal"
+            name="Struts Validators XML Proposals">
+        </proposalCategory>
+
+        <proposalComputer
+            activate="true"
+            categoryId="com.amashchenko.eclipse.strutsclipse.strutsvalidatorsxmlcompletionProposal"
+            class="com.amashchenko.eclipse.strutsclipse.validators.StrutsValidatorsXmlCompletionProposalComputer"
+            id="com.amashchenko.eclipse.strutsclipse.strutsvalidatorsxmlproposalComputer">
+            <contentType id="com.amashchenko.eclipse.strutsclipse.strutsvalidatorsxml"/>
         </proposalComputer>
 
 
