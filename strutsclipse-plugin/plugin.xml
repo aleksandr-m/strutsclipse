@@ -46,6 +46,17 @@
                 <parameter name="element" value="validators/http://struts.apache.org/dtds/xwork-validator-1.0.3.dtd"/>
             </describer>
         </content-type>
+        <content-type
+            id="com.amashchenko.eclipse.strutsclipse.strutsvalidatorsconfigxml"
+            name="Struts Validators Config XML"
+            base-type="org.eclipse.core.runtime.xml"
+            file-extensions="xml"
+            priority="high">
+            <describer class="org.eclipse.core.runtime.content.XMLRootElementContentDescriber2">
+                <parameter name="element" value="validators/http://struts.apache.org/dtds/xwork-validator-config-1.0.dtd"/>
+                <parameter name="element" value="validators/http://struts.apache.org/dtds/xwork-validator-definition-1.0.dtd"/>
+            </describer>
+        </content-type>
     </extension>
 
     <extension point="org.eclipse.wst.sse.ui.completionProposal">

@@ -17,8 +17,10 @@ package com.amashchenko.eclipse.strutsclipse.validators;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.ui.text.java.CompletionProposalComparator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContextInformation;
@@ -26,14 +28,21 @@ import org.eclipse.wst.sse.ui.contentassist.CompletionProposalInvocationContext;
 import org.eclipse.wst.sse.ui.contentassist.ICompletionProposalComputer;
 
 import com.amashchenko.eclipse.strutsclipse.CompletionProposalHelper;
+import com.amashchenko.eclipse.strutsclipse.JarEntryStorage;
+import com.amashchenko.eclipse.strutsclipse.ProjectUtil;
+import com.amashchenko.eclipse.strutsclipse.ResourceDocument;
 import com.amashchenko.eclipse.strutsclipse.xmlparser.TagRegion;
 
 public class StrutsValidatorsXmlCompletionProposalComputer implements
 		ICompletionProposalComputer, StrutsValidatorsXmlLocations {
 	private final StrutsValidatorsXmlParser strutsValidatorsXmlParser;
 
+	private final CompletionProposalComparator proposalComparator;
+
 	public StrutsValidatorsXmlCompletionProposalComputer() {
 		strutsValidatorsXmlParser = new StrutsValidatorsXmlParser();
+		proposalComparator = new CompletionProposalComparator();
+		proposalComparator.setOrderAlphabetically(true);
 	}
 
 	@Override
@@ -61,7 +70,42 @@ public class StrutsValidatorsXmlCompletionProposalComputer implements
 			switch (key) {
 			case FIELD_VALIDATOR_TYPE:
 			case VALIDATOR_TYPE:
-				proposalsData = StrutsValidatorsXmlConstants.DEFAULT_VALIDATORS;
+				List<String[]> list = new ArrayList<String[]>();
+
+				// default validators
+				JarEntryStorage defaultValidors = ProjectUtil
+						.findJarEntryStrutsDefaultValidatorResource(context
+								.getDocument());
+				if (defaultValidors != null) {
+					Set<String> names = strutsValidatorsXmlParser
+							.getValidatorsNames(defaultValidors.toDocument());
+					for (String s : names) {
+						list.add(new String[] {
+								s,
+								StrutsValidatorsXmlConstants.DEFAULT_VALIDATORS
+										.get(s) });
+					}
+				}
+
+				// local validators
+				List<ResourceDocument> resources = ProjectUtil
+						.findStrutsValidatorsResources(context.getDocument());
+				for (ResourceDocument rd : resources) {
+					Set<String> names = strutsValidatorsXmlParser
+							.getValidatorsNames(rd.getDocument());
+					for (String s : names) {
+						list.add(new String[] { s, null });
+					}
+				}
+
+				if (list.isEmpty()) {
+					proposalsData = CompletionProposalHelper
+							.proposalDataFromMap(StrutsValidatorsXmlConstants.DEFAULT_VALIDATORS);
+				} else {
+					proposalsData = CompletionProposalHelper
+							.proposalDataFromList(list);
+				}
+
 				break;
 			}
 		}
@@ -69,7 +113,7 @@ public class StrutsValidatorsXmlCompletionProposalComputer implements
 		if (proposals == null && proposalsData != null) {
 			proposals = CompletionProposalHelper.createAttrCompletionProposals(
 					proposalsData, elementValuePrefix, proposalRegion,
-					multiValueSeparator, elementValue, null);
+					multiValueSeparator, elementValue, proposalComparator);
 		}
 		if (proposals == null) {
 			proposals = new ArrayList<ICompletionProposal>();

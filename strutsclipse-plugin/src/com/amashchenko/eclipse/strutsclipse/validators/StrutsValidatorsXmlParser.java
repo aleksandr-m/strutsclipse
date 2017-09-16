@@ -15,6 +15,8 @@
  */
 package com.amashchenko.eclipse.strutsclipse.validators;
 
+import java.util.Set;
+
 import org.eclipse.jface.text.IDocument;
 
 import com.amashchenko.eclipse.strutsclipse.xmlparser.AbstractXmlParser;
@@ -29,5 +31,11 @@ public class StrutsValidatorsXmlParser extends AbstractXmlParser {
 
 	public TagRegion getTagRegion(final IDocument document, final int offset) {
 		return getTagRegion(document, offset, TAGS, ATTRS);
+	}
+
+	public Set<String> getValidatorsNames(final IDocument document) {
+		return getAttrsValues(document,
+				StrutsValidatorsXmlConstants.VALIDATOR_TAG,
+				StrutsValidatorsXmlConstants.NAME_ATTR);
 	}
 }

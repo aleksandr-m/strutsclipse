@@ -38,6 +38,7 @@ import org.eclipse.core.runtime.content.IContentTypeManager;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -50,6 +51,7 @@ import org.eclipse.wst.common.componentcore.resources.IVirtualComponent;
 import org.eclipse.wst.common.componentcore.resources.IVirtualFolder;
 
 import com.amashchenko.eclipse.strutsclipse.strutsxml.StrutsXmlConstants;
+import com.amashchenko.eclipse.strutsclipse.validators.StrutsValidatorsXmlConstants;
 
 public class ProjectUtil {
 	private ProjectUtil() {
@@ -66,6 +68,7 @@ public class ProjectUtil {
 			.asList(PROPERTIES_FILE_EXTENSION);
 	private static final String STRUTS_XML_CONTENT_TYPE_ID = "com.amashchenko.eclipse.strutsclipse.strutsxml";
 	private static final String TILES_XML_CONTENT_TYPE_ID = "com.amashchenko.eclipse.strutsclipse.tilesxml";
+	private static final String STRUTS_VALIDATORS_CONF_XML_CONTENT_TYPE_ID = "com.amashchenko.eclipse.strutsclipse.strutsvalidatorsconfigxml";
 	private static final String WEB_INF_CLASSES_FOLDER_PATH = "/WEB-INF/classes";
 	private static final String TEMPLATE_FOLDER_NAME = "template";
 
@@ -300,6 +303,14 @@ public class ProjectUtil {
 						bundleNames), true);
 	}
 
+	public static List<ResourceDocument> findStrutsValidatorsResources(
+			final IDocument currentDocument) {
+		return findResources(currentDocument, WEB_INF_CLASSES_FOLDER_PATH,
+				XML_FILE_EXTENSIONS, new ContentTypeFileNamePredicate(
+						StrutsValidatorsXmlConstants.VALIDATORS_FILE_NAME,
+						STRUTS_VALIDATORS_CONF_XML_CONTENT_TYPE_ID), true);
+	}
+
 	public static Set<String> findJspHtmlFilesPaths(
 			final IDocument currentDocument) {
 		List<ResourceDocument> resources = findResources(currentDocument, null,
@@ -414,6 +425,42 @@ public class ProjectUtil {
 		}
 	}
 
+	private static JarEntryStorage findJarEntry(final IDocument document,
+			final String packageName, final String name) {
+		IJavaProject javaProject = getCurrentJavaProject(document);
+
+		if (javaProject != null && javaProject.exists()) {
+			try {
+				IPackageFragmentRoot[] roots = javaProject
+						.getPackageFragmentRoots();
+				for (IPackageFragmentRoot root : roots) {
+					if (root.isArchive()) {
+						IPackageFragment p = root
+								.getPackageFragment(packageName);
+						if (p != null && p.exists()) {
+							Object[] o = p.getNonJavaResources();
+							for (Object nonJavaRes : o) {
+								if (nonJavaRes instanceof IJarEntryResource) {
+									IJarEntryResource jarEntry = (IJarEntryResource) nonJavaRes;
+									if (jarEntry.getName() != null
+											&& jarEntry.getName().equals(name)) {
+										return new JarEntryStorage(
+												root.getPath().append(
+														jarEntry.getFullPath()),
+												jarEntry);
+									}
+								}
+							}
+						}
+					}
+				}
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
 	public static List<JarEntryStorage> findJarEntryStrutsResources(
 			final IDocument document) {
 		return findJarEntries(document, new StrutsResourceJarPredicate());
@@ -423,6 +470,13 @@ public class ProjectUtil {
 			final IDocument document, final Set<String> bundleNames) {
 		return findJarEntries(document, new ResourceBundlesJarPredicate(
 				bundleNames));
+	}
+
+	public static JarEntryStorage findJarEntryStrutsDefaultValidatorResource(
+			final IDocument document) {
+		return findJarEntry(document,
+				StrutsValidatorsXmlConstants.DEFAULT_VALIDATOR_PATH,
+				StrutsValidatorsXmlConstants.DEFAULT_VALIDATOR_FILE_NAME);
 	}
 
 	private interface ResourcePredicate {
