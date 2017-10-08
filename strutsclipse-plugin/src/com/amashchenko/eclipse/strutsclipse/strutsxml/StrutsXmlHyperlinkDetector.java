@@ -129,7 +129,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 						StrutsXmlConstants.METHOD_ATTR, null);
 
 				linksList.addAll(createValidationLinks(document, elementRegion,
-						classAttrVal, methodAttrValue));
+						classAttrVal, elementValue, methodAttrValue));
 				break;
 			case ACTION_METHOD:
 				final String classAttrValue = tagRegion.getAttrValue(
@@ -388,7 +388,7 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 
 	private List<IHyperlink> createValidationLinks(final IDocument document,
 			final IRegion elementRegion, final String classAttrValue,
-			final String methodAttrValue) {
+			final String nameAttrValue, final String methodAttrValue) {
 		List<IHyperlink> links = new ArrayList<IHyperlink>();
 
 		if (classAttrValue != null) {
@@ -413,8 +413,8 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 				links.add(validateMethodLink);
 			}
 
-			if (methodAttrValue != null) {
-				String name2 = actionClass + "-" + methodAttrValue
+			if (nameAttrValue != null) {
+				String name2 = actionClass + "-" + nameAttrValue
 						+ StrutsXmlConstants.VALIDATION_XML_FILE_SUFFIX;
 				IFile xmlValidationFile = ProjectUtil.findFile(document, name2,
 						true);
@@ -422,7 +422,9 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 					links.add(new FileHyperlink(elementRegion,
 							xmlValidationFile));
 				}
+			}
 
+			if (methodAttrValue != null) {
 				final String methodName = StrutsXmlConstants.VALIDATION_METHOD_NAME
 						+ methodAttrValue.substring(0, 1).toUpperCase(
 								Locale.ROOT) + methodAttrValue.substring(1);
