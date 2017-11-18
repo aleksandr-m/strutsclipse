@@ -154,11 +154,13 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 						// name is type value, here
 						final String typeAttrValue = resultTagRegion.getName();
 						boolean correctTypeAndName = (StrutsXmlConstants.LOCATION_PARAM
-								.equals(nameAttrValue) && (typeAttrValue == null || !StrutsXmlConstants.REDIRECT_ACTION_RESULT
-								.equals(typeAttrValue)))
+								.equals(nameAttrValue) && (typeAttrValue == null || (!StrutsXmlConstants.REDIRECT_ACTION_RESULT
+								.equals(typeAttrValue) && !StrutsXmlConstants.CHAIN_RESULT
+								.equals(typeAttrValue))))
 								|| (typeAttrValue != null
-										&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
-												.equals(typeAttrValue) && StrutsXmlConstants.ACTION_NAME_PARAM
+										&& (StrutsXmlConstants.REDIRECT_ACTION_RESULT
+												.equals(typeAttrValue) || StrutsXmlConstants.CHAIN_RESULT
+												.equals(typeAttrValue)) && StrutsXmlConstants.ACTION_NAME_PARAM
 											.equals(nameAttrValue));
 						if (correctTypeAndName) {
 							final String namespaceParamValue = resultTagRegion
@@ -194,7 +196,8 @@ public class StrutsXmlHyperlinkDetector extends AbstractStrutsHyperlinkDetector
 				links.add(new FileHyperlink(elementRegion, file));
 			}
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
-				.equals(typeAttrValue)) {
+				.equals(typeAttrValue)
+				|| StrutsXmlConstants.CHAIN_RESULT.equals(typeAttrValue)) {
 			Set<String> namespaces = new HashSet<String>();
 
 			// if there is a namespaceParamValue then used it, else get

@@ -179,8 +179,9 @@ public class StrutsXmlCompletionProposalComputer implements
 						final String typeAttrValue = resultTagRegion.getName();
 
 						boolean redirectAction = typeAttrValue != null
-								&& StrutsXmlConstants.REDIRECT_ACTION_RESULT
-										.equals(typeAttrValue);
+								&& (StrutsXmlConstants.REDIRECT_ACTION_RESULT
+										.equals(typeAttrValue) || StrutsXmlConstants.CHAIN_RESULT
+										.equals(typeAttrValue));
 
 						// param name="namespace"
 						if (redirectAction
@@ -273,7 +274,8 @@ public class StrutsXmlCompletionProposalComputer implements
 		} else if (StrutsXmlConstants.FREEMARKER_RESULT.equals(typeAttrValue)) {
 			set = ProjectUtil.findFreeMarkerFilesPaths(document);
 		} else if (StrutsXmlConstants.REDIRECT_ACTION_RESULT
-				.equals(typeAttrValue)) {
+				.equals(typeAttrValue)
+				|| StrutsXmlConstants.CHAIN_RESULT.equals(typeAttrValue)) {
 			set = findRedirectActionNames(document, offset, namespaceParamValue);
 		}
 

@@ -44,6 +44,7 @@ public class StrutsXmlConstants {
 	public static final String REDIRECT_ACTION_RESULT = "redirectAction";
 	public static final String TILES_RESULT = "tiles";
 	public static final String FREEMARKER_RESULT = "freemarker";
+	public static final String CHAIN_RESULT = "chain";
 
 	public static final String LOCATION_PARAM = "location";
 	public static final String ACTION_NAME_PARAM = "actionName";
@@ -105,7 +106,7 @@ public class StrutsXmlConstants {
 			{ "xslt",
 					"XSLTResult uses XSLT to transform an action object to XML." },
 			{
-					"chain",
+					CHAIN_RESULT,
 					"This result invokes an entire other action, complete with it's own interceptor stack and result. Don't Try This at Home! As a rule, Action Chaining is not recommended. First explore other options, such as the Redirect After Post technique." },
 			{
 					"postback",
