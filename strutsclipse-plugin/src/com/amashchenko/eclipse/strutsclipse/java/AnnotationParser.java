@@ -46,7 +46,7 @@ public class AnnotationParser {
 			final IDocument currentDocument) {
 		Set<String> names = new HashSet<String>();
 		try {
-			List<IAnnotation> annotations = parse(currentDocument);
+			List<IAnnotation> annotations = parseActionAnnotation(currentDocument);
 			for (IAnnotation annotation : annotations) {
 				String name = fetchAnnotationStringValue(annotation);
 				if (name != null) {
@@ -63,7 +63,7 @@ public class AnnotationParser {
 			final IDocument currentDocument, final String actionValue) {
 		List<IJavaElement> elements = new ArrayList<IJavaElement>();
 		try {
-			List<IAnnotation> annotations = parse(currentDocument);
+			List<IAnnotation> annotations = parseActionAnnotation(currentDocument);
 			for (IAnnotation annotation : annotations) {
 				if (sameAnnotationStringValue(annotation, actionValue)) {
 					elements.add(annotation);
@@ -75,48 +75,56 @@ public class AnnotationParser {
 		return elements;
 	}
 
-	private List<IAnnotation> parse(final IDocument currentDocument)
-			throws JavaModelException {
+	private List<IAnnotation> parseActionAnnotation(
+			final IDocument currentDocument) throws JavaModelException {
 		List<IAnnotation> result = new ArrayList<IAnnotation>();
 
 		IJavaProject javaProject = ProjectUtil
 				.getCurrentJavaProject(currentDocument);
 		if (javaProject != null && javaProject.exists()) {
-			IPackageFragment[] fragments = javaProject.getPackageFragments();
-			for (IPackageFragment fragment : fragments) {
-				if (fragment.getKind() == IPackageFragmentRoot.K_SOURCE) {
-					ICompilationUnit[] units = fragment.getCompilationUnits();
-					for (ICompilationUnit unit : units) {
-						IType[] types = unit.getTypes();
-						for (IType type : types) {
-							boolean actionsImportExist = false;
-							boolean actionImportExist = false;
-							String[][] resolvedType = type
-									.resolveType(ACTIONS_ANNOTATION);
-							if (resolvedType != null) {
-								// if correct Actions annotation
-								actionsImportExist = ACTIONS_ANNOTATION_FQN
-										.equals(resolvedType[0][0] + "."
-												+ resolvedType[0][1]);
-							}
-							resolvedType = type.resolveType(ACTION_ANNOTATION);
-							if (resolvedType != null) {
-								// if correct Action annotation
-								actionImportExist = ACTION_ANNOTATION_FQN
-										.equals(resolvedType[0][0] + "."
-												+ resolvedType[0][1]);
-							}
+			// check if annotation is in the classpath
+			IType actionAnnotaionType = javaProject
+					.findType(ACTION_ANNOTATION_FQN);
+			if (actionAnnotaionType != null && actionAnnotaionType.exists()) {
+				IPackageFragment[] fragments = javaProject
+						.getPackageFragments();
+				for (IPackageFragment fragment : fragments) {
+					if (fragment.getKind() == IPackageFragmentRoot.K_SOURCE) {
+						ICompilationUnit[] units = fragment
+								.getCompilationUnits();
+						for (ICompilationUnit unit : units) {
+							IType[] types = unit.getTypes();
+							for (IType type : types) {
+								boolean actionsImportExist = false;
+								boolean actionImportExist = false;
+								String[][] resolvedType = type
+										.resolveType(ACTIONS_ANNOTATION);
+								if (resolvedType != null) {
+									// if correct Actions annotation
+									actionsImportExist = ACTIONS_ANNOTATION_FQN
+											.equals(resolvedType[0][0] + "."
+													+ resolvedType[0][1]);
+								}
+								resolvedType = type
+										.resolveType(ACTION_ANNOTATION);
+								if (resolvedType != null) {
+									// if correct Action annotation
+									actionImportExist = ACTION_ANNOTATION_FQN
+											.equals(resolvedType[0][0] + "."
+													+ resolvedType[0][1]);
+								}
 
-							// class annotation
-							result.addAll(fetchActionAnnotationValue(type,
-									actionsImportExist, actionImportExist));
+								// class annotation
+								result.addAll(fetchActionAnnotationValue(type,
+										actionsImportExist, actionImportExist));
 
-							// methods annotation
-							IMethod[] methods = type.getMethods();
-							for (IMethod method : methods) {
-								result.addAll(fetchActionAnnotationValue(
-										method, actionsImportExist,
-										actionImportExist));
+								// methods annotation
+								IMethod[] methods = type.getMethods();
+								for (IMethod method : methods) {
+									result.addAll(fetchActionAnnotationValue(
+											method, actionsImportExist,
+											actionImportExist));
+								}
 							}
 						}
 					}
