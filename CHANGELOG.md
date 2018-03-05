@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.5.0
+
+* Added `chain` result content assist and hyperlinks
+* Added support for validators XML files (content assist for `type` attribute in `field-validator` and `validator` tags)
+* Added support for convention plugin action annotations (convention action annotations content assist and hyperlinks in taglib)
+* Fixed hyperlinks to the action's validation XML files
+
 ## 1.4.0
 
 * Added content assist for `getText` in JSP
